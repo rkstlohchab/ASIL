@@ -1,0 +1,51 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+*.egg
+dist/
+build/
+
+# --- uv / venvs ---
+.venv/
+.python-version
+
+# --- Secrets / env ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# --- Editors ---
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# --- Node / Next.js (apps/web) ---
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# --- Logs / data dumps ---
+*.log
+logs/
+data/
+tmp/
+.cache/
+
+# --- ASIL artifacts ---
+.asil_cache/
+scip-indexes/
+.repos/
