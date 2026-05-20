@@ -79,7 +79,9 @@ def _load_tight(s: Settings) -> Profile:
         )
         fast = reasoning
     else:
-        reasoning = MockLLMProvider(model="tight (no keys — set DEEPSEEK_API_KEY or OPENAI_API_KEY)")
+        reasoning = MockLLMProvider(
+            model="tight (no keys — set DEEPSEEK_API_KEY or OPENAI_API_KEY)"
+        )
         fast = reasoning
 
     embedding: EmbeddingProvider

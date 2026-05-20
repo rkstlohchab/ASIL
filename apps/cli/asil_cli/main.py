@@ -15,12 +15,11 @@ from typing import Annotated
 
 import httpx
 import typer
-from rich.console import Console
-from rich.table import Table
-
 from asil_core import configure_logging, get_settings
 from asil_core.llm import ModelRouter
 from asil_core.llm.profiles import CHAT_TIERS
+from rich.console import Console
+from rich.table import Table
 
 app = typer.Typer(
     add_completion=False,
@@ -44,7 +43,7 @@ def status() -> None:
             async with httpx.AsyncClient(timeout=2.0) as client:
                 r = await client.get(url)
             return ("ok", f"HTTP {r.status_code}")
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             return ("down", type(e).__name__)
 
     async def _run() -> list[tuple[str, str, str, str]]:
@@ -56,7 +55,10 @@ def status() -> None:
             ("grafana", "http://localhost:3000/api/health"),
         ]
         results = await asyncio.gather(*[_probe(u) for _, u in targets])
-        return [(name, url, st, detail) for (name, url), (st, detail) in zip(targets, results)]
+        return [
+            (name, url, st, detail)
+            for (name, url), (st, detail) in zip(targets, results, strict=True)
+        ]
 
     rows = asyncio.run(_run())
     table = Table(title="ASIL service status")
@@ -73,7 +75,9 @@ def status() -> None:
 
 @llm_app.command("ping")
 def llm_ping(
-    tier: Annotated[str, typer.Option(help="Tier to test (reasoning|classify|summarize|verify)")] = "reasoning",
+    tier: Annotated[
+        str, typer.Option(help="Tier to test (reasoning|classify|summarize|verify)")
+    ] = "reasoning",
     prompt: Annotated[str, typer.Option(help="Prompt to send")] = "Say hi in 5 words.",
     max_tokens: Annotated[int, typer.Option()] = 64,
 ) -> None:

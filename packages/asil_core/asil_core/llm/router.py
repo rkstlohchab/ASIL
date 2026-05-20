@@ -12,7 +12,7 @@ Responsibilities:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from asil_core.config import LLMProfileName, get_settings
 from asil_core.llm.ledger import CostLedger, CostRecord, InMemoryCostLedger
@@ -43,14 +43,10 @@ class ModelRouter:
         cls,
         ledger: CostLedger | None = None,
         profile_name: LLMProfileName | None = None,
-    ) -> "ModelRouter":
+    ) -> ModelRouter:
         settings = get_settings()
         primary = load_profile(profile_name, settings=settings)
-        fallback = (
-            load_profile("tight", settings=settings)
-            if primary.name != "tight"
-            else None
-        )
+        fallback = load_profile("tight", settings=settings) if primary.name != "tight" else None
         return cls(
             profile=primary,
             ledger=ledger,
@@ -120,7 +116,7 @@ class ModelRouter:
 
         await self._ledger.record(
             CostRecord(
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 provider=resp.provider,
                 model=resp.model,
                 tier=tier,
@@ -152,7 +148,7 @@ class ModelRouter:
 
         await self._ledger.record(
             CostRecord(
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 provider=embedder.name,
                 model=embedder.model,
                 tier="embed",

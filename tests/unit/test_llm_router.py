@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import pytest
+from datetime import UTC
 
+import pytest
 from asil_core.llm import (
     InMemoryCostLedger,
     MockEmbeddingProvider,
@@ -67,13 +68,13 @@ async def test_router_downgrades_to_fallback_when_budget_exceeded() -> None:
 
     ledger = InMemoryCostLedger()
     # pre-load ledger so spend_today_usd exceeds the budget
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from asil_core.llm import CostRecord
 
     await ledger.record(
         CostRecord(
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             provider="seed",
             model="seed",
             tier="reasoning",

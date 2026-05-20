@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 
 @dataclass(slots=True)
 class Confidence:
-    score: float  # 0.0–1.0 overall
+    score: float  # 0.0-1.0 overall
     evidence_count: int  # how many independent supports
     retrieval_strength: float = 0.0  # avg similarity of supporting chunks
     causal_confidence: float = 0.0  # strength of any causal edges used
@@ -21,13 +21,9 @@ class Confidence:
         if not 0.0 <= self.score <= 1.0:
             raise ValueError(f"score must be in [0,1], got {self.score}")
         if not 0.0 <= self.retrieval_strength <= 1.0:
-            raise ValueError(
-                f"retrieval_strength must be in [0,1], got {self.retrieval_strength}"
-            )
+            raise ValueError(f"retrieval_strength must be in [0,1], got {self.retrieval_strength}")
         if not 0.0 <= self.causal_confidence <= 1.0:
-            raise ValueError(
-                f"causal_confidence must be in [0,1], got {self.causal_confidence}"
-            )
+            raise ValueError(f"causal_confidence must be in [0,1], got {self.causal_confidence}")
         if self.evidence_count < 0:
             raise ValueError(f"evidence_count must be >= 0, got {self.evidence_count}")
 

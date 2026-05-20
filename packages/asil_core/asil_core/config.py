@@ -44,9 +44,7 @@ class Settings(BaseSettings):
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str | None = None
 
-    postgres_dsn: str = (
-        "postgresql+asyncpg://asil:asil_dev_password@localhost:5432/asil"
-    )
+    postgres_dsn: str = "postgresql+asyncpg://asil:asil_dev_password@localhost:5432/asil"
     redis_url: str = "redis://localhost:6379/0"
 
     # ---- Observability ----

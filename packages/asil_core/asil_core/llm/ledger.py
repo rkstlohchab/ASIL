@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from typing import Protocol
 
 
@@ -38,11 +38,11 @@ class InMemoryCostLedger:
         self._records: list[CostRecord] = []
 
     async def record(self, entry: CostRecord) -> None:
-        self._by_day[entry.timestamp.astimezone(timezone.utc).date()] += entry.cost_usd
+        self._by_day[entry.timestamp.astimezone(UTC).date()] += entry.cost_usd
         self._records.append(entry)
 
     async def spend_today_usd(self) -> float:
-        today = datetime.now(timezone.utc).date()
+        today = datetime.now(UTC).date()
         return self._by_day[today]
 
     def all_records(self) -> list[CostRecord]:

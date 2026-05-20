@@ -14,11 +14,10 @@ from contextlib import asynccontextmanager
 from typing import Any, Literal
 
 import httpx
-from fastapi import FastAPI
-from pydantic import BaseModel
-
 from asil_core import configure_logging, get_logger, get_settings
 from asil_core.llm import ModelRouter
+from fastapi import FastAPI
+from pydantic import BaseModel
 
 log = get_logger(__name__)
 
@@ -100,7 +99,7 @@ async def _check_http(url: str, *, name: str, timeout: float = 2.0) -> ServiceHe
         if r.status_code < 500:
             return ServiceHealth(name=name, status="ok", detail=f"HTTP {r.status_code}")
         return ServiceHealth(name=name, status="down", detail=f"HTTP {r.status_code}")
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         return ServiceHealth(name=name, status="down", detail=type(e).__name__)
 
 

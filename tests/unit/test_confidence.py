@@ -1,5 +1,4 @@
 import pytest
-
 from asil_core.confidence import Confidence
 
 
