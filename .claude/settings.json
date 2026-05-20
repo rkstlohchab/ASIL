@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(make:*)",
+      "Bash(uv:*)",
+      "Bash(uvx:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(mypy:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker inspect:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote:*)",
+      "Bash(git config --get:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(curl http://localhost:*)",
+      "Bash(curl https://localhost:*)",
+      "Bash(ls:*)",
+      "Bash(find . -*)",
+      "Bash(grep -*)",
+      "Bash(rg:*)",
+      "Bash(jq:*)",
+      "Bash(cat docs/*)",
+      "Bash(cat PLAN.md)",
+      "Bash(cat CLAUDE.md)",
+      "Bash(cat README.md)",
+      "Bash(mkdir -p apps/*)",
+      "Bash(mkdir -p packages/*)",
+      "Bash(mkdir -p research/*)",
+      "Bash(mkdir -p docs/*)",
+      "Bash(mkdir -p tests/*)",
+      "Bash(mkdir -p scripts/*)",
+      "Bash(mkdir -p infrastructure/*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(docker compose down -v:*)",
+      "Bash(make reset-dbs:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'ASIL — Engineering Intelligence Infrastructure. Currently Phase 0 (Foundation). See PLAN.md for roadmap, CLAUDE.md for conventions, docs/phase-0-testing.md for validation steps.'"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -49,3 +49,7 @@ tmp/
 .asil_cache/
 scip-indexes/
 .repos/
+
+# --- Claude Code ---
+.claude/settings.local.json
+.claude/state/

@@ -54,4 +54,11 @@ tests/        # unit, integration, e2e
 
 ## Status
 
-Phase 0 — Foundation. See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full 12-month roadmap.
+Phase 0 — Foundation. See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full 12-month roadmap and [docs/phase-0-testing.md](docs/phase-0-testing.md) for the local validation checklist.
+
+## For contributors (and Claude Code)
+
+- [CLAUDE.md](CLAUDE.md) — project conventions, hard rules, devloop cheat-sheet.
+- [.claude/skills/](.claude/skills/) — workflow rules Claude Code auto-applies (`asil-llm-call`, `asil-confidence`, `asil-positioning`, `asil-phase-gate`).
+- [.claude/commands/](.claude/commands/) — slash commands: `/phase` (status), `/check-tier` (scan for hardcoded model names).
+- Personal Claude Code overrides go in `.claude/settings.local.json` (gitignored).
