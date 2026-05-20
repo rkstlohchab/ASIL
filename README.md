@@ -54,7 +54,9 @@ tests/        # unit, integration, e2e
 
 ## Status
 
-Phase 0 — Foundation. See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full 12-month roadmap and [docs/phase-0-testing.md](docs/phase-0-testing.md) for the local validation checklist.
+**Phase 0 — Foundation ✅ DONE 2026-05-20.** Next: Phase 1 — Repo Intelligence (Tree-sitter parser, SCIP indexer, Neo4j graph builder, hybrid retriever).
+
+See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full 12-month roadmap and [docs/phase-0-testing.md](docs/phase-0-testing.md) for the Phase 0 validation checklist.
 
 ## For contributors (and Claude Code)
 
