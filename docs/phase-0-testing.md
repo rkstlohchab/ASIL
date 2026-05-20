@@ -48,14 +48,22 @@ Plus a `.env` file at the repo root.
 - *`Python 3.12+ required`* → `uv python install 3.12`.
 - *Network errors during sync* → check your connection / proxy.
 
-After this step, edit `.env`:
+After this step, edit `.env`. The `tight` profile auto-picks the best provider you've configured:
 
 ```bash
-# minimum to get a real LLM round-trip on the tight profile:
+# Option A — DeepSeek (cheapest):
 DEEPSEEK_API_KEY=sk-...
+
+# Option B — OpenAI / ChatGPT key (uses gpt-4o-mini for chat,
+# text-embedding-3-small for embeddings). Pick this if you already
+# have an OpenAI key handy:
+OPENAI_API_KEY=sk-...
+
+# Option C — nothing configured. `asil llm ping` returns "ok" via
+# MockLLMProvider with $0 cost. Useful for verifying the plumbing.
 ```
 
-If you skip the API key, `asil llm ping` still works but uses the `MockLLMProvider` and returns `"ok"` with $0 cost.
+If both DeepSeek and OpenAI keys are set, DeepSeek wins. Tier-routing means swapping providers is a config change — no code edits.
 
 ---
 

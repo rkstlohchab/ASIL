@@ -20,6 +20,7 @@ from asil_core.llm.providers import (
     LocalEmbeddingProvider,
     MockEmbeddingProvider,
     MockLLMProvider,
+    OpenAIEmbeddingProvider,
     OpenAIProvider,
     VoyageEmbeddingProvider,
 )
@@ -40,6 +41,7 @@ __all__ = [
     "MockEmbeddingProvider",
     "MockLLMProvider",
     "ModelRouter",
+    "OpenAIEmbeddingProvider",
     "OpenAIProvider",
     "Profile",
     "Tier",

@@ -285,6 +285,42 @@ class MockLLMProvider:
 # ---------------------------------------------------------------------------
 
 
+class OpenAIEmbeddingProvider:
+    """OpenAI embeddings — fallback for the `tight` profile when only OPENAI_API_KEY is set."""
+
+    name = "openai"
+
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "text-embedding-3-small",
+        dim: int = 1536,
+        price_per_million: float = 0.02,
+        base_url: str = "https://api.openai.com/v1",
+        timeout: float = 30.0,
+    ) -> None:
+        self.api_key = api_key
+        self.model = model
+        self.dim = dim
+        self.price_per_million = price_per_million
+        self.base_url = base_url
+        self.timeout = timeout
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            r = await client.post(
+                f"{self.base_url}/embeddings",
+                headers={
+                    "authorization": f"Bearer {self.api_key}",
+                    "content-type": "application/json",
+                },
+                json={"input": texts, "model": self.model},
+            )
+            r.raise_for_status()
+            data = r.json()
+        return [item["embedding"] for item in data["data"]]
+
+
 class VoyageEmbeddingProvider:
     """Voyage AI embeddings — used in `balanced` / `generous` profiles."""
 

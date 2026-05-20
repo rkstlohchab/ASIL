@@ -21,6 +21,7 @@ from asil_core.llm.providers import (
     LocalEmbeddingProvider,
     MockEmbeddingProvider,
     MockLLMProvider,
+    OpenAIEmbeddingProvider,
     OpenAIProvider,
     VoyageEmbeddingProvider,
 )
@@ -57,8 +58,10 @@ def _require(value: str | None, name: str, profile: str) -> str:
 
 
 def _load_tight(s: Settings) -> Profile:
-    # Tight profile: open-weight DeepSeek for reasoning + cheap Qwen-style fast tier.
-    # If DeepSeek key isn't set, fall through to mocks so dev still works offline.
+    # Tight profile preference order:
+    #   1. DeepSeek V4   — cheapest serious model when available
+    #   2. OpenAI gpt-4o-mini — universal fallback; what most devs already have a key for
+    #   3. Mock          — offline / no keys, lets unit tests + smoke checks still pass
     if s.deepseek_api_key:
         reasoning: LLMProvider = DeepSeekProvider(
             api_key=s.deepseek_api_key,
@@ -66,17 +69,26 @@ def _load_tight(s: Settings) -> Profile:
             input_price_per_million=0.27,
             output_price_per_million=1.10,
         )
-        fast: LLMProvider = DeepSeekProvider(
-            api_key=s.deepseek_api_key,
-            model="deepseek-chat",
-            input_price_per_million=0.27,
-            output_price_per_million=1.10,
+        fast: LLMProvider = reasoning
+    elif s.openai_api_key:
+        reasoning = OpenAIProvider(
+            api_key=s.openai_api_key,
+            model="gpt-4o-mini",
+            input_price_per_million=0.15,
+            output_price_per_million=0.60,
         )
+        fast = reasoning
     else:
-        reasoning = MockLLMProvider(model="deepseek-chat (mocked)")
-        fast = MockLLMProvider(model="deepseek-chat (mocked)")
+        reasoning = MockLLMProvider(model="tight (no keys — set DEEPSEEK_API_KEY or OPENAI_API_KEY)")
+        fast = reasoning
 
-    embedding: EmbeddingProvider = LocalEmbeddingProvider(endpoint=s.asil_embed_endpoint)
+    embedding: EmbeddingProvider
+    if s.openai_api_key and not s.deepseek_api_key:
+        # If the user only has an OpenAI key, give them OpenAI embeddings too so
+        # they don't need to stand up a local BGE endpoint just to smoke-test.
+        embedding = OpenAIEmbeddingProvider(api_key=s.openai_api_key)
+    else:
+        embedding = LocalEmbeddingProvider(endpoint=s.asil_embed_endpoint)
 
     return Profile(
         name="tight",

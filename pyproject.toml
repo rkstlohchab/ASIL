@@ -1,17 +1,5 @@
-[project]
-name = "asil"
-version = "0.0.1"
-description = "Engineering Intelligence Infrastructure — persistent, temporal, causal understanding of software systems."
-readme = "README.md"
-requires-python = ">=3.12"
-license = { text = "Apache-2.0" }
-authors = [{ name = "Raksith Lochab", email = "rkstlohchab@gmail.com" }]
-
-dependencies = []
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+# Root pyproject is a NON-BUILDABLE workspace coordinator (uv "virtual workspace").
+# Buildable packages live under apps/ and packages/. Each has its own pyproject.toml.
 
 [tool.uv.workspace]
 # Members are added as their pyproject.toml lands. Phase 0 ships asil-core, api, cli.
@@ -23,11 +11,8 @@ members = [
     "packages/asil_core",
 ]
 
-[tool.uv.sources]
-asil-core = { workspace = true }
-
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "ruff>=0.6.0",
     "mypy>=1.11.0",
     "pytest>=8.3.0",
