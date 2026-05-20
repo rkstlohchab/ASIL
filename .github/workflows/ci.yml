@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: set up python
+        run: uv python install 3.12
+
+      - name: sync workspace
+        run: uv sync --all-extras
+
+      - name: ruff check
+        run: uv run ruff check .
+
+      - name: ruff format --check
+        run: uv run ruff format --check .
+
+      - name: mypy
+        run: uv run mypy packages apps
+        continue-on-error: true  # Phase 0: strict mode is aspirational; tighten after Phase 1.
+
+      - name: pytest (unit)
+        env:
+          ASIL_LLM_PROFILE: tight
+          ASIL_DAILY_BUDGET_USD: "0"
+        run: uv run pytest tests/unit -v

@@ -14,20 +14,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.workspace]
+# Members are added as their pyproject.toml lands. Phase 0 ships asil-core, api, cli.
+# Future members (per PLAN.md): apps/worker, packages/asil_{ingest,memory,temporal,
+# replay,drift,reasoning,infra,eval}.
 members = [
     "apps/api",
     "apps/cli",
-    "apps/worker",
     "packages/asil_core",
-    "packages/asil_ingest",
-    "packages/asil_memory",
-    "packages/asil_temporal",
-    "packages/asil_replay",
-    "packages/asil_drift",
-    "packages/asil_reasoning",
-    "packages/asil_infra",
-    "packages/asil_eval",
 ]
+
+[tool.uv.sources]
+asil-core = { workspace = true }
 
 [tool.uv]
 dev-dependencies = [
