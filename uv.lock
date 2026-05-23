@@ -160,10 +160,6 @@ source = { editable = "packages/asil_memory" }
 dependencies = [
     { name = "asil-core" },
     { name = "neo4j" },
-]
-
-[package.optional-dependencies]
-qdrant = [
     { name = "qdrant-client" },
 ]
 
@@ -171,9 +167,8 @@ qdrant = [
 requires-dist = [
     { name = "asil-core", editable = "packages/asil_core" },
     { name = "neo4j", specifier = ">=5.24.0" },
-    { name = "qdrant-client", marker = "extra == 'qdrant'", specifier = ">=1.12.0" },
+    { name = "qdrant-client", specifier = ">=1.12.0" },
 ]
-provides-extras = ["qdrant"]
 
 [[package]]
 name = "ast-serialize"

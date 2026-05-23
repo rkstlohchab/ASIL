@@ -10,7 +10,24 @@ Future phases:
 """
 
 from asil_memory.graph_store import GraphStore, GraphStoreError
+from asil_memory.vector_store import (
+    DEFAULT_COLLECTION,
+    SearchHit,
+    VectorPoint,
+    VectorStore,
+    VectorStoreError,
+    point_id_for,
+)
 
 __version__ = "0.0.1"
 
-__all__ = ["GraphStore", "GraphStoreError"]
+__all__ = [
+    "DEFAULT_COLLECTION",
+    "GraphStore",
+    "GraphStoreError",
+    "SearchHit",
+    "VectorPoint",
+    "VectorStore",
+    "VectorStoreError",
+    "point_id_for",
+]

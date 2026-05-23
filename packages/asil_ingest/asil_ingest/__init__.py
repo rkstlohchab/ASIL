@@ -11,6 +11,7 @@ Phase 1 still-to-come (separate modules):
   - repo_cloner   : clone + incremental re-index
 """
 
+from asil_ingest.embedder import Embedder, EmbedStats
 from asil_ingest.graph_builder import GraphBuilder, GraphIngestStats, repo_key_for
 from asil_ingest.models import (
     ParsedCall,
@@ -36,6 +37,8 @@ __version__ = "0.0.1"
 __all__ = [
     "IGNORED_DIRS",
     "LANGUAGE_EXTENSIONS",
+    "EmbedStats",
+    "Embedder",
     "GraphBuilder",
     "GraphIngestStats",
     "ParsedCall",

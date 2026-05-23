@@ -6,10 +6,8 @@ requires-python = ">=3.12"
 dependencies = [
     "asil-core",
     "neo4j>=5.24.0",
+    "qdrant-client>=1.12.0",
 ]
-
-[project.optional-dependencies]
-qdrant = ["qdrant-client>=1.12.0"]
 
 [build-system]
 requires = ["hatchling"]

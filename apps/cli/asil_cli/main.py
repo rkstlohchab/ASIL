@@ -24,6 +24,7 @@ from asil_core import configure_logging, get_settings
 from asil_core.llm import ModelRouter
 from asil_core.llm.profiles import CHAT_TIERS
 from asil_ingest import (
+    Embedder,
     GraphBuilder,
     SourceLanguage,
     TreeSitterParser,
@@ -31,7 +32,7 @@ from asil_ingest import (
     language_of,
     resolve_repo,
 )
-from asil_memory import GraphStore, GraphStoreError
+from asil_memory import GraphStore, GraphStoreError, VectorStore, VectorStoreError
 from rich.console import Console
 from rich.table import Table
 
@@ -42,8 +43,10 @@ app = typer.Typer(
 )
 llm_app = typer.Typer(help="LLM router commands.", no_args_is_help=True)
 graph_app = typer.Typer(help="Neo4j graph commands.", no_args_is_help=True)
+vector_app = typer.Typer(help="Qdrant vector commands.", no_args_is_help=True)
 app.add_typer(llm_app, name="llm")
 app.add_typer(graph_app, name="graph")
+app.add_typer(vector_app, name="vector")
 
 console = Console()
 
@@ -174,10 +177,19 @@ def ingest(
         bool,
         typer.Option("--no-graph", help="Parse only; skip writing to Neo4j."),
     ] = False,
+    embed: Annotated[
+        bool,
+        typer.Option(
+            "--embed",
+            help="Also embed each function/class via the LLM router and upsert into Qdrant. "
+            "Opt-in because embeddings cost API calls; ~$0.001 for a small repo on text-embedding-3-small.",
+        ),
+    ] = False,
 ) -> None:
     """Resolve (or clone) a repo, walk its source files, parse them, write to Neo4j, print stats.
 
     Use --no-graph for a parse-only smoke test.
+    Use --embed to also embed and store vectors in Qdrant (opt-in; costs API calls).
     """
     configure_logging()
     settings = get_settings()
@@ -238,6 +250,34 @@ def ingest(
     else:
         console.print("  graph: [yellow]skipped (--no-graph)[/yellow]")
 
+    # If --embed was passed we need a repo_key even when --no-graph; derive one
+    # from the resolved repo via the same helper the graph builder uses.
+    if repo_key is None and embed:
+        from asil_ingest import repo_key_for
+
+        repo_key = repo_key_for(repo)
+
+    embedder: Embedder | None = None
+    vector_dim: int | None = None
+    if embed:
+        try:
+            vstore = VectorStore()
+            vstore.verify_connectivity()
+        except VectorStoreError as e:
+            console.print(f"[red]qdrant unreachable: {e}[/red]")
+            raise typer.Exit(code=2) from None
+        router = ModelRouter.from_env()
+        embedder = Embedder(router=router, vector_store=vstore, repo_root=repo.path)
+        # Probe the active embedder once so we know what dim to size the
+        # collection at. Cheap (1 throwaway embedding) and lets profile
+        # switches Just Work without manual collection management.
+        vector_dim = asyncio.run(embedder.probe_dim())
+        embedder.ensure_collection(vector_dim)
+        console.print(
+            f"  vectors: [green]collection ready[/green] "
+            f"(dim=[bold]{vector_dim}[/bold], provider={router.active_profile_name})"
+        )
+
     console.print(
         f"[bold]walking[/bold] for languages: {', '.join(lang.value for lang in parsers)}"
     )
@@ -249,6 +289,7 @@ def ingest(
     n_imports = 0
     n_calls = 0
     n_graph_writes = 0
+    n_vector_writes = 0
     error_files: list[tuple[Path, list[str]]] = []
     per_language_count: dict[SourceLanguage, int] = dict.fromkeys(parsers, 0)
 
@@ -285,6 +326,13 @@ def ingest(
             except Exception as e:
                 console.print(f"[yellow]graph write failed for {rel}: {e}[/yellow]")
 
+        if embedder is not None and repo_key is not None:
+            try:
+                written = asyncio.run(embedder.embed_file(repo_key, parsed))
+                n_vector_writes += written
+            except Exception as e:
+                console.print(f"[yellow]embed failed for {rel}: {e}[/yellow]")
+
         if limit is not None and files_parsed >= limit:
             console.print(f"[yellow]--limit {limit} reached, stopping[/yellow]")
             break
@@ -305,6 +353,8 @@ def ingest(
     table.add_row("files with parse errors", str(len(error_files)))
     if not no_graph:
         table.add_row("graph writes", str(n_graph_writes))
+    if embed:
+        table.add_row("vector writes", str(n_vector_writes))
     table.add_row("elapsed (s)", f"{elapsed:.2f}")
     if files_parsed > 0:
         table.add_row("files / sec", f"{files_parsed / elapsed:.1f}")
@@ -432,6 +482,113 @@ def graph_query(
 def _short(v: object) -> str:
     s = repr(v) if not isinstance(v, str) else v
     return s if len(s) <= 80 else s[:77] + "..."
+
+
+@vector_app.command("stats")
+def vector_stats() -> None:
+    """Show point count in the asil_code Qdrant collection (overall + per-repo)."""
+    configure_logging()
+    try:
+        vstore = VectorStore()
+        vstore.verify_connectivity()
+    except VectorStoreError as e:
+        console.print(f"[red]qdrant unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    info = vstore.stats()
+    if not info["exists"]:
+        console.print(
+            "[yellow]collection 'asil_code' doesn't exist yet — "
+            "run `asil ingest <spec> --embed` first.[/yellow]"
+        )
+        return
+
+    overall = Table(title="vector store")
+    overall.add_column("metric")
+    overall.add_column("value", justify="right")
+    overall.add_row("collection", str(info["collection"]))
+    overall.add_row("total points", f"{info['total']:,}")
+    console.print(overall)
+
+    if info["per_repo"]:
+        per = Table(title="per repo")
+        per.add_column("repo_key")
+        per.add_column("points", justify="right")
+        for rk, n in sorted(info["per_repo"].items(), key=lambda x: -x[1]):
+            per.add_row(rk, f"{n:,}")
+        console.print(per)
+
+
+@vector_app.command("search")
+def vector_search(
+    query: Annotated[str, typer.Argument(help="Natural-language query to embed and search.")],
+    repo: Annotated[
+        str | None,
+        typer.Option("--repo", help="Scope to one repo key."),
+    ] = None,
+    kind: Annotated[
+        str | None,
+        typer.Option(help="Filter by kind: 'function' or 'class'."),
+    ] = None,
+    limit: Annotated[int, typer.Option(help="Top-k results to return.")] = 10,
+) -> None:
+    """Embed `query` via the active LLM profile and return the top-k closest code chunks."""
+    configure_logging()
+    try:
+        vstore = VectorStore()
+        vstore.verify_connectivity()
+    except VectorStoreError as e:
+        console.print(f"[red]qdrant unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    async def _run() -> list:
+        router = ModelRouter.from_env()
+        vecs = await router.embed([query])
+        return vstore.search(vecs[0], limit=limit, repo_key=repo, kind=kind)
+
+    hits = asyncio.run(_run())
+    if not hits:
+        console.print("[dim]no matches.[/dim]")
+        return
+
+    table = Table(title=f"top {len(hits)} for: {query!r}", show_lines=False, expand=True)
+    table.add_column("score", justify="right", no_wrap=True)
+    table.add_column("kind", no_wrap=True)
+    table.add_column("qualified_name", overflow="fold")
+    table.add_column("file:line", overflow="fold")
+    for h in hits:
+        p = h.payload
+        loc = f"{p.get('file_path', '?')}:{p.get('start_line', '?')}"
+        table.add_row(
+            f"{h.score:.3f}",
+            p.get("kind", "?"),
+            p.get("qualified_name", "?"),
+            loc,
+        )
+    console.print(table)
+
+
+@vector_app.command("clear")
+def vector_clear(
+    repo: Annotated[str, typer.Argument(help="Repo key to remove from the vector store.")],
+    yes: Annotated[bool, typer.Option("--yes", help="Skip confirmation.")] = False,
+) -> None:
+    """Detach-delete every vector point belonging to a repo. Use before re-embedding."""
+    configure_logging()
+    try:
+        vstore = VectorStore()
+        vstore.verify_connectivity()
+    except VectorStoreError as e:
+        console.print(f"[red]qdrant unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    if not yes:
+        confirm = typer.confirm(f"delete all vectors for repo {repo!r}?", default=False)
+        if not confirm:
+            console.print("aborted")
+            raise typer.Exit(code=1)
+    removed = vstore.clear_repo(repo)
+    console.print(f"[green]removed {removed:,} vectors for {repo!r}[/green]")
 
 
 if __name__ == "__main__":  # pragma: no cover
