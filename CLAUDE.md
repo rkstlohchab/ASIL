@@ -2,6 +2,8 @@
 
 This file orients Claude Code (and human contributors) when working in this repo. Read it before changing anything non-trivial.
 
+If you're a non-Claude agent (Antigravity, Cursor, OpenHands, Aider, Cody), start at [AGENTS.md](AGENTS.md) — it points to the same rules in a tool-agnostic way.
+
 The full plan is in [PLAN.md](PLAN.md). This file extracts only the rules that affect day-to-day work.
 
 ---
