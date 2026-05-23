@@ -24,12 +24,14 @@ from asil_core import configure_logging, get_settings
 from asil_core.llm import ModelRouter
 from asil_core.llm.profiles import CHAT_TIERS
 from asil_ingest import (
+    GraphBuilder,
     SourceLanguage,
     TreeSitterParser,
     iter_source_files,
     language_of,
     resolve_repo,
 )
+from asil_memory import GraphStore, GraphStoreError
 from rich.console import Console
 from rich.table import Table
 
@@ -39,7 +41,9 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 llm_app = typer.Typer(help="LLM router commands.", no_args_is_help=True)
+graph_app = typer.Typer(help="Neo4j graph commands.", no_args_is_help=True)
 app.add_typer(llm_app, name="llm")
+app.add_typer(graph_app, name="graph")
 
 console = Console()
 
@@ -166,10 +170,14 @@ def ingest(
         bool,
         typer.Option(help="Print every file that produced a parse error."),
     ] = False,
+    no_graph: Annotated[
+        bool,
+        typer.Option("--no-graph", help="Parse only; skip writing to Neo4j."),
+    ] = False,
 ) -> None:
-    """Resolve (or clone) a repo, walk its source files, parse them, print stats.
+    """Resolve (or clone) a repo, walk its source files, parse them, write to Neo4j, print stats.
 
-    Phase 1 step 1 — parse-only. Writes nothing to Neo4j / Qdrant yet.
+    Use --no-graph for a parse-only smoke test.
     """
     configure_logging()
     settings = get_settings()
@@ -211,6 +219,25 @@ def ingest(
         console.print("[red]no parsers available for the requested languages[/red]")
         raise typer.Exit(code=2)
 
+    builder: GraphBuilder | None = None
+    repo_key: str | None = None
+    if not no_graph:
+        try:
+            store = GraphStore()
+            store.verify_connectivity()
+        except GraphStoreError as e:
+            console.print(f"[red]neo4j unreachable: {e}[/red]")
+            console.print(
+                "[yellow]hint: `make up` to start docker services, "
+                "or pass --no-graph to skip graph writes.[/yellow]"
+            )
+            raise typer.Exit(code=2) from None
+        builder = GraphBuilder(store)
+        repo_key = builder.upsert_repo(repo)
+        console.print(f"  graph: [green]repo upserted[/green] (key=[bold]{repo_key}[/bold])")
+    else:
+        console.print("  graph: [yellow]skipped (--no-graph)[/yellow]")
+
     console.print(
         f"[bold]walking[/bold] for languages: {', '.join(lang.value for lang in parsers)}"
     )
@@ -221,6 +248,7 @@ def ingest(
     n_classes = 0
     n_imports = 0
     n_calls = 0
+    n_graph_writes = 0
     error_files: list[tuple[Path, list[str]]] = []
     per_language_count: dict[SourceLanguage, int] = dict.fromkeys(parsers, 0)
 
@@ -250,6 +278,13 @@ def ingest(
         if parsed.parse_errors:
             error_files.append((path, parsed.parse_errors))
 
+        if builder is not None and repo_key is not None:
+            try:
+                builder.write_file(repo_key, parsed)
+                n_graph_writes += 1
+            except Exception as e:
+                console.print(f"[yellow]graph write failed for {rel}: {e}[/yellow]")
+
         if limit is not None and files_parsed >= limit:
             console.print(f"[yellow]--limit {limit} reached, stopping[/yellow]")
             break
@@ -268,6 +303,8 @@ def ingest(
     table.add_row("imports", str(n_imports))
     table.add_row("call sites", str(n_calls))
     table.add_row("files with parse errors", str(len(error_files)))
+    if not no_graph:
+        table.add_row("graph writes", str(n_graph_writes))
     table.add_row("elapsed (s)", f"{elapsed:.2f}")
     if files_parsed > 0:
         table.add_row("files / sec", f"{files_parsed / elapsed:.1f}")
@@ -280,6 +317,121 @@ def ingest(
             console.print(f"  [yellow]{rel}[/yellow] — {'; '.join(errs)}")
         if len(error_files) > 50:
             console.print(f"  [dim]... and {len(error_files) - 50} more[/dim]")
+
+
+@graph_app.command("stats")
+def graph_stats(
+    repo: Annotated[
+        str | None,
+        typer.Option(
+            "--repo",
+            help="Scope to a single repo key (e.g. 'tiangolo/fastapi'). Default: all repos.",
+        ),
+    ] = None,
+) -> None:
+    """Show node counts across the graph (overall or per-repo)."""
+    configure_logging()
+    try:
+        store = GraphStore()
+        store.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    repos = store.list_repos()
+    if repos:
+        repo_table = Table(title="indexed repos")
+        repo_table.add_column("key")
+        repo_table.add_column("spec")
+        repo_table.add_column("files", justify="right")
+        repo_table.add_column("local")
+        repo_table.add_column("commit")
+        repo_table.add_column("indexed at")
+        for r in repos:
+            repo_table.add_row(
+                r["key"],
+                r["spec"],
+                str(r["files"]),
+                "yes" if r["is_local"] else "no",
+                (r["commit_sha"] or "")[:12],
+                r["indexed_at"] or "",
+            )
+        console.print(repo_table)
+    else:
+        console.print("[yellow]no repos indexed yet — run `asil ingest <spec>`.[/yellow]")
+        return
+
+    counts = store.stats(repo_key=repo)
+    title = f"node counts — {repo}" if repo else "node counts (all repos)"
+    stats_table = Table(title=title)
+    stats_table.add_column("label")
+    stats_table.add_column("count", justify="right")
+    for label, n in counts.items():
+        stats_table.add_row(label, f"{n:,}")
+    console.print(stats_table)
+
+
+@graph_app.command("clear")
+def graph_clear(
+    repo: Annotated[
+        str,
+        typer.Argument(help="Repo key to remove (e.g. 'tiangolo/fastapi'). Required."),
+    ],
+    yes: Annotated[
+        bool,
+        typer.Option("--yes", help="Skip the confirmation prompt."),
+    ] = False,
+) -> None:
+    """Detach-delete every node belonging to a repo. Use before re-ingesting."""
+    configure_logging()
+    try:
+        store = GraphStore()
+        store.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    if not yes:
+        confirm = typer.confirm(f"delete all nodes for repo {repo!r}?", default=False)
+        if not confirm:
+            console.print("aborted")
+            raise typer.Exit(code=1)
+    removed = store.clear_repo(repo)
+    console.print(f"[green]removed {removed:,} nodes for {repo!r}[/green]")
+
+
+@graph_app.command("query")
+def graph_query(
+    cypher: Annotated[str, typer.Argument(help="Raw Cypher to run. Read-only recommended.")],
+    limit: Annotated[int, typer.Option(help="Max rows to print.")] = 20,
+) -> None:
+    """Run an ad-hoc Cypher query. Debugging only — don't script against this."""
+    configure_logging()
+    try:
+        store = GraphStore()
+        store.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    rows = store.query(cypher)
+    if not rows:
+        console.print("[dim]no rows returned.[/dim]")
+        return
+    columns = list(rows[0].keys())
+    table = Table(title="query result")
+    for col in columns:
+        table.add_column(col)
+    for row in rows[:limit]:
+        table.add_row(*[_short(row.get(col)) for col in columns])
+    if len(rows) > limit:
+        console.print(f"[dim]showing {limit}/{len(rows)} rows[/dim]")
+    console.print(table)
+
+
+def _short(v: object) -> str:
+    s = repr(v) if not isinstance(v, str) else v
+    return s if len(s) <= 80 else s[:77] + "..."
 
 
 if __name__ == "__main__":  # pragma: no cover

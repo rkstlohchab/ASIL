@@ -11,6 +11,7 @@ Phase 1 still-to-come (separate modules):
   - repo_cloner   : clone + incremental re-index
 """
 
+from asil_ingest.graph_builder import GraphBuilder, GraphIngestStats, repo_key_for
 from asil_ingest.models import (
     ParsedCall,
     ParsedClass,
@@ -35,6 +36,8 @@ __version__ = "0.0.1"
 __all__ = [
     "IGNORED_DIRS",
     "LANGUAGE_EXTENSIONS",
+    "GraphBuilder",
+    "GraphIngestStats",
     "ParsedCall",
     "ParsedClass",
     "ParsedFile",
@@ -47,5 +50,6 @@ __all__ = [
     "iter_source_files",
     "language_of",
     "parse_source",
+    "repo_key_for",
     "resolve_repo",
 ]

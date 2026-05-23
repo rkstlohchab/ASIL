@@ -10,6 +10,7 @@ members = [
     "apps/cli",
     "packages/asil_core",
     "packages/asil_ingest",
+    "packages/asil_memory",
 ]
 
 [dependency-groups]
