@@ -83,12 +83,22 @@ class GraphStore:
             # Tighten the default 60s deadline. If Bolt doesn't respond in 10s
             # the issue is structural (wrong port, container half-broken, auth
             # mismatch) and faster failure helps the dev loop.
+            #
             self._driver = GraphDatabase.driver(
                 conn.uri,
                 auth=(conn.user, conn.password),
                 connection_timeout=10.0,
                 connection_acquisition_timeout=15.0,
             )
+            # Silence the driver's "label X doesn't exist" / "property Y
+            # doesn't exist" advisories — they fire on an empty or sparsely-
+            # populated graph and are pure noise on stderr at our schema's
+            # current lifecycle stage. Targeted at the well-known neo4j
+            # logger so we don't lose actual errors.
+            import logging as _logging
+
+            _logging.getLogger("neo4j.notifications").setLevel(_logging.ERROR)
+            _logging.getLogger("neo4j").setLevel(_logging.ERROR)
         except Exception as e:
             raise GraphStoreError(f"failed to construct Neo4j driver: {e}") from e
 
