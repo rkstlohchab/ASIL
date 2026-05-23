@@ -20,18 +20,32 @@ from asil_ingest.models import (
     ParsedSymbol,
     SourceLanguage,
 )
+from asil_ingest.repo_cloner import (
+    IGNORED_DIRS,
+    LANGUAGE_EXTENSIONS,
+    ResolvedRepo,
+    iter_source_files,
+    language_of,
+    resolve_repo,
+)
 from asil_ingest.treesitter_parser import TreeSitterParser, parse_source
 
 __version__ = "0.0.1"
 
 __all__ = [
+    "IGNORED_DIRS",
+    "LANGUAGE_EXTENSIONS",
     "ParsedCall",
     "ParsedClass",
     "ParsedFile",
     "ParsedFunction",
     "ParsedImport",
     "ParsedSymbol",
+    "ResolvedRepo",
     "SourceLanguage",
     "TreeSitterParser",
+    "iter_source_files",
+    "language_of",
     "parse_source",
+    "resolve_repo",
 ]

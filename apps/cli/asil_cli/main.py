@@ -5,12 +5,17 @@ Phase 0 commands:
   asil llm ping [--tier T] — round-trip a small completion through the router
   asil llm profile         — show the active LLM profile + provider mapping
 
-Future phases add: ingest, ask, replay, drift report, events.
+Phase 1 commands (incremental):
+  asil ingest <spec>       — clone/resolve repo, parse with Tree-sitter, emit stats
+
+Future phases add: ask, replay, drift report, events.
 """
 
 from __future__ import annotations
 
 import asyncio
+import time
+from pathlib import Path
 from typing import Annotated
 
 import httpx
@@ -18,6 +23,13 @@ import typer
 from asil_core import configure_logging, get_settings
 from asil_core.llm import ModelRouter
 from asil_core.llm.profiles import CHAT_TIERS
+from asil_ingest import (
+    SourceLanguage,
+    TreeSitterParser,
+    iter_source_files,
+    language_of,
+    resolve_repo,
+)
 from rich.console import Console
 from rich.table import Table
 
@@ -128,6 +140,146 @@ def llm_profile() -> None:
         f"{profile.embedding.model} (dim={profile.embedding.dim})",
     )
     console.print(table)
+
+
+@app.command()
+def ingest(
+    spec: Annotated[
+        str,
+        typer.Argument(
+            help="Repo spec: local path, https URL, or 'org/name' for a GitHub repo.",
+        ),
+    ],
+    languages: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--language",
+            "-l",
+            help="Restrict to specific languages. Repeatable. Default: python.",
+        ),
+    ] = None,
+    limit: Annotated[
+        int | None,
+        typer.Option(help="Cap files parsed (useful for smoke tests on huge repos)."),
+    ] = None,
+    show_errors: Annotated[
+        bool,
+        typer.Option(help="Print every file that produced a parse error."),
+    ] = False,
+) -> None:
+    """Resolve (or clone) a repo, walk its source files, parse them, print stats.
+
+    Phase 1 step 1 — parse-only. Writes nothing to Neo4j / Qdrant yet.
+    """
+    configure_logging()
+    settings = get_settings()
+
+    chosen: list[SourceLanguage] = []
+    if languages:
+        for lang in languages:
+            try:
+                chosen.append(SourceLanguage(lang.lower()))
+            except ValueError:
+                console.print(
+                    f"[red]unknown language: {lang!r}; "
+                    f"choose from {[lng.value for lng in SourceLanguage]}[/red]"
+                )
+                raise typer.Exit(code=2) from None
+    else:
+        chosen = [SourceLanguage.python]
+
+    cache_dir = Path(settings.asil_cache_dir)
+
+    console.print(f"[bold]resolving[/bold] {spec}...")
+    repo = resolve_repo(spec, cache_dir)
+    where = f"[dim]({repo.path})[/dim]"
+    if repo.is_local:
+        console.print(f"  local path {where}")
+    else:
+        console.print(f"  cloned [green]{repo.org}/{repo.name}[/green] {where}")
+        if repo.commit_sha:
+            console.print(f"  HEAD = [dim]{repo.commit_sha[:12]}[/dim]")
+
+    parsers: dict[SourceLanguage, TreeSitterParser] = {}
+    for lang in chosen:
+        try:
+            parsers[lang] = TreeSitterParser(lang)
+        except NotImplementedError as e:
+            console.print(f"[yellow]skipping {lang.value}: {e}[/yellow]")
+
+    if not parsers:
+        console.print("[red]no parsers available for the requested languages[/red]")
+        raise typer.Exit(code=2)
+
+    console.print(
+        f"[bold]walking[/bold] for languages: {', '.join(lang.value for lang in parsers)}"
+    )
+
+    files_parsed = 0
+    total_loc = 0
+    n_functions = 0
+    n_classes = 0
+    n_imports = 0
+    n_calls = 0
+    error_files: list[tuple[Path, list[str]]] = []
+    per_language_count: dict[SourceLanguage, int] = dict.fromkeys(parsers, 0)
+
+    started = time.monotonic()
+
+    for path in iter_source_files(repo.path, list(parsers.keys())):
+        lang = language_of(path)
+        if lang is None or lang not in parsers:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        rel = path.relative_to(repo.path).as_posix()
+        module = (
+            rel.removesuffix(".py").replace("/", ".") if lang is SourceLanguage.python else None
+        )
+        parsed = parsers[lang].parse(text, path=rel, module_name=module)
+        files_parsed += 1
+        per_language_count[lang] += 1
+        total_loc += parsed.loc
+        n_functions += len(parsed.all_functions_including_methods())
+        n_classes += len(parsed.classes)
+        n_imports += len(parsed.imports)
+        n_calls += sum(len(fn.calls) for fn in parsed.all_functions_including_methods())
+        if parsed.parse_errors:
+            error_files.append((path, parsed.parse_errors))
+
+        if limit is not None and files_parsed >= limit:
+            console.print(f"[yellow]--limit {limit} reached, stopping[/yellow]")
+            break
+
+    elapsed = time.monotonic() - started
+
+    table = Table(title=f"ingest stats — {spec}")
+    table.add_column("metric")
+    table.add_column("value", justify="right")
+    table.add_row("files parsed", str(files_parsed))
+    for lang, count in per_language_count.items():
+        table.add_row(f"  {lang.value}", str(count))
+    table.add_row("total LOC", f"{total_loc:,}")
+    table.add_row("functions (incl. methods)", str(n_functions))
+    table.add_row("classes", str(n_classes))
+    table.add_row("imports", str(n_imports))
+    table.add_row("call sites", str(n_calls))
+    table.add_row("files with parse errors", str(len(error_files)))
+    table.add_row("elapsed (s)", f"{elapsed:.2f}")
+    if files_parsed > 0:
+        table.add_row("files / sec", f"{files_parsed / elapsed:.1f}")
+    console.print(table)
+
+    if show_errors and error_files:
+        console.print("\n[bold]files with parse errors:[/bold]")
+        for path, errs in error_files[:50]:
+            rel = path.relative_to(repo.path).as_posix()
+            console.print(f"  [yellow]{rel}[/yellow] — {'; '.join(errs)}")
+        if len(error_files) > 50:
+            console.print(f"  [dim]... and {len(error_files) - 50} more[/dim]")
 
 
 if __name__ == "__main__":  # pragma: no cover

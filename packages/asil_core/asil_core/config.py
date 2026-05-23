@@ -57,6 +57,11 @@ class Settings(BaseSettings):
     asil_log_level: str = "INFO"
     asil_env: Literal["dev", "test", "prod"] = "dev"
 
+    # ---- Ingestion ----
+    # Where cloned repos and per-repo caches live. Defaults to .asil_cache/
+    # inside the current working directory (matching .gitignore).
+    asil_cache_dir: str = ".asil_cache"
+
 
 _settings: Settings | None = None
 
