@@ -20,7 +20,7 @@ from typing import Annotated
 
 import httpx
 import typer
-from asil_core import configure_logging, get_settings
+from asil_core import Confidence, configure_logging, get_settings
 from asil_core.llm import ModelRouter
 from asil_core.llm.profiles import CHAT_TIERS
 from asil_ingest import (
@@ -32,8 +32,17 @@ from asil_ingest import (
     language_of,
     resolve_repo,
 )
-from asil_memory import GraphStore, GraphStoreError, VectorStore, VectorStoreError
+from asil_memory import (
+    GraphStore,
+    GraphStoreError,
+    HybridRetriever,
+    RetrievalResult,
+    VectorStore,
+    VectorStoreError,
+)
 from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
 from rich.table import Table
 
 app = typer.Typer(
@@ -589,6 +598,190 @@ def vector_clear(
             raise typer.Exit(code=1)
     removed = vstore.clear_repo(repo)
     console.print(f"[green]removed {removed:,} vectors for {repo!r}[/green]")
+
+
+@app.command()
+def ask(
+    question: Annotated[
+        str, typer.Argument(help="Natural-language question about the indexed code.")
+    ],
+    repo: Annotated[
+        str | None,
+        typer.Option("--repo", help="Scope retrieval to one repo key."),
+    ] = None,
+    limit: Annotated[int, typer.Option(help="Top-K snippets to feed the reasoner.")] = 8,
+    show_candidates: Annotated[
+        bool,
+        typer.Option("--show-candidates", help="Also print the raw retrieval table."),
+    ] = False,
+) -> None:
+    """Ask ASIL a question about the indexed code.
+
+    Pipeline: hybrid retrieve (vector + graph expand) -> reasoning LLM with the
+    retrieved snippets as context -> structured answer with Confidence + citations.
+    """
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+    try:
+        vstore = VectorStore()
+        vstore.verify_connectivity()
+    except VectorStoreError as e:
+        console.print(f"[red]qdrant unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    router = ModelRouter.from_env()
+    retriever = HybridRetriever(
+        graph_store=gstore,
+        vector_store=vstore,
+        embedder=router,
+        final_limit=limit,
+    )
+
+    async def _run() -> tuple[RetrievalResult, str, float]:
+        result = await retriever.retrieve(question, repo_key=repo)
+        if not result.candidates:
+            return result, "(no candidates retrieved — index may be empty for this repo)", 0.0
+        prompt = _build_ask_prompt(question, result)
+        resp = await router.call(
+            tier="reasoning",
+            messages=[{"role": "user", "content": prompt}],
+            system=_ASK_SYSTEM_PROMPT,
+            max_tokens=900,
+            temperature=0.1,
+        )
+        return result, resp.text, resp.cost_usd
+
+    result, answer_text, cost = asyncio.run(_run())
+
+    if show_candidates and result.candidates:
+        cand_table = Table(title="retrieval candidates", expand=True)
+        cand_table.add_column("score", justify="right", no_wrap=True)
+        cand_table.add_column("src", no_wrap=True)
+        cand_table.add_column("kind", no_wrap=True)
+        cand_table.add_column("qualified_name", overflow="fold")
+        cand_table.add_column("file:line", overflow="fold")
+        for c in result.candidates:
+            cand_table.add_row(
+                f"{c.score:.3f}",
+                "vec" if c.source == "vector" else "graph",
+                c.kind,
+                c.qualified_name,
+                f"{c.file_path}:{c.start_line}",
+            )
+        console.print(cand_table)
+
+    console.print(
+        Panel(
+            Markdown(answer_text),
+            title=f"answer ({router.active_profile_name})",
+            border_style="cyan",
+        )
+    )
+    _print_confidence(result.confidence, cost_usd=cost)
+
+
+_ASK_SYSTEM_PROMPT = (
+    "You are ASIL, the engineering intelligence layer for this codebase. "
+    "Answer the user's question using ONLY the code snippets provided. "
+    "Rules:\n"
+    "  1. Cite every concrete claim with the file:line of the supporting snippet, like (graph_store.py:116). "
+    "Multiple cites are fine.\n"
+    "  2. If the snippets don't actually answer the question, say so plainly — do not invent.\n"
+    "  3. Prefer short, direct prose. Use a fenced ```py``` block only when quoting code is the clearest answer.\n"
+    "  4. Never reference 'the snippets' or 'the context' in your response — speak as if you simply know the code.\n"
+    "  5. If the answer requires details not present, end with one sentence on what additional evidence would resolve it."
+)
+
+
+def _build_ask_prompt(question: str, result: RetrievalResult) -> str:
+    lines = [f"Question: {question}", "", "Code snippets retrieved (most relevant first):"]
+    for i, c in enumerate(result.candidates, 1):
+        header = f"[{i}] {c.qualified_name}  —  {c.file_path}:{c.start_line}"
+        if c.signature:
+            header += f"  signature: {c.signature}"
+        lines.append("")
+        lines.append(header)
+        if c.docstring:
+            lines.append(f"  doc: {c.docstring.strip()[:300]}")
+        if c.text:
+            # Trim long bodies to keep input tokens bounded; the retriever
+            # already chose AST-aligned slices so this rarely cuts mid-thought.
+            snippet = c.text if len(c.text) <= 1200 else c.text[:1200] + "\n  …"
+            lines.append("```")
+            lines.append(snippet)
+            lines.append("```")
+    lines.extend(
+        [
+            "",
+            "Answer the question now. Cite with file:line as specified.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _print_confidence(conf: Confidence, *, cost_usd: float) -> None:
+    badge_color = "green" if conf.score >= 0.6 else ("yellow" if conf.score >= 0.4 else "red")
+    table = Table(title="confidence", show_header=False)
+    table.add_column("k", style="dim")
+    table.add_column("v")
+    table.add_row("score", f"[{badge_color}]{conf.score:.3f}[/{badge_color}]")
+    table.add_row("evidence_count", str(conf.evidence_count))
+    table.add_row("retrieval_strength", f"{conf.retrieval_strength:.3f}")
+    if conf.causal_confidence > 0:
+        table.add_row("causal_confidence", f"{conf.causal_confidence:.3f}")
+    for d in conf.derivation:
+        table.add_row("derivation", d)
+    table.add_row("llm cost ($)", f"{cost_usd:.6f}")
+    console.print(table)
+
+
+@graph_app.command("neighbors")
+def graph_neighbors(
+    qualified_name: Annotated[
+        str,
+        typer.Argument(
+            help="qualified_name of a Function or Class to inspect (e.g. 'asil_memory.graph_store.GraphStore')."
+        ),
+    ],
+    repo: Annotated[str | None, typer.Option("--repo", help="Scope to one repo key.")] = None,
+) -> None:
+    """Show the immediate graph neighborhood of a symbol (debug aid for the retriever)."""
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    cypher = """
+    MATCH (n {qualified_name: $qname})
+    WHERE (n:Function OR n:Class)
+    OPTIONAL MATCH (parent)-[:CONTAINS]->(n)
+    OPTIONAL MATCH (n)-[:CONTAINS]->(child)
+    RETURN labels(n)[0] AS self_label,
+           labels(parent)[0] AS parent_label,
+           parent.qualified_name AS parent_qname,
+           collect(DISTINCT child.qualified_name) AS children
+    """
+    rows = gstore.query(cypher, qname=qualified_name)
+    if not rows:
+        console.print(f"[yellow]no node found with qualified_name={qualified_name!r}[/yellow]")
+        return
+    row = rows[0]
+    console.print(f"[bold]{row['self_label']}[/bold] {qualified_name}")
+    if row.get("parent_qname"):
+        console.print(f"  contained by [bold]{row['parent_label']}[/bold] {row['parent_qname']}")
+    children = [c for c in (row.get("children") or []) if c]
+    if children:
+        console.print(f"  contains {len(children)}:")
+        for c in children:
+            console.print(f"    • {c}")
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -10,6 +10,11 @@ Future phases:
 """
 
 from asil_memory.graph_store import GraphStore, GraphStoreError
+from asil_memory.hybrid_retriever import (
+    HybridRetriever,
+    RetrievalCandidate,
+    RetrievalResult,
+)
 from asil_memory.vector_store import (
     DEFAULT_COLLECTION,
     SearchHit,
@@ -25,6 +30,9 @@ __all__ = [
     "DEFAULT_COLLECTION",
     "GraphStore",
     "GraphStoreError",
+    "HybridRetriever",
+    "RetrievalCandidate",
+    "RetrievalResult",
     "SearchHit",
     "VectorPoint",
     "VectorStore",
