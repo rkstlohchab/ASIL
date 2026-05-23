@@ -13,6 +13,7 @@ members = [
     "asil-api",
     "asil-cli",
     "asil-core",
+    "asil-eval",
     "asil-ingest",
     "asil-memory",
 ]
@@ -63,6 +64,7 @@ version = "0.0.1"
 source = { editable = "apps/api" }
 dependencies = [
     { name = "asil-core" },
+    { name = "asil-memory" },
     { name = "fastapi" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -75,6 +77,7 @@ mcp = [
 [package.metadata]
 requires-dist = [
     { name = "asil-core", editable = "packages/asil_core" },
+    { name = "asil-memory", editable = "packages/asil_memory" },
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "mcp", marker = "extra == 'mcp'", specifier = ">=1.0.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32.0" },
@@ -87,7 +90,9 @@ version = "0.0.1"
 source = { editable = "apps/cli" }
 dependencies = [
     { name = "asil-core" },
+    { name = "asil-eval" },
     { name = "asil-ingest" },
+    { name = "asil-memory" },
     { name = "httpx" },
     { name = "rich" },
     { name = "typer" },
@@ -96,7 +101,9 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "asil-core", editable = "packages/asil_core" },
+    { name = "asil-eval", editable = "packages/asil_eval" },
     { name = "asil-ingest", editable = "packages/asil_ingest" },
+    { name = "asil-memory", editable = "packages/asil_memory" },
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "rich", specifier = ">=13.9.0" },
     { name = "typer", specifier = ">=0.12.0" },
@@ -131,6 +138,27 @@ requires-dist = [
     { name = "structlog", specifier = ">=24.4.0" },
 ]
 provides-extras = ["test"]
+
+[[package]]
+name = "asil-eval"
+version = "0.0.1"
+source = { editable = "packages/asil_eval" }
+dependencies = [
+    { name = "asil-core" },
+    { name = "asil-ingest" },
+    { name = "asil-memory" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "asil-core", editable = "packages/asil_core" },
+    { name = "asil-ingest", editable = "packages/asil_ingest" },
+    { name = "asil-memory", editable = "packages/asil_memory" },
+    { name = "pydantic", specifier = ">=2.9.0" },
+    { name = "pyyaml", specifier = ">=6.0" },
+]
 
 [[package]]
 name = "asil-ingest"

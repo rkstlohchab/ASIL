@@ -142,12 +142,62 @@ async def root() -> dict[str, Any]:
 @app.get("/mcp/info")
 async def mcp_info() -> dict[str, Any]:
     from asil_api.mcp_server import server_info
+    from asil_api.mcp_tools import TOOL_CATALOG
 
-    return server_info()
+    info = server_info()
+    info["tools_available"] = len(TOOL_CATALOG)
+    info["transport"] = "http"  # native stdio MCP shipping in Phase 7
+    return info
 
 
 @app.get("/mcp/tools")
 async def mcp_tools() -> list[dict[str, Any]]:
-    from asil_api.mcp_server import list_tools
+    from asil_api.mcp_tools import tool_catalog
 
-    return list_tools()
+    return tool_catalog()
+
+
+class _ToolCallRequest(BaseModel):
+    arguments: dict[str, Any] = {}
+
+
+@app.post("/mcp/call/{tool_name}")
+async def mcp_call_tool(tool_name: str, req: _ToolCallRequest) -> dict[str, Any]:
+    """Dispatch one tool invocation. Stateless — each call opens fresh
+    backing-store handles. Fine at Phase 1 scale; Phase 2 introduces an
+    app.state-scoped pool if latency matters."""
+    from asil_core.llm import ModelRouter
+    from asil_memory import GraphStore, GraphStoreError, VectorStore, VectorStoreError
+
+    from asil_api.mcp_tools import call_tool
+
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        return {"error": f"neo4j unreachable: {e}"}
+
+    vstore: VectorStore | None = None
+    try:
+        vstore = VectorStore()
+        vstore.verify_connectivity()
+    except VectorStoreError:
+        # Some tools don't need the vector store; let the dispatcher decide.
+        vstore = None
+
+    router = app.state.router if hasattr(app.state, "router") else ModelRouter.from_env()
+    try:
+        result = await call_tool(
+            tool_name,
+            req.arguments,
+            graph_store=gstore,
+            vector_store=vstore,
+            router=router,
+        )
+        return {"tool": tool_name, "result": result}
+    except ValueError as e:
+        return {"tool": tool_name, "error": str(e)}
+    finally:
+        gstore.close()
+        if vstore is not None:
+            vstore.close()

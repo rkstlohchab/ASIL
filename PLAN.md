@@ -363,8 +363,8 @@ Each phase ends with a **demoable artifact** and a written design doc in `resear
 | Phase | Solo duration | Cumulative | Status |
 |---|---|---|---|
 | 0 — Foundation | 2 weeks | M1 | ✅ DONE 2026-05-20 |
-| 1 — Repo Intelligence (structural) | 6 weeks | M2 | ⬜ next |
-| 2 — Memory + Confidence Scoring | 4 weeks | M3 | ⬜ |
+| 1 — Repo Intelligence (structural) | 6 weeks | M2 | ✅ DONE 2026-05-23 (Python; JS/TS/Go + diff-aware re-index deferred to Phase 1.x polish) |
+| 2 — Memory + Confidence Scoring | 4 weeks | M3 | ⬜ next |
 | 3 — Infra Bridge (event ingestion) | 6 weeks | M5 | ⬜ |
 | 4 — **Temporal Causality Engine** | 8 weeks | M7 | ⬜ |
 | 5 — **Execution Replay + Hero Demo** | 8 weeks | M9 | ⬜ |
@@ -400,25 +400,38 @@ Phases 4 and 5 are the moat. Everything before them is necessary plumbing; every
 - mypy is on `continue-on-error: true` in CI — tightens in Phase 1.
 - No design doc in `research/` yet (Phase 0 demo is itself simple enough that PLAN.md + the testing guide cover it).
 
-### Phase 1 — Repo Intelligence / Structural Graph (Weeks 3–8)
+### Phase 1 — Repo Intelligence / Structural Graph (Weeks 3–8) ✅ DONE 2026-05-23
 
 **Goal:** point ASIL at a real GitHub repo, get answerable questions about its static architecture.
 
-- **Repo cloner**: clone by URL, incremental updates (`git fetch` + diff-aware re-index).
-- **Tree-sitter parser**: Python, TypeScript/JS, Go. Output: per-file AST with functions, classes, imports, calls.
-- **SCIP indexer integration**: `scip-python` / `scip-typescript` over the repo, ingest the protobuf into Neo4j for cross-file symbol resolution.
-- **Graph builder (Neo4j)**: structural nodes + edges as defined above.
-- **Embeddings**: chunk by AST node (function-level). Embed with BGE-large (tight) / Voyage-3-code (generous). Store in Qdrant with metadata pointing back to graph node IDs.
-- **Hybrid retriever** (`packages/asil_memory/hybrid_retriever.py`): vector search → graph expand 1–2 hops → re-rank → return citations.
-- **CLI commands**: `asil ingest <repo>`, `asil ask "<question>"`, `asil graph show <symbol>`.
-- **MCP tools**: `asil.search_code`, `asil.get_callers`, `asil.get_dependencies`, `asil.who_owns`, `asil.commit_history`.
+**Substep status:**
 
-**Demo:** seed with `tiangolo/fastapi` or `litestar-org/litestar`. CLI: `asil ask "where is request validation handled?"` returns a ranked answer with file/line citations and a graph visualization rendered as ASCII or saved to SVG.
+- [x] **1.1 Tree-sitter parser (Python)** — `packages/asil_ingest/asil_ingest/treesitter_parser.py`. Permissive parsing, qualified names computed inside the parser, errors recorded not raised.
+- [x] **1.2 Repo cloner + `asil ingest <spec>`** — shallow clone for remote, walk with ignore list, parse-only stats. Demoed on `tiangolo/fastapi` (1118 files, 4294 functions).
+- [x] **1.3 Neo4j graph builder** — Repo/File/Function/Class/Symbol nodes + CONTAINS edges, calls/imports kept as JSON for Phase 1.6 resolution. `asil graph stats / clear / neighbors / query`.
+- [x] **1.4 Qdrant embeddings + semantic search** — function-level chunks via ModelRouter.embed; `asil ingest --embed`, `asil vector stats / search / clear`. Chunk identity == graph node identity.
+- [x] **1.5 Hybrid retriever + `asil ask`** — vector top-K → graph expand 1 hop → dedupe → rank. Every answer carries a Confidence object. System prompt enforces file:line citation on every claim.
+- [x] **1.6 Lightweight call-edge resolver** — promotes `calls_json` text refs to real `:CALLS` edges via 5 heuristics (exact, self_method, same_module, import_alias, import_member). Auto-runs after ingest; standalone `asil graph resolve-calls`. **Full SCIP integration deferred** — current resolver covers ~14% of all call sites in the ASIL repo (215/1510); the remaining 86% are stdlib/3rd-party calls our index doesn't contain, which is the expected regime. SCIP becomes useful when we hit cross-language polyglot repos in Phase 4.
+- [x] **1.9 MCP tool surface** — `apps/api/asil_api/mcp_tools.py` ships 6 tools (`asil.search_code`, `asil.get_callers`, `asil.get_dependencies`, `asil.who_owns`, `asil.commit_history`, `asil.ask`) over HTTP at `POST /mcp/call/{tool}`. JSON Schemas at `GET /mcp/tools`. Native stdio MCP transport deferred to Phase 7 polish.
+- [x] **1.10 Eval harness** — `packages/asil_eval/` with a 10-pair hand-curated Q&A corpus (`asil_self`) + `asil eval recall` CLI. Phase 1 baseline: recall@1 = 60%, recall@5 = 80%. Note: misses the 80% recall@3 bar from the original plan; the gap is exactly what re-ranking + Phase 2's verifier are designed to close. Documenting the baseline honestly rather than tuning the corpus to hide it.
+
+**Phase 1.x polish (deferred — not blocking Phase 2):**
+
+- [ ] **1.7 Incremental re-index** — `git fetch` + diff-aware re-parse of only changed files + prune removed files from graph/vectors. Today re-ingest is a full re-scan; cheap on small repos, painful on large ones.
+- [ ] **1.8 JS/TS + Go parsers** — the parser uses a node shim that lifts trivially to other grammars, but each language has different idioms (CommonJS vs ESM imports, Go's exported-by-capitalization rule, TS-only declarations). Worth doing carefully as a focused commit. **Not blocking Phase 2** — the moat work (causality, replay, drift) is language-agnostic at the graph schema level.
+- [ ] **1.6 Full SCIP** — promote the remaining 86% of call sites by running `scip-python` / `scip-typescript` and ingesting the protobuf. Becomes important for cross-file symbol resolution in big repos.
+
+**Demo (passed 2026-05-23):** `asil ingest .` on the ASIL repo itself: 43 files, 289 functions, 63 classes, 352 vector writes, 215 resolved call edges. `asil ask "How does the LLM router pick a provider for a given tier?"` returns `ModelRouter._provider` + `ModelRouter.call` with correct file:line citations and a 0.586 confidence score. End-to-end cost ~$0.0005 per query on `tight` profile.
 
 **Critical files:**
-- [packages/asil_ingest/treesitter_parser.py](packages/asil_ingest/treesitter_parser.py) — entry point for all code understanding.
-- [packages/asil_ingest/graph_builder.py](packages/asil_ingest/graph_builder.py) — schema defining downstream contracts.
-- [packages/asil_memory/hybrid_retriever.py](packages/asil_memory/hybrid_retriever.py) — unified read path.
+- [packages/asil_ingest/asil_ingest/treesitter_parser.py](packages/asil_ingest/asil_ingest/treesitter_parser.py) — entry point for all code understanding.
+- [packages/asil_ingest/asil_ingest/graph_builder.py](packages/asil_ingest/asil_ingest/graph_builder.py) — schema defining downstream contracts.
+- [packages/asil_ingest/asil_ingest/embedder.py](packages/asil_ingest/asil_ingest/embedder.py) — AST-aligned chunking.
+- [packages/asil_ingest/asil_ingest/call_resolver.py](packages/asil_ingest/asil_ingest/call_resolver.py) — `:CALLS` edge promotion.
+- [packages/asil_memory/asil_memory/hybrid_retriever.py](packages/asil_memory/asil_memory/hybrid_retriever.py) — unified read path.
+- [apps/api/asil_api/mcp_tools.py](apps/api/asil_api/mcp_tools.py) — public tool surface.
+- [packages/asil_eval/asil_eval/recall.py](packages/asil_eval/asil_eval/recall.py) — regression harness.
+- [docs/phase-1-testing.md](docs/phase-1-testing.md) — end-to-end validation guide.
 
 ### Phase 2 — Persistent Memory + Confidence Scoring (Weeks 9–12)
 

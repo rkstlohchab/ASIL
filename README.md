@@ -54,9 +54,20 @@ tests/        # unit, integration, e2e
 
 ## Status
 
-**Phase 0 — Foundation ✅ DONE 2026-05-20.** Next: Phase 1 — Repo Intelligence (Tree-sitter parser, SCIP indexer, Neo4j graph builder, hybrid retriever).
+**Phase 1 — Repo Intelligence ✅ DONE 2026-05-23.** ASIL can now ingest a real GitHub repo, build a queryable knowledge graph + semantic vector index, and answer natural-language questions with file:line citations and a confidence score.
 
-See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full 12-month roadmap and [docs/phase-0-testing.md](docs/phase-0-testing.md) for the Phase 0 validation checklist.
+Try it:
+
+```bash
+make up
+uv run asil ingest . --embed         # parse + graph + embed the current repo
+uv run asil ask "How does the LLM router pick a provider for a given tier?"
+uv run asil eval recall asil_self --repo "local:$(pwd)"
+```
+
+Next: **Phase 2 — Memory + Confidence Scoring.** Episodic store via Mem0, verifier-pass downgrade on unsupported claims, day-1/day-7 recall demo.
+
+See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full roadmap, [docs/phase-0-testing.md](docs/phase-0-testing.md) for the Phase 0 checklist, and [docs/phase-1-testing.md](docs/phase-1-testing.md) for the Phase 1 end-to-end validation guide.
 
 ## For contributors (and AI coding agents)
 

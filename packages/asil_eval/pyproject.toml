@@ -1,0 +1,27 @@
+[project]
+name = "asil-eval"
+version = "0.0.1"
+description = "ASIL evaluation harness — measures retrieval and reasoning quality."
+requires-python = ">=3.12"
+dependencies = [
+    "asil-core",
+    "asil-memory",
+    "asil-ingest",
+    "pydantic>=2.9.0",
+    "pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["asil_eval"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"asil_eval/corpus/asil_self.yaml" = "asil_eval/corpus/asil_self.yaml"
+
+[tool.uv.sources]
+asil-core = { workspace = true }
+asil-memory = { workspace = true }
+asil-ingest = { workspace = true }

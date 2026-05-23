@@ -24,6 +24,7 @@ from asil_core import Confidence, configure_logging, get_settings
 from asil_core.llm import ModelRouter
 from asil_core.llm.profiles import CHAT_TIERS
 from asil_ingest import (
+    CallResolver,
     Embedder,
     GraphBuilder,
     SourceLanguage,
@@ -53,9 +54,11 @@ app = typer.Typer(
 llm_app = typer.Typer(help="LLM router commands.", no_args_is_help=True)
 graph_app = typer.Typer(help="Neo4j graph commands.", no_args_is_help=True)
 vector_app = typer.Typer(help="Qdrant vector commands.", no_args_is_help=True)
+eval_app = typer.Typer(help="Retrieval / reasoning eval harness.", no_args_is_help=True)
 app.add_typer(llm_app, name="llm")
 app.add_typer(graph_app, name="graph")
 app.add_typer(vector_app, name="vector")
+app.add_typer(eval_app, name="eval")
 
 console = Console()
 
@@ -186,6 +189,13 @@ def ingest(
         bool,
         typer.Option("--no-graph", help="Parse only; skip writing to Neo4j."),
     ] = False,
+    resolve_calls: Annotated[
+        bool,
+        typer.Option(
+            "--resolve-calls/--no-resolve-calls",
+            help="After graph writes, promote calls_json text refs to :CALLS edges via heuristics.",
+        ),
+    ] = True,
     embed: Annotated[
         bool,
         typer.Option(
@@ -346,6 +356,17 @@ def ingest(
             console.print(f"[yellow]--limit {limit} reached, stopping[/yellow]")
             break
 
+    # Run call-edge resolution after all files have landed so the function
+    # index is complete. Skipped when --no-graph (nothing to resolve against)
+    # or when the user explicitly opts out via --no-resolve-calls.
+    call_stats = None
+    if builder is not None and repo_key is not None and resolve_calls:
+        resolver = CallResolver(graph_store=builder._store)  # type: ignore[attr-defined]
+        # Clear existing CALLS edges first so re-ingesting doesn't compound
+        # heuristic drift across runs.
+        resolver.clear_repo_edges(repo_key)
+        call_stats = resolver.resolve_repo(repo_key)
+
     elapsed = time.monotonic() - started
 
     table = Table(title=f"ingest stats — {spec}")
@@ -364,6 +385,11 @@ def ingest(
         table.add_row("graph writes", str(n_graph_writes))
     if embed:
         table.add_row("vector writes", str(n_vector_writes))
+    if call_stats is not None:
+        table.add_row(
+            "call edges resolved",
+            f"{call_stats.resolved} / {call_stats.total_call_sites}",
+        )
     table.add_row("elapsed (s)", f"{elapsed:.2f}")
     if files_parsed > 0:
         table.add_row("files / sec", f"{files_parsed / elapsed:.1f}")
@@ -740,6 +766,50 @@ def _print_confidence(conf: Confidence, *, cost_usd: float) -> None:
     console.print(table)
 
 
+@graph_app.command("resolve-calls")
+def graph_resolve_calls(
+    repo: Annotated[
+        str,
+        typer.Argument(help="Repo key (e.g. 'local:/path' or 'org/name')."),
+    ],
+) -> None:
+    """Re-resolve calls_json text refs into :CALLS edges. Idempotent: clears
+    existing edges first so heuristic drift across runs doesn't compound."""
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    resolver = CallResolver(graph_store=gstore)
+    removed = resolver.clear_repo_edges(repo)
+    if removed:
+        console.print(f"  cleared [yellow]{removed:,}[/yellow] existing CALLS edges")
+    stats = resolver.resolve_repo(repo)
+
+    table = Table(title=f"call resolution — {repo}")
+    table.add_column("metric")
+    table.add_column("value", justify="right")
+    table.add_row("callers inspected", f"{stats.callers_inspected:,}")
+    table.add_row("call sites", f"{stats.total_call_sites:,}")
+    table.add_row("resolved", f"{stats.resolved:,}")
+    table.add_row("unresolved", f"{stats.unresolved:,}")
+    if stats.total_call_sites > 0:
+        pct = 100 * stats.resolved / stats.total_call_sites
+        table.add_row("resolution rate", f"{pct:.1f}%")
+    console.print(table)
+
+    if stats.by_strategy:
+        breakdown = Table(title="by strategy")
+        breakdown.add_column("strategy")
+        breakdown.add_column("count", justify="right")
+        for strat, n in sorted(stats.by_strategy.items(), key=lambda x: -x[1]):
+            breakdown.add_row(strat, f"{n:,}")
+        console.print(breakdown)
+
+
 @graph_app.command("neighbors")
 def graph_neighbors(
     qualified_name: Annotated[
@@ -782,6 +852,95 @@ def graph_neighbors(
         console.print(f"  contains {len(children)}:")
         for c in children:
             console.print(f"    • {c}")
+
+
+@eval_app.command("recall")
+def eval_recall(
+    corpus: Annotated[
+        str,
+        typer.Argument(help="Built-in corpus name ('asil_self') or path to a YAML file."),
+    ] = "asil_self",
+    repo: Annotated[
+        str | None,
+        typer.Option(
+            "--repo",
+            help="Repo key to evaluate against. Required if the corpus doesn't pin one.",
+        ),
+    ] = None,
+    top_k: Annotated[int, typer.Option(help="Retriever final_limit.")] = 10,
+    show_details: Annotated[
+        bool,
+        typer.Option("--show-details", help="Print per-case top-K and hit rank."),
+    ] = False,
+) -> None:
+    """Run top-K recall over a Q&A corpus. Use this to catch retrieval regressions."""
+    from asil_eval import load_corpus, run_recall
+
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+    try:
+        vstore = VectorStore()
+        vstore.verify_connectivity()
+    except VectorStoreError as e:
+        console.print(f"[red]qdrant unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    corpus_obj = load_corpus(corpus)
+    repo_key = repo or corpus_obj.repo_key
+    if repo_key is None:
+        console.print("[red]no repo_key — pass --repo or set it inside the corpus YAML[/red]")
+        raise typer.Exit(code=2)
+
+    router = ModelRouter.from_env()
+    retriever = HybridRetriever(
+        graph_store=gstore,
+        vector_store=vstore,
+        embedder=router,
+        final_limit=top_k,
+    )
+
+    result = asyncio.run(
+        run_recall(corpus_obj, retriever=retriever, top_k=top_k, repo_key_override=repo_key)
+    )
+    s = result.summary()
+
+    table = Table(title=f"recall — {s['corpus']} ({s['n_cases']} cases)")
+    table.add_column("metric")
+    table.add_column("value", justify="right")
+    table.add_row("repo_key", str(s["repo_key"]))
+    table.add_row("recall@1", _color_recall(s["recall@1"]))
+    table.add_row("recall@3", _color_recall(s["recall@3"]))
+    table.add_row("recall@5", _color_recall(s["recall@5"]))
+    table.add_row("recall@10", _color_recall(s["recall@10"]))
+    console.print(table)
+
+    if show_details:
+        detail = Table(title="per-case detail", expand=True)
+        detail.add_column("rank", justify="right", no_wrap=True)
+        detail.add_column("question", overflow="fold")
+        detail.add_column("top hit", overflow="fold")
+        for cr in result.cases:
+            rank = str(cr.hit_rank) if cr.hit_rank is not None else "[red]miss[/red]"
+            top = cr.top_qnames[0] if cr.top_qnames else "(empty)"
+            detail.add_row(rank, cr.case.question, top)
+        console.print(detail)
+
+    # PLAN.md eval bar for Phase 1 is top-3 recall >= 80%.
+    if s["recall@3"] < 0.80:
+        console.print(
+            f"[yellow]warning: recall@3 = {s['recall@3']:.0%} is below the "
+            "Phase 1 bar of 80%[/yellow]"
+        )
+
+
+def _color_recall(v: float) -> str:
+    color = "green" if v >= 0.8 else ("yellow" if v >= 0.5 else "red")
+    return f"[{color}]{v:.0%}[/{color}]"
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -32,38 +32,38 @@ These are violations to surface in review, not preferences:
 
 ## Current phase
 
-**Phase 0 — Foundation.** See PLAN.md for the full roadmap; see [docs/phase-0-testing.md](docs/phase-0-testing.md) for the validation checklist.
+**Phase 2 — Memory + Confidence Scoring** (Phase 0 + 1 ✅ done). See PLAN.md for the full roadmap; see [docs/phase-1-testing.md](docs/phase-1-testing.md) for the most recent validation checklist.
 
-To check status during a session, run `/phase`.
+To check status during a session, run `/phase`. To run the regression harness, run `/eval`.
 
 ---
 
 ## Layout
 
 ```
-apps/api/     FastAPI gateway + MCP server (Phase 0 stub)
+apps/api/     FastAPI gateway + MCP HTTP server (Phase 1: tools live; stdio MCP is Phase 7)
 apps/cli/     Typer CLI — primary UX for Phases 1–5
-apps/worker/  Arq worker for ingestion jobs (added in Phase 1)
+apps/worker/  Arq worker for ingestion jobs (Phase 1.x polish)
 apps/web/     Next.js dashboard — DO NOT TOUCH UNTIL PHASE 7
 
-packages/asil_core/        shared: LLM router, Confidence, config, logging
-packages/asil_ingest/      Tree-sitter parsing, SCIP indexing, graph building (Phase 1)
-packages/asil_memory/      vector + graph + episodic memory (Phase 1–2)
+packages/asil_core/        ✅ LLM router, Confidence, config, logging (Phase 0)
+packages/asil_ingest/      ✅ Tree-sitter parser, repo cloner, embedder, graph builder, call resolver (Phase 1)
+packages/asil_memory/      ✅ GraphStore (Neo4j) + VectorStore (Qdrant) + HybridRetriever (Phase 1); Mem0 episodic (Phase 2)
+packages/asil_eval/        ✅ recall harness + Q&A corpus (`asil_self`) (Phase 1)
 packages/asil_temporal/    THE MOAT — causal linker, time-windowed queries (Phase 4)
 packages/asil_replay/      incident timeline, cascade, state diff (Phase 5)
 packages/asil_drift/       architecture drift detector (Phase 6)
-packages/asil_reasoning/   the deterministic pipeline + verifier + scorer (Phases 2+5)
+packages/asil_reasoning/   verifier + scorer pipeline (Phase 2 expands)
 packages/asil_infra/       K8s / Prometheus / Loki adapters (Phase 3)
-packages/asil_eval/        benchmarks + harness (continuous from Phase 1)
 
 infrastructure/  docker, k8s, terraform
 research/        papers, design docs, postmortem corpus
 scripts/         bootstrap, seed, reset
 tests/           unit / integration / e2e
-docs/            human-facing guides (testing, runbooks)
+docs/            human-facing guides (phase-0/1-testing, runbooks)
 ```
 
-The packages listed above as Phase 1+ don't have `pyproject.toml` yet. Add them to `[tool.uv.workspace] members` in the root `pyproject.toml` when their first code lands.
+Packages without `pyproject.toml` yet (asil_temporal, asil_replay, asil_drift, asil_reasoning, asil_infra) get added to `[tool.uv.workspace] members` in the root `pyproject.toml` when their first code lands.
 
 ---
 

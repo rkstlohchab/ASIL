@@ -1,0 +1,67 @@
+# Phase 1 eval corpus — ASIL indexing its own code.
+# Phrased like real developer questions. expected_any uses suffix matching
+# (the harness strips module prefixes) so the same corpus works regardless
+# of whether the repo was ingested as "local:/path" or "org/name".
+name: asil_self
+repo_key: null  # caller passes the actual key at runtime
+
+cases:
+  - question: "Where do we connect to Neo4j and validate the connection works?"
+    expected_any:
+      - "graph_store.GraphStore.verify_connectivity"
+      - "graph_store.GraphStore.__init__"
+    notes: "Tests basic semantic search — string 'neo4j' never appears in verify_connectivity."
+
+  - question: "How does the LLM router pick a provider for a given tier?"
+    expected_any:
+      - "router.ModelRouter._provider"
+      - "router.ModelRouter.call"
+    notes: "Tests retrieval of internal method (_provider) via behavior description."
+
+  - question: "What ensures every conclusion ships with a confidence score?"
+    expected_any:
+      - "confidence.Confidence"
+      - "confidence.Confidence.__post_init__"
+    notes: "Tests semantic match to the Confidence dataclass — the load-bearing contract."
+
+  - question: "Where is the daily budget enforced before an LLM call goes out?"
+    expected_any:
+      - "router.ModelRouter._check_budget"
+    notes: "Tests precise method-level recall — only one symbol satisfies this."
+
+  - question: "How do we shallow-clone a GitHub repo into the local cache?"
+    expected_any:
+      - "repo_cloner.resolve_repo"
+      - "repo_cloner._parse_remote_spec"
+    notes: "Tests retrieval against the cloner module."
+
+  - question: "What chunks the AST output into pieces we can embed?"
+    expected_any:
+      - "embedder.Embedder"
+      - "embedder.Embedder._chunks_for_file"
+      - "embedder.Embedder.embed_file"
+    notes: "Tests retrieval of the function-level chunking logic."
+
+  - question: "How does ASIL avoid creating duplicate nodes when re-ingesting?"
+    expected_any:
+      - "graph_store.GraphStore.merge_file_with_children"
+      - "vector_store.point_id_for"
+    notes: "Idempotency lives at two layers — graph MERGE + deterministic point IDs."
+
+  - question: "Where does the hybrid retriever combine vector and graph search?"
+    expected_any:
+      - "hybrid_retriever.HybridRetriever.retrieve"
+      - "hybrid_retriever.HybridRetriever"
+    notes: "Tests retrieval of the main pipeline method."
+
+  - question: "How do we promote text-based call references into real graph edges?"
+    expected_any:
+      - "call_resolver.CallResolver.resolve_repo"
+      - "call_resolver._resolve_one"
+    notes: "Tests retrieval against newly-added Phase 1.6 module."
+
+  - question: "What's the function that ignores .venv and node_modules when walking a repo?"
+    expected_any:
+      - "repo_cloner.iter_source_files"
+      - "repo_cloner._walk"
+    notes: "Specific behavioral phrasing — should still recall the iterator."

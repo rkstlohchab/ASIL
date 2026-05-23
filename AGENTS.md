@@ -4,12 +4,15 @@ Whichever tool you're running in (Claude Code, Antigravity, Cursor, OpenHands, A
 
 1. **[CLAUDE.md](CLAUDE.md)** — project conventions, hard rules, devloop. Load-bearing.
 2. **[PLAN.md](PLAN.md)** — phased roadmap with current status. Tells you which phase you're in.
-3. **[.claude/skills/](.claude/skills/)** — four workflow rules (also valid for non-Claude tools):
+3. **[.claude/skills/](.claude/skills/)** — workflow rules (also valid for non-Claude tools):
    - [asil-llm-call.md](.claude/skills/asil-llm-call.md) — every LLM call goes through `ModelRouter.call(tier=...)`. No hardcoded model names.
    - [asil-confidence.md](.claude/skills/asil-confidence.md) — every conclusion ships with a `Confidence` object.
    - [asil-positioning.md](.claude/skills/asil-positioning.md) — "Engineering Intelligence Infrastructure," never "AI OS" / "autonomous coder."
    - [asil-phase-gate.md](.claude/skills/asil-phase-gate.md) — don't start Phase N+1 until N has demoed.
-4. **[docs/phase-0-testing.md](docs/phase-0-testing.md)** — local validation checklist (Phase 0 already done — useful as a pattern for future phases).
+   - [asil-graph-schema.md](.claude/skills/asil-graph-schema.md) — Neo4j schema invariants: `repo_key` on every node, MERGE-based idempotency, JSON-string properties for un-promoted relations.
+   - [asil-mcp-tool.md](.claude/skills/asil-mcp-tool.md) — MCP tool contract: async, JSON-safe, Confidence on every reasoning result, read-only by default.
+   - [asil-eval-corpus.md](.claude/skills/asil-eval-corpus.md) — don't tune the corpus to hide retrieval gaps; the eval is a regression catcher.
+4. **[docs/phase-0-testing.md](docs/phase-0-testing.md)** and **[docs/phase-1-testing.md](docs/phase-1-testing.md)** — local validation checklists. Phase 1's guide is the freshest pattern.
 
 ## The five hard rules
 
