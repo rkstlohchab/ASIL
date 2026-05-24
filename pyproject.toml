@@ -9,6 +9,7 @@ members = [
     "apps/api",
     "apps/cli",
     "packages/asil_core",
+    "packages/asil_drift",
     "packages/asil_eval",
     "packages/asil_infra",
     "packages/asil_ingest",

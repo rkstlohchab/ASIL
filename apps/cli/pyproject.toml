@@ -5,6 +5,7 @@ description = "ASIL CLI — primary UX during Phases 1–5."
 requires-python = ">=3.12"
 dependencies = [
     "asil-core",
+    "asil-drift",
     "asil-eval",
     "asil-infra",
     "asil-ingest",
@@ -29,6 +30,7 @@ packages = ["asil_cli"]
 
 [tool.uv.sources]
 asil-core = { workspace = true }
+asil-drift = { workspace = true }
 asil-eval = { workspace = true }
 asil-infra = { workspace = true }
 asil-ingest = { workspace = true }

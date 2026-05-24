@@ -279,6 +279,24 @@ TOOL_CATALOG: list[ToolSpec] = [
             "required": ["incident_id"],
         },
     ),
+    ToolSpec(
+        name="asil.drift_check",
+        description=(
+            "Phase 6 — architecture drift. Given a repo key, compare the "
+            "current dependency graph against a baseline (empty if none "
+            "provided). Returns a list of DriftEvent objects describing "
+            "new dependencies, removed dependencies, and boundary violations. "
+            "Use this before merging changes to check for unexpected "
+            "architectural shifts."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "repo_key": {"type": "string"},
+            },
+            "required": ["repo_key"],
+        },
+    ),
 ]
 
 
@@ -524,6 +542,33 @@ async def replay_incident(payload: dict[str, Any], *, graph_store: GraphStore) -
     }
 
 
+async def drift_check(payload: dict[str, Any], *, graph_store: GraphStore) -> dict[str, Any]:
+    """Phase 6 — architecture drift. Compares current graph vs empty baseline."""
+    from asil_drift import BaselineSnapshot, DriftDetector
+
+    repo_key = _required_str(payload, "repo_key")
+    baseline = BaselineSnapshot(repo_key=repo_key)
+
+    detector = DriftDetector(graph_store=graph_store)
+    events = detector.detect(repo_key, baseline)
+
+    return {
+        "repo_key": repo_key,
+        "drift_events": [
+            {
+                "kind": e.kind,
+                "caller": e.caller,
+                "callee": e.callee,
+                "severity": e.severity,
+                "description": e.description,
+                "boundary_name": e.boundary_name,
+            }
+            for e in events
+        ],
+        "count": len(events),
+    }
+
+
 async def remember(
     payload: dict[str, Any],
     *,
@@ -751,6 +796,8 @@ async def call_tool(
         return await forget(payload, episodic_store=episodic_store)  # type: ignore[arg-type]
     if name == "asil.replay_incident":
         return await replay_incident(payload, graph_store=graph_store)
+    if name == "asil.drift_check":
+        return await drift_check(payload, graph_store=graph_store)
     return {"error": f"handler missing for {name!r}"}
 
 
@@ -858,6 +905,7 @@ __all__ = [
     "ask",
     "call_tool",
     "commit_history",
+    "drift_check",
     "get_callers",
     "get_dependencies",
     "replay_incident",

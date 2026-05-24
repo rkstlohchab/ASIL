@@ -5,6 +5,7 @@ description = "ASIL API gateway — FastAPI + MCP server."
 requires-python = ">=3.12"
 dependencies = [
     "asil-core",
+    "asil-drift",
     "asil-memory",
     "asil-reasoning",
     "asil-replay",
@@ -25,6 +26,7 @@ packages = ["asil_api"]
 
 [tool.uv.sources]
 asil-core = { workspace = true }
+asil-drift = { workspace = true }
 asil-memory = { workspace = true }
 asil-reasoning = { workspace = true }
 asil-replay = { workspace = true }

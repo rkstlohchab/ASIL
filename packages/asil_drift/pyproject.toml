@@ -1,0 +1,23 @@
+[project]
+name = "asil-drift"
+version = "0.0.1"
+description = "Architecture drift detection for ASIL"
+requires-python = ">=3.11"
+dependencies = [
+    "asil-core",
+    "asil-memory",
+    "asil-ingest",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["asil_drift"]
+
+[tool.uv.sources]
+asil-core = { workspace = true }
+asil-memory = { workspace = true }
+asil-ingest = { workspace = true }
+

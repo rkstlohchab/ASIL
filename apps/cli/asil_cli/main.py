@@ -1820,5 +1820,131 @@ def replay(
     gstore.close()
 
 
+# ---------------------------------------------------------------------------
+# drift commands (Phase 6 — architecture drift detection)
+# ---------------------------------------------------------------------------
+
+drift_app = typer.Typer(help="Architecture drift detection.")
+app.add_typer(drift_app, name="drift")
+
+
+@drift_app.command("baseline")
+def drift_baseline(
+    repo_key: Annotated[str, typer.Argument(help="Repo key to snapshot.")],
+    output: Annotated[str, typer.Option(help="Path to save the baseline JSON.")] = "",
+) -> None:
+    """Capture the current dependency structure as a baseline snapshot."""
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    from asil_drift import BaselineLearner
+
+    learner = BaselineLearner(graph_store=gstore)
+    snapshot = learner.capture(repo_key)
+
+    console.print(
+        Panel(
+            f"Repo: {snapshot.repo_key}\n"
+            f"Captured: {snapshot.captured_at.isoformat()}\n"
+            f"Edges: {len(snapshot.edges)}\n"
+            f"Modules: {snapshot.module_count}\n"
+            f"Functions: {snapshot.function_count}",
+            title="baseline snapshot",
+            border_style="cyan",
+        )
+    )
+
+    if output:
+        import json as _json
+        from dataclasses import asdict
+
+        data = asdict(snapshot)
+        data["captured_at"] = snapshot.captured_at.isoformat()
+        Path(output).write_text(_json.dumps(data, indent=2, default=str))
+        console.print(f"[green]Saved to {output}[/green]")
+
+    gstore.close()
+
+
+@drift_app.command("report")
+def drift_report(
+    repo_key: Annotated[str, typer.Argument(help="Repo key to check.")],
+    baseline_path: Annotated[str, typer.Option("--baseline", help="Path to baseline JSON.")] = "",
+) -> None:
+    """Compare current graph against a baseline and show drift events."""
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    from asil_drift import DriftDetector
+
+    if baseline_path:
+        import json as _json
+        from datetime import datetime as _dt
+
+        from asil_drift.models import BaselineSnapshot, DependencyEdge
+
+        raw = _json.loads(Path(baseline_path).read_text())
+        baseline = BaselineSnapshot(
+            repo_key=raw["repo_key"],
+            captured_at=_dt.fromisoformat(raw["captured_at"]),
+            edges=[
+                DependencyEdge(
+                    caller=e["caller"],
+                    callee=e["callee"],
+                    file_path=e.get("file_path", ""),
+                    line=e.get("line", 0),
+                )
+                for e in raw.get("edges", [])
+            ],
+            module_count=raw.get("module_count", 0),
+            function_count=raw.get("function_count", 0),
+        )
+    else:
+        # No saved baseline — use empty baseline (everything is "new")
+        console.print("[yellow]No baseline provided — treating empty graph as baseline.[/yellow]")
+        from asil_drift.models import BaselineSnapshot
+
+        baseline = BaselineSnapshot(repo_key=repo_key)
+
+    detector = DriftDetector(graph_store=gstore)
+    events = detector.detect(repo_key, baseline)
+
+    if not events:
+        console.print("[green]No drift detected.[/green]")
+    else:
+        dt = Table(title=f"drift report ({len(events)} events)", expand=True)
+        dt.add_column("severity", no_wrap=True)
+        dt.add_column("kind", no_wrap=True)
+        dt.add_column("caller", overflow="fold")
+        dt.add_column("callee", overflow="fold")
+        dt.add_column("description", overflow="fold")
+
+        severity_colors = {"critical": "bold red", "warning": "yellow", "info": "dim"}
+        for ev in sorted(
+            events, key=lambda e: {"critical": 0, "warning": 1, "info": 2}.get(e.severity, 3)
+        ):
+            color = severity_colors.get(ev.severity, "")
+            dt.add_row(
+                f"[{color}]{ev.severity}[/{color}]",
+                ev.kind,
+                ev.caller,
+                ev.callee,
+                ev.description,
+            )
+        console.print(dt)
+
+    gstore.close()
+
+
 if __name__ == "__main__":  # pragma: no cover
     app()

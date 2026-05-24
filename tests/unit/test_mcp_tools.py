@@ -59,6 +59,8 @@ def test_tool_catalog_contains_all_shipped_tools() -> None:
         "asil.find_causes",
         # Phase 5 (execution replay)
         "asil.replay_incident",
+        # Phase 6 (architecture drift)
+        "asil.drift_check",
     }
 
 
