@@ -1,0 +1,28 @@
+[project]
+name = "asil-infra"
+version = "0.0.1"
+description = "ASIL infrastructure adapters — postmortem ingestor, K8s/Prom/Loki bridges, runtime-event models."
+requires-python = ">=3.12"
+dependencies = [
+    "asil-core",
+    "asil-memory",
+    "pydantic>=2.9.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Real-cluster adapters are opt-in to keep the base install light.
+k8s = ["kubernetes-asyncio>=32.0.0"]
+prom = ["prometheus-api-client>=0.5.5"]
+loki = ["loki-logger-handler>=1.0.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["asil_infra"]
+
+[tool.uv.sources]
+asil-core = { workspace = true }
+asil-memory = { workspace = true }

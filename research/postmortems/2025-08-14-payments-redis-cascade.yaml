@@ -1,0 +1,113 @@
+# Hand-authored from a generic public-style RCA. Demonstrates the typical
+# cascade: a "safe" deployment on one service (auth) introduces a Redis client
+# pool change → payments service (which shares the auth's connection wrapper)
+# starts timing out → cart, which depends on payments, fails at checkout.
+#
+# Real postmortems anonymize service names and condense the timeline; ours
+# does the same. The Phase 4 causal linker will learn to derive the dashed
+# arrows (which deploy caused which incident) from the temporal-proximity
+# signals embedded in these timestamps.
+
+incident:
+  id: INC-2026-04-12-payments-cascade
+  title: "Payments p99 latency cascade after auth Redis pool refactor"
+  env: prod
+  detected_at: "2026-04-12T14:24:00Z"
+  resolved_at: "2026-04-12T15:47:00Z"
+  severity: high
+  summary: >
+    Auth service deployment 8f2c1d4 changed the Redis connection pool semantics
+    from per-request to long-lived. The shared session-token helper used by
+    payments inherited the new behavior; under p99 traffic, half-open
+    connections accumulated and the pool exhausted at 14:24. Payments p99
+    latency spiked from 120ms → 4.2s. Cart's checkout flow failed because
+    its timeout for payments was 3s. Rollback at 15:41 restored normal latency
+    within 6 minutes.
+  affected_services: [auth, payments, cart]
+
+timeline:
+  - at: "2026-04-12T14:17:00Z"
+    kind: deployment
+    service: auth
+    deployment_id: deploy-8f2c1d4
+    commit_sha: 8f2c1d4
+    description: "Auth service deployment ships SessionManager refactor + Redis pool change"
+
+  - at: "2026-04-12T14:23:00Z"
+    kind: metric_shift
+    service: payments
+    metric: http_request_duration_p99_ms
+    before: 120
+    after: 4200
+    unit: ms
+    description: "p99 latency spike"
+
+  - at: "2026-04-12T14:24:00Z"
+    kind: log_signature
+    service: payments
+    signature: "Redis connection timeout after 5000ms"
+    count: 4521
+    level: error
+
+  - at: "2026-04-12T14:26:00Z"
+    kind: metric_shift
+    service: cart
+    metric: checkout_success_rate
+    before: 0.997
+    after: 0.41
+    unit: ratio
+    description: "Cart checkout success rate collapses"
+
+  - at: "2026-04-12T14:28:00Z"
+    kind: log_signature
+    service: cart
+    signature: "downstream timeout: payments.create_intent exceeded 3000ms"
+    count: 2890
+    level: error
+
+  - at: "2026-04-12T14:31:00Z"
+    kind: log_signature
+    service: payments
+    signature: "RedisConnectionPool exhausted: max_size=64 in_use=64 waiters=812"
+    count: 982
+    level: error
+
+  - at: "2026-04-12T15:12:00Z"
+    kind: deployment
+    service: auth
+    deployment_id: deploy-mitigation-1
+    description: "Mitigation attempt: bump Redis pool max_size to 256"
+
+  - at: "2026-04-12T15:38:00Z"
+    kind: metric_shift
+    service: payments
+    metric: http_request_duration_p99_ms
+    before: 4100
+    after: 3800
+    unit: ms
+    description: "Marginal improvement only — root cause unaddressed"
+
+  - at: "2026-04-12T15:41:00Z"
+    kind: deployment
+    service: auth
+    deployment_id: deploy-rollback-7b1a3e9
+    commit_sha: 7b1a3e9
+    description: "Rollback to pre-refactor SessionManager"
+
+  - at: "2026-04-12T15:47:00Z"
+    kind: metric_shift
+    service: payments
+    metric: http_request_duration_p99_ms
+    before: 3800
+    after: 130
+    unit: ms
+    description: "Payments p99 returns to baseline; incident resolved"
+
+  - at: "2026-04-12T15:47:00Z"
+    kind: metric_shift
+    service: cart
+    metric: checkout_success_rate
+    before: 0.41
+    after: 0.998
+    unit: ratio
+    description: "Cart checkout success rate recovers"

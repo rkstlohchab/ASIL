@@ -42,6 +42,7 @@ class GraphConnection:
 # string carried on every domain node so a single property filter scopes any
 # query to one repo.
 SCHEMA_CYPHER: tuple[str, ...] = (
+    # ---- code namespace (Phase 1) ----
     """
     CREATE CONSTRAINT asil_repo_unique IF NOT EXISTS
     FOR (r:Repo) REQUIRE r.key IS UNIQUE
@@ -61,6 +62,30 @@ SCHEMA_CYPHER: tuple[str, ...] = (
     """
     CREATE CONSTRAINT asil_symbol_unique IF NOT EXISTS
     FOR (s:Symbol) REQUIRE (s.repo_key, s.qualified_name) IS UNIQUE
+    """,
+    # ---- runtime namespace (Phase 3) ----
+    # Runtime nodes live in their own scope (`env_key` = "prod", "staging-eu",
+    # ...) parallel to code nodes' `repo_key`. Cross-namespace edges
+    # (Service-RUNS->File, Deployment-SHIPPED->Commit) connect the two halves.
+    """
+    CREATE CONSTRAINT asil_service_unique IF NOT EXISTS
+    FOR (s:Service) REQUIRE (s.env_key, s.name) IS UNIQUE
+    """,
+    """
+    CREATE CONSTRAINT asil_deployment_unique IF NOT EXISTS
+    FOR (d:Deployment) REQUIRE (d.env_key, d.deployment_id) IS UNIQUE
+    """,
+    """
+    CREATE CONSTRAINT asil_metric_shift_unique IF NOT EXISTS
+    FOR (m:MetricShift) REQUIRE (m.env_key, m.service_name, m.metric, m.started_at) IS UNIQUE
+    """,
+    """
+    CREATE CONSTRAINT asil_log_signature_unique IF NOT EXISTS
+    FOR (l:LogSignature) REQUIRE (l.env_key, l.service_name, l.signature_hash) IS UNIQUE
+    """,
+    """
+    CREATE CONSTRAINT asil_incident_unique IF NOT EXISTS
+    FOR (i:Incident) REQUIRE i.id IS UNIQUE
     """,
 )
 
@@ -240,6 +265,250 @@ class GraphStore:
         with self._session() as s:
             s.run(cypher_repo, key=repo_key).consume()
         return removed
+
+    # ------------------------------------------------------------------ runtime writes (Phase 3)
+
+    # The merge_* methods below all MERGE on each node's identity key and
+    # `SET n += $props`. Re-ingest is idempotent. Edges use MERGE too — running
+    # the same postmortem twice doesn't duplicate :AFFECTED or :DEPLOYED.
+
+    def merge_service(self, props: dict[str, Any]) -> None:
+        """Identity = (env_key, name). Optional :RUNS edge into File nodes by path."""
+        cypher = """
+        MERGE (s:Service {env_key: $env_key, name: $name})
+        SET s += $props
+        WITH s
+        UNWIND $file_paths AS fp
+          OPTIONAL MATCH (f:File {repo_key: $repo_key, path: fp})
+          FOREACH (_ IN CASE WHEN f IS NULL THEN [] ELSE [1] END |
+            MERGE (s)-[:RUNS]->(f)
+          )
+        """
+        with self._session() as s:
+            s.run(
+                cypher,
+                env_key=props["env_key"],
+                name=props["name"],
+                repo_key=props.get("repo_key"),
+                file_paths=props.get("file_paths") or [],
+                props=props,
+            ).consume()
+
+    def merge_deployment(self, props: dict[str, Any]) -> None:
+        """Identity = (env_key, deployment_id). Auto-links to its Service; if
+        a Commit node exists with the same sha, links there too."""
+        cypher = """
+        MERGE (d:Deployment {env_key: $env_key, deployment_id: $deployment_id})
+        SET d += $props
+        WITH d
+        MERGE (svc:Service {env_key: $env_key, name: $service_name})
+            ON CREATE SET svc.source = 'auto-from-deployment'
+        MERGE (d)-[:DEPLOYED]->(svc)
+        WITH d
+        OPTIONAL MATCH (c:Commit {hash: $commit_sha})
+        FOREACH (_ IN CASE WHEN c IS NULL OR $commit_sha IS NULL THEN [] ELSE [1] END |
+          MERGE (d)-[:SHIPPED]->(c)
+        )
+        """
+        with self._session() as s:
+            s.run(
+                cypher,
+                env_key=props["env_key"],
+                deployment_id=props["deployment_id"],
+                service_name=props["service_name"],
+                commit_sha=props.get("commit_sha"),
+                props=props,
+            ).consume()
+
+    def merge_metric_shift(self, props: dict[str, Any]) -> None:
+        """Identity = (env_key, service_name, metric, started_at). Edges to its Service."""
+        cypher = """
+        MERGE (m:MetricShift {
+          env_key: $env_key, service_name: $service_name,
+          metric: $metric, started_at: $started_at
+        })
+        SET m += $props
+        WITH m
+        MERGE (svc:Service {env_key: $env_key, name: $service_name})
+            ON CREATE SET svc.source = 'auto-from-metric_shift'
+        MERGE (m)-[:OBSERVED_IN]->(svc)
+        """
+        with self._session() as s:
+            s.run(
+                cypher,
+                env_key=props["env_key"],
+                service_name=props["service_name"],
+                metric=props["metric"],
+                started_at=props["started_at"],
+                props=props,
+            ).consume()
+
+    def merge_log_signature(self, props: dict[str, Any]) -> None:
+        """Identity = (env_key, service_name, signature_hash). Edges to its Service."""
+        cypher = """
+        MERGE (l:LogSignature {
+          env_key: $env_key, service_name: $service_name,
+          signature_hash: $signature_hash
+        })
+        SET l += $props
+        WITH l
+        MERGE (svc:Service {env_key: $env_key, name: $service_name})
+            ON CREATE SET svc.source = 'auto-from-log_signature'
+        MERGE (l)-[:EMITTED_BY]->(svc)
+        """
+        with self._session() as s:
+            s.run(
+                cypher,
+                env_key=props["env_key"],
+                service_name=props["service_name"],
+                signature_hash=props["signature_hash"],
+                props=props,
+            ).consume()
+
+    def merge_incident(self, props: dict[str, Any], affected_services: list[str]) -> None:
+        """Identity = (id,). Provisional :AFFECTED edges to each named Service.
+        Causal edges (Deployment-PRECEDED->Incident, etc.) land in Phase 4."""
+        cypher = """
+        MERGE (i:Incident {id: $id})
+        SET i += $props
+        WITH i
+        UNWIND $services AS svc_name
+          MERGE (svc:Service {env_key: $env_key, name: svc_name})
+              ON CREATE SET svc.source = 'auto-from-incident'
+          MERGE (i)-[:AFFECTED]->(svc)
+        """
+        with self._session() as s:
+            s.run(
+                cypher,
+                id=props["id"],
+                env_key=props["env_key"],
+                services=affected_services,
+                props=props,
+            ).consume()
+
+    def clear_env(self, env_key: str) -> int:
+        """Detach-delete every runtime node carrying this env_key. Returns count.
+
+        Incidents use `id` not `env_key`; we DETACH DELETE them via their
+        env_key property too. Code nodes (Repo/File/Function/Class/Symbol)
+        are untouched — runtime + code are deliberately separate namespaces.
+        """
+        cypher = """
+        MATCH (n) WHERE n.env_key = $env_key
+        AND any(label IN labels(n)
+                WHERE label IN ['Service','Deployment','MetricShift','LogSignature','Incident'])
+        WITH n, count(n) AS _c
+        DETACH DELETE n
+        RETURN count(*) AS removed
+        """
+        with self._session() as s:
+            record = s.run(cypher, env_key=env_key).single()
+            return int(record["removed"]) if record else 0
+
+    # ------------------------------------------------------------------ runtime reads (Phase 3)
+
+    def events_for_service(
+        self,
+        env_key: str,
+        service_name: str,
+        *,
+        since: str | None = None,
+        until: str | None = None,
+        limit: int = 200,
+    ) -> list[dict[str, Any]]:
+        """Time-ordered list of every runtime event linked to a service.
+
+        Returns a uniform shape (one row per event) regardless of label, so
+        the CLI table can render them in a single flow. `since` / `until` are
+        ISO-8601 strings; both optional.
+
+        Implementation: four separate Cypher queries (one per event kind),
+        merged + sorted in Python. We tried a single Cypher with `collect()`
+        across four OPTIONAL MATCHes but Neo4j rejects mixed aggregation +
+        non-aggregating variables in the same WITH clause. Four small queries
+        is also easier to evolve when Phase 4 layers in causal edges.
+        """
+        params: dict[str, Any] = {"env_key": env_key, "service_name": service_name}
+
+        def _run(cypher: str) -> list[dict[str, Any]]:
+            return self.query(cypher, **params)
+
+        events: list[dict[str, Any]] = []
+
+        for row in _run(
+            """
+            MATCH (d:Deployment)-[:DEPLOYED]->(:Service {env_key: $env_key, name: $service_name})
+            RETURN d.at AS at, d.deployment_id AS id, d.description AS description,
+                   d.commit_sha AS commit_sha, d.source AS source, d.confidence AS confidence
+            """
+        ):
+            events.append({"kind": "deployment", **row})
+
+        for row in _run(
+            """
+            MATCH (m:MetricShift)-[:OBSERVED_IN]->(:Service {env_key: $env_key, name: $service_name})
+            RETURN m.started_at AS at, m.metric AS metric, m.before AS before,
+                   m.after AS after, m.unit AS unit, m.description AS description,
+                   m.source AS source, m.confidence AS confidence
+            """
+        ):
+            events.append({"kind": "metric_shift", **row})
+
+        for row in _run(
+            """
+            MATCH (l:LogSignature)-[:EMITTED_BY]->(:Service {env_key: $env_key, name: $service_name})
+            RETURN l.first_seen_at AS at, l.signature AS signature, l.count AS count,
+                   l.level AS level, l.source AS source, l.confidence AS confidence
+            """
+        ):
+            events.append({"kind": "log_signature", **row})
+
+        for row in _run(
+            """
+            MATCH (i:Incident)-[:AFFECTED]->(:Service {env_key: $env_key, name: $service_name})
+            RETURN i.detected_at AS at, i.id AS id, i.title AS title,
+                   i.severity AS severity, i.resolved_at AS resolved_at,
+                   i.source AS source, i.confidence AS confidence
+            """
+        ):
+            events.append({"kind": "incident", **row})
+
+        # Filter by time + sort + cap in Python. Neo4j returns native DateTime
+        # objects whose ISO representation sorts lexicographically the same way
+        # they sort chronologically, so a plain string comparison is correct.
+        def _at_key(ev: dict[str, Any]) -> str:
+            at = ev.get("at")
+            return "" if at is None else str(at)
+
+        filtered: list[dict[str, Any]] = []
+        for ev in events:
+            at_str = _at_key(ev)
+            if not at_str:
+                continue
+            if since is not None and at_str < since:
+                continue
+            if until is not None and at_str > until:
+                continue
+            filtered.append(ev)
+
+        filtered.sort(key=_at_key)
+        return filtered[:limit]
+
+    def runtime_stats(self, env_key: str | None = None) -> dict[str, int]:
+        """Counts of runtime labels, optionally scoped to one env."""
+        labels = ("Service", "Deployment", "MetricShift", "LogSignature", "Incident")
+        out: dict[str, int] = {}
+        with self._session() as s:
+            for label in labels:
+                if env_key is not None:
+                    cypher = f"MATCH (n:{label} {{env_key: $env}}) RETURN count(n) AS n"
+                    params = {"env": env_key}
+                else:
+                    cypher = f"MATCH (n:{label}) RETURN count(n) AS n"
+                    params = {}
+                record = s.run(cypher, **params).single()
+                out[label] = int(record["n"]) if record else 0
+        return out
 
     # ------------------------------------------------------------------ reads
 

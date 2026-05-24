@@ -32,7 +32,7 @@ These are violations to surface in review, not preferences:
 
 ## Current phase
 
-**Phase 3 — Infra Bridge** (Phase 0 + 1 + 2 ✅ done). See PLAN.md for the full roadmap. Phase 2 shipped the Verifier (second-pass claim checker), canonical Scorer, EpisodicStore (Postgres + Qdrant memory of every conclusion), and the `asil.remember` / `asil.recall` / `asil.forget` MCP tools.
+**Phase 3 — Infra Bridge** (Phase 0 + 1 + 2 ✅ done; Phase 3 step 1 ✅). See PLAN.md for the full roadmap. Phase 3 step 1 shipped the `asil_infra` package, the runtime-event schema (Service/Deployment/MetricShift/LogSignature/Incident as a parallel namespace under `env_key`), a postmortem YAML loader+ingestor, and the `asil postmortem ingest` / `asil events` CLI commands. Step 2+ is live K8s/Prom/Loki adapters feeding the same schema.
 
 To check status during a session, run `/phase`. To run the regression harness, run `/eval`.
 
@@ -50,11 +50,12 @@ packages/asil_core/        ✅ LLM router, Confidence, config, logging (Phase 0)
 packages/asil_ingest/      ✅ Tree-sitter parser, repo cloner, embedder, graph builder, call resolver (Phase 1)
 packages/asil_memory/      ✅ GraphStore (Neo4j) + VectorStore (Qdrant) + HybridRetriever (Phase 1); Mem0 episodic (Phase 2)
 packages/asil_eval/        ✅ recall harness + Q&A corpus (`asil_self`) (Phase 1)
+packages/asil_reasoning/   ✅ verifier + canonical scorer (Phase 2)
+packages/asil_infra/       ◐ Phase 3 step 1: runtime-event models + postmortem ingestor.
+                              K8s / Prometheus / Loki adapters land next.
 packages/asil_temporal/    THE MOAT — causal linker, time-windowed queries (Phase 4)
 packages/asil_replay/      incident timeline, cascade, state diff (Phase 5)
 packages/asil_drift/       architecture drift detector (Phase 6)
-packages/asil_reasoning/   verifier + scorer pipeline (Phase 2 expands)
-packages/asil_infra/       K8s / Prometheus / Loki adapters (Phase 3)
 
 infrastructure/  docker, k8s, terraform
 research/        papers, design docs, postmortem corpus
@@ -63,7 +64,7 @@ tests/           unit / integration / e2e
 docs/            human-facing guides (phase-0/1-testing, runbooks)
 ```
 
-Packages without `pyproject.toml` yet (asil_temporal, asil_replay, asil_drift, asil_reasoning, asil_infra) get added to `[tool.uv.workspace] members` in the root `pyproject.toml` when their first code lands.
+Packages without `pyproject.toml` yet (asil_temporal, asil_replay, asil_drift) get added to `[tool.uv.workspace] members` in the root `pyproject.toml` when their first code lands.
 
 ---
 

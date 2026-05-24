@@ -54,7 +54,7 @@ tests/        # unit, integration, e2e
 
 ## Status
 
-**Phase 0 + 1 + 2 ✅ done (2026-05-20 → 2026-05-24).** ASIL now ingests any repo, builds a queryable knowledge graph + semantic vector index, answers natural-language questions with file:line citations, verifies each claim against its citations, and persists every conclusion as episodic memory that subsequent runs recall automatically.
+**Phase 0 + 1 + 2 ✅ done; Phase 3 step 1 ✅ (2026-05-20 → 2026-05-24).** ASIL now ingests any repo, builds a queryable knowledge graph + semantic vector index, answers natural-language questions with file:line citations, verifies each claim against its citations, persists every conclusion as episodic memory that subsequent runs recall automatically, and **ingests postmortem timelines as runtime events (Service / Deployment / MetricShift / LogSignature / Incident) into a parallel runtime namespace on the graph**.
 
 Try it:
 
@@ -67,9 +67,13 @@ uv run asil ask "How does the LLM router pick a provider for a given tier?"
 # ↑ second run surfaces the prior conclusion from episodic memory
 uv run asil memory list
 uv run asil eval recall asil_self --repo "local:$(pwd)"
+
+# Phase 3: ingest a postmortem and walk the runtime timeline
+uv run asil postmortem ingest research/postmortems/2025-08-14-payments-redis-cascade.yaml
+uv run asil events list --service payments --env prod
 ```
 
-Currently at **Phase 3 — Infra Bridge.** K8s / Prometheus / Loki adapters feed runtime events (Deployment, MetricShift, LogSignature) into the graph — the data foundation for Phase 4's temporal causality engine, which is the moat.
+Currently progressing through **Phase 3 — Infra Bridge.** Step 1 done: postmortem ingestor + runtime-event schema (Service, Deployment, MetricShift, LogSignature, Incident). Next: live K8s / Prometheus / Loki adapters feeding the same schema. After Phase 3 lands the data foundation, Phase 4 ships the temporal causality engine — that's the moat.
 
 See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full roadmap, [docs/phase-0-testing.md](docs/phase-0-testing.md), and [docs/phase-1-testing.md](docs/phase-1-testing.md).
 

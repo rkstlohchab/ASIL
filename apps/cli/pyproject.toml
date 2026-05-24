@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "asil-core",
     "asil-eval",
+    "asil-infra",
     "asil-ingest",
     "asil-memory",
     "asil-reasoning",
@@ -27,6 +28,7 @@ packages = ["asil_cli"]
 [tool.uv.sources]
 asil-core = { workspace = true }
 asil-eval = { workspace = true }
+asil-infra = { workspace = true }
 asil-ingest = { workspace = true }
 asil-memory = { workspace = true }
 asil-reasoning = { workspace = true }

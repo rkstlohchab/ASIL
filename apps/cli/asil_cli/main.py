@@ -23,6 +23,11 @@ import typer
 from asil_core import Confidence, configure_logging, get_settings
 from asil_core.llm import ModelRouter
 from asil_core.llm.profiles import CHAT_TIERS
+from asil_infra import (
+    PostmortemIngestStats,
+    ingest_postmortem,
+    load_postmortem,
+)
 from asil_ingest import (
     CallResolver,
     Embedder,
@@ -60,11 +65,15 @@ graph_app = typer.Typer(help="Neo4j graph commands.", no_args_is_help=True)
 vector_app = typer.Typer(help="Qdrant vector commands.", no_args_is_help=True)
 eval_app = typer.Typer(help="Retrieval / reasoning eval harness.", no_args_is_help=True)
 memory_app = typer.Typer(help="Episodic memory (past conclusions).", no_args_is_help=True)
+postmortem_app = typer.Typer(help="Postmortem ingestion (Phase 3).", no_args_is_help=True)
+events_app = typer.Typer(help="Runtime events on the graph (Phase 3).", no_args_is_help=True)
 app.add_typer(llm_app, name="llm")
 app.add_typer(graph_app, name="graph")
 app.add_typer(vector_app, name="vector")
 app.add_typer(eval_app, name="eval")
 app.add_typer(memory_app, name="memory")
+app.add_typer(postmortem_app, name="postmortem")
+app.add_typer(events_app, name="events")
 
 console = Console()
 
@@ -1311,6 +1320,192 @@ def _resolve_memory(estore: EpisodicStore, memory_id: str) -> Memory | None:
         if m.id.startswith(memory_id):
             return m
     return None
+
+
+@postmortem_app.command("ingest")
+def postmortem_ingest(
+    path: Annotated[
+        str,
+        typer.Argument(help="Path to a postmortem YAML file (see research/postmortems/)."),
+    ],
+) -> None:
+    """Parse a postmortem YAML and write its timeline into the graph as runtime nodes."""
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    try:
+        pm = load_postmortem(path)
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    stats: PostmortemIngestStats = ingest_postmortem(pm, gstore)
+    gstore.close()
+
+    table = Table(title=f"postmortem ingested — {stats.incident_id}")
+    table.add_column("metric")
+    table.add_column("value", justify="right")
+    table.add_row("incident", pm.incident.title)
+    table.add_row("env", pm.incident.env_key)
+    table.add_row("severity", pm.incident.severity)
+    table.add_row("services materialized", str(stats.services))
+    table.add_row("deployments", str(stats.deployments))
+    table.add_row("metric shifts", str(stats.metric_shifts))
+    table.add_row("log signatures", str(stats.log_signatures))
+    if stats.extra_incidents:
+        table.add_row("extra incidents", str(stats.extra_incidents))
+    console.print(table)
+
+
+@events_app.command("list")
+def events_list(
+    service: Annotated[str, typer.Option("--service", "-s", help="Service name (required).")],
+    env: Annotated[
+        str, typer.Option("--env", "-e", help="Environment scope, e.g. 'prod'.")
+    ] = "prod",
+    since: Annotated[
+        str | None,
+        typer.Option("--since", help="ISO timestamp lower bound, e.g. '2025-08-14T00:00:00Z'."),
+    ] = None,
+    until: Annotated[str | None, typer.Option("--until", help="ISO timestamp upper bound.")] = None,
+    limit: Annotated[int, typer.Option(help="Max events to show.")] = 100,
+) -> None:
+    """Time-ordered runtime events linked to a service — deployments, metric
+    shifts, log signatures, incidents. Phase 4 will add causal-edge overlays."""
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    events = gstore.events_for_service(
+        env_key=env, service_name=service, since=since, until=until, limit=limit
+    )
+    gstore.close()
+
+    if not events:
+        console.print(
+            f"[yellow]no events for service={service!r} in env={env!r}"
+            + (f" since {since}" if since else "")
+            + (f" until {until}" if until else "")
+            + ".[/yellow]"
+        )
+        return
+
+    table = Table(title=f"events — {env}/{service} ({len(events)})", expand=True)
+    table.add_column("at", no_wrap=True)
+    table.add_column("kind", no_wrap=True)
+    table.add_column("detail", overflow="fold")
+    table.add_column("source", overflow="fold")
+    for ev in events:
+        when = _format_event_time(ev.get("at"))
+        kind = ev.get("kind", "?")
+        table.add_row(when, kind, _format_event_detail(ev), str(ev.get("source") or ""))
+    console.print(table)
+
+
+@events_app.command("stats")
+def events_stats(
+    env: Annotated[str | None, typer.Option("--env", help="Scope counts to one env.")] = None,
+) -> None:
+    """Show runtime node counts per label."""
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+    counts = gstore.runtime_stats(env_key=env)
+    gstore.close()
+
+    title = f"runtime node counts — {env}" if env else "runtime node counts (all envs)"
+    table = Table(title=title)
+    table.add_column("label")
+    table.add_column("count", justify="right")
+    for label, n in counts.items():
+        table.add_row(label, f"{n:,}")
+    console.print(table)
+
+
+@events_app.command("clear")
+def events_clear(
+    env: Annotated[str, typer.Argument(help="Env key to wipe runtime nodes for.")],
+    yes: Annotated[bool, typer.Option("--yes", help="Skip confirmation.")] = False,
+) -> None:
+    """Detach-delete every Service/Deployment/MetricShift/LogSignature/Incident
+    for one env. Code nodes (Repo/File/Function/Class/Symbol) are untouched."""
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+    if not yes and not typer.confirm(f"delete ALL runtime nodes for env {env!r}?", default=False):
+        console.print("aborted")
+        gstore.close()
+        raise typer.Exit(code=1)
+    removed = gstore.clear_env(env)
+    gstore.close()
+    console.print(f"[green]removed {removed} runtime nodes for env {env!r}[/green]")
+
+
+def _format_event_time(at: object) -> str:
+    """Neo4j returns DateTime objects; the events query uses datetime($since) so
+    `at` may be a Neo4j DateTime or an ISO string depending on how it was written."""
+    if at is None:
+        return "?"
+    s = str(at)
+    # Trim subseconds for terminal display; keep timezone if present.
+    if "." in s:
+        head, _, tail = s.partition(".")
+        # If the tail has a timezone suffix, preserve it.
+        tz_chars = "+-Z"
+        tz_idx = next((i for i, ch in enumerate(tail) if ch in tz_chars and i > 0), None)
+        s = head + tail[tz_idx:] if tz_idx is not None else head
+    return s
+
+
+def _format_event_detail(ev: dict) -> str:
+    kind = ev.get("kind")
+    if kind == "deployment":
+        bits = [f"deploy_id={ev.get('id')}"]
+        if ev.get("commit_sha"):
+            bits.append(f"commit={str(ev['commit_sha'])[:12]}")
+        if ev.get("description"):
+            bits.append(str(ev["description"]))
+        return " · ".join(bits)
+    if kind == "metric_shift":
+        before, after, unit = ev.get("before"), ev.get("after"), ev.get("unit") or ""
+        bits = [str(ev.get("metric") or "?")]
+        if before is not None and after is not None:
+            bits.append(f"{before}{unit} → {after}{unit}")
+        if ev.get("description"):
+            bits.append(str(ev["description"]))
+        return " · ".join(bits)
+    if kind == "log_signature":
+        sig = str(ev.get("signature") or "")
+        sig = sig if len(sig) < 80 else sig[:77] + "…"
+        bits = [sig]
+        if ev.get("count"):
+            bits.append(f"x{ev['count']}")
+        if ev.get("level"):
+            bits.append(f"[{ev['level']}]")
+        return " · ".join(bits)
+    if kind == "incident":
+        bits = [f"id={ev.get('id')}", str(ev.get("title") or "")]
+        if ev.get("severity"):
+            bits.append(f"sev={ev['severity']}")
+        return " · ".join(bits)
+    return str(ev)
 
 
 if __name__ == "__main__":  # pragma: no cover

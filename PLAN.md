@@ -365,7 +365,7 @@ Each phase ends with a **demoable artifact** and a written design doc in `resear
 | 0 — Foundation | 2 weeks | M1 | ✅ DONE 2026-05-20 |
 | 1 — Repo Intelligence (structural) | 6 weeks | M2 | ✅ DONE 2026-05-23 (Python; JS/TS/Go + diff-aware re-index deferred to Phase 1.x polish) |
 | 2 — Memory + Confidence Scoring | 4 weeks | M3 | ✅ DONE 2026-05-24 (Verifier, canonical Scorer, EpisodicStore, memory MCP tools) |
-| 3 — Infra Bridge (event ingestion) | 6 weeks | M5 | ⬜ |
+| 3 — Infra Bridge (event ingestion) | 6 weeks | M5 | ◐ step 1 ✅ 2026-05-24 (asil_infra, postmortem ingestor, runtime schema, `asil events` CLI). K8s/Prom/Loki adapters next. |
 | 4 — **Temporal Causality Engine** | 8 weeks | M7 | ⬜ |
 | 5 — **Execution Replay + Hero Demo** | 8 weeks | M9 | ⬜ |
 | 6 — Architecture Drift Detection | 6 weeks | M10 | ⬜ |
