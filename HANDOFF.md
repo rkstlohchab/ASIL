@@ -2,8 +2,8 @@
 
 **Purpose:** Hand the project off to a fresh Claude Code session with zero context loss.
 **Last updated:** 2026-05-25.
-**Phase status:** Phase 0 + 1 + 2 ✅ done · Phase 3 step 1 ✅ · Phase 4 steps 1–2 ✅ (THE MOAT + lagged-correlation) · Phase 5 step 1 ✅ (replay engine).
-**Test bar:** 203/203 passing on `pytest tests/unit tests/integration -q` against the live docker stack.
+**Phase status:** Phases 0–6 ✅ DONE. Next: Phase 7 (stretch) — Minimal UI + MCP polish.
+**Test bar:** 234/234 passing on `pytest tests/unit tests/integration -q` against the live docker stack.
 
 ---
 
@@ -49,17 +49,22 @@ asil ask "<question>"  ──► HybridRetriever (vector + graph expand)
                           ──► Confidence (canonical scorer)
                           ──► EpisodicStore (Postgres + Qdrant; recall surfaces prior conclusions next time)
 
-asil temporal link <env> ──► TemporalLinker (proximity + lagged-correlation)
+asil temporal link <env> ──► TemporalLinker (proximity + lagged-correlation + explicit-reference)
                             ──► (:Cause)-[:PRECEDED {confidence, delta_seconds, derivation, strategy}]->(:Incident)
 
 asil temporal causes <id>  ──► causes_for_incident query
                               ──► ranked table OR JSON via asil.find_causes MCP tool
 
-asil replay <id>  ──► ReplayEngine (timeline + causes + cascade + confidence)
-                     ──► Rich terminal view with panels, tables, and markers
+asil replay <id>  ──► ReplayEngine (timeline + causes + cascade + state diff + confidence)
+                     ──► Rich terminal view with 6 panels (header, timeline, causes, cascade, state diff, confidence)
+                     ──► asil.replay_incident MCP tool for programmatic access
+
+asil drift baseline <repo>  ──► BaselineLearner (snapshot :CALLS edges)
+asil drift report <repo>    ──► DriftDetector (new/removed deps + boundary violations)
+                               ──► asil.drift_check MCP tool
 ```
 
-**10 MCP tools live** at `POST /mcp/call/{name}`: `asil.{search_code, get_callers, get_dependencies, who_owns, commit_history (stub), ask, remember, recall, forget, find_causes}`.
+**12 MCP tools live** at `POST /mcp/call/{name}`: `asil.{search_code, get_callers, get_dependencies, who_owns, commit_history (stub), ask, remember, recall, forget, find_causes, replay_incident, drift_check}`.
 
 **Workspace** (uv-managed monorepo):
 
@@ -71,33 +76,34 @@ packages/asil_ingest/      ✅ Tree-sitter (Python only), repo cloner, embedder,
 packages/asil_memory/      ✅ GraphStore (Neo4j), VectorStore (Qdrant), HybridRetriever, EpisodicStore (Postgres+Qdrant)
 packages/asil_reasoning/   ✅ Verifier (second-pass LLM checker), canonical Scorer
 packages/asil_eval/        ✅ recall harness + asil_self corpus (10 Q&A)
-packages/asil_infra/       ◐ Phase 3 step 1: runtime-event models + postmortem ingestor
-packages/asil_temporal/    ✅ Phase 4 steps 1–2: temporal-proximity linker + lagged-correlation (THE MOAT)
-packages/asil_replay/      ✅ Phase 5 step 1: replay engine (timeline + cascade + confidence)
-packages/asil_drift/       ⬜ Phase 6 — not started
+packages/asil_infra/       ✅ Phase 3: runtime-event models, postmortem ingestor, InfraAdapter protocol, FileAdapter, K8s/Prom/Loki stubs
+packages/asil_temporal/    ✅ Phase 4: temporal-proximity + lagged-correlation + explicit-reference (THE MOAT)
+packages/asil_replay/      ✅ Phase 5: replay engine (timeline + cascade + state diff + confidence) + MCP tool
+packages/asil_drift/       ✅ Phase 6: baseline learner, drift detector, boundary rules + MCP tool
 ```
 
-**Bundled demo data:** [research/postmortems/2025-08-14-payments-redis-cascade.yaml](research/postmortems/2025-08-14-payments-redis-cascade.yaml). Used by the headline integration test that pins the moat. If a change breaks `test_bundled_postmortem_links_auth_deployment_as_top_cause`, you broke the moat.
+**Bundled demo data:** 5 postmortems in [research/postmortems/](research/postmortems/):
+  1. `2025-08-14-payments-redis-cascade.yaml` — original, tests all 3 strategies
+  2. `2026-02-08-db-pool-exhaustion.yaml` — DB pool pattern
+  3. `2026-03-19-dns-misconfig-checkout.yaml` — DNS cascade
+  4. `2026-01-15-tls-gateway-outage.yaml` — explicit-reference (names deploy ID in summary)
+  5. `2025-11-22-config-oom.yaml` — lagged-correlation only (no SHA)
 
-**Git log so far** (cleanest read of architectural progression):
+**Git log (latest commits at top):**
 
 ```
-445f85d  Phase 4 step 1 — THE MOAT (temporal-proximity causal linker)
-4b9151b  Phase 3 step 1 (runtime-event namespace + postmortem ingestor)
-18070b1  Phase 2.4–2.5 (EpisodicStore + memory MCP tools)
-e238785  Phase 2.1–2.3 (Verifier + canonical Scorer)
-637d0c2  Phase 1 complete (call edges + MCP tools + eval harness + Claude Code arch)
-4b424c3  Phase 1.5 (hybrid retriever + asil ask)
-e4d89ea  Phase 1.4 (Qdrant embeddings + semantic search)
-b140efc  Phase 1.3 (Neo4j graph builder)
-413a436  Phase 1.2 (repo cloner + asil ingest)
+1a7fdd0  data(eval): 2 new postmortems for eval corpus expansion
+017c84b  feat(asil_drift): architecture drift detection (Phase 6)
+9a0e8ee  feat(asil_infra): infrastructure adapters + FileAdapter (Phase 3 step 2)
+c18a953  feat(asil_replay+api): state diff + MCP replay tool (Phase 5 steps 2-3)
+45c6ede  feat(asil_temporal): explicit-reference strategy (Phase 4 step 3)
 ```
 
 ---
 
 ## Your job: remaining tasks
 
-Tasks 1–5 are **done**. Continue with Phase 4 step 3+ (explicit reference), Phase 5 remaining (state diff + full reasoning pipeline), or Phase 6.
+Phases 0–6 are **DONE**. The engine work is complete. What remains is stretch work:
 
 ### Task 1 — JS/TS Tree-sitter parser
 

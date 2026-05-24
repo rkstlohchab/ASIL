@@ -365,10 +365,10 @@ Each phase ends with a **demoable artifact** and a written design doc in `resear
 | 0 — Foundation | 2 weeks | M1 | ✅ DONE 2026-05-20 |
 | 1 — Repo Intelligence (structural) | 6 weeks | M2 | ✅ DONE 2026-05-23 (Python + JS/TS/TSX; Go + diff-aware re-index deferred to Phase 1.x polish) |
 | 2 — Memory + Confidence Scoring | 4 weeks | M3 | ✅ DONE 2026-05-24 (Verifier, canonical Scorer, EpisodicStore, memory MCP tools) |
-| 3 — Infra Bridge (event ingestion) | 6 weeks | M5 | ◐ step 1 ✅ 2026-05-24 (asil_infra, postmortem ingestor, runtime schema, `asil events` CLI). K8s/Prom/Loki adapters next. |
-| 4 — **Temporal Causality Engine** | 8 weeks | M7 | ✅ steps 1–2 DONE 2026-05-24 (THE MOAT: temporal-proximity linker + lagged-correlation boost; auth deploy → #1 cause at 0.979; `asil temporal link`/`causes`, `asil.find_causes` MCP tool). Explicit-reference strategy next. |
-| 5 — **Execution Replay + Hero Demo** | 8 weeks | M9 | ◐ step 1 ✅ 2026-05-24 (ReplayEngine, `asil replay <id>`, hero demo rendering timeline + causes + cascade + confidence card). State diff + full pipeline integration next. |
-| 6 — Architecture Drift Detection | 6 weeks | M10 | ⬜ |
+| 3 — Infra Bridge (event ingestion) | 6 weeks | M5 | ✅ DONE 2026-05-25 (asil_infra models, postmortem ingestor, InfraAdapter protocol, FileAdapter, K8s/Prom/Loki stubs). |
+| 4 — **Temporal Causality Engine** | 8 weeks | M7 | ✅ DONE 2026-05-25 (THE MOAT: temporal-proximity + lagged-correlation + explicit-reference; 3-strategy composable causal linker; `asil.find_causes` MCP tool). |
+| 5 — **Execution Replay + Hero Demo** | 8 weeks | M9 | ✅ DONE 2026-05-25 (ReplayEngine, state diff, `asil replay <id>` with 6 panels, `asil.replay_incident` MCP tool). |
+| 6 — Architecture Drift Detection | 6 weeks | M10 | ✅ DONE 2026-05-25 (BaselineLearner, DriftDetector, boundary rules, `asil drift baseline/report`, `asil.drift_check` MCP tool). |
 | 7 (stretch) — Minimal UI + MCP polish | 6 weeks | M11–12 | ⬜ |
 | 8 (stretch) — Deterministic fix pipeline (PRs) | open | post-launch | ⬜ |
 | Buffer / launch / writeup | rolling | M12 | — |

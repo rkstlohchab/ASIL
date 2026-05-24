@@ -27,7 +27,7 @@ Whichever tool you're running in (Claude Code, Antigravity, Cursor, OpenHands, A
 
 ## Current status
 
-**Phase 0 — Foundation ✅ DONE 2026-05-20.** Next: Phase 1 — Repo Intelligence (Tree-sitter parser, SCIP indexer, Neo4j graph builder, hybrid retriever). See [PLAN.md § Phase 1](PLAN.md#phase-1--repo-intelligence--structural-graph-weeks-3-8) for the full deliverable list and demo bar.
+**Phases 0–6 ✅ DONE (2026-05-25).** The engine work is complete: code intelligence, memory, infra bridge, temporal causality (THE MOAT), execution replay, and architecture drift detection. Next: Phase 7 (stretch) — Minimal UI + MCP polish. See [PLAN.md](PLAN.md) for the full roadmap.
 
 ## Devloop
 
