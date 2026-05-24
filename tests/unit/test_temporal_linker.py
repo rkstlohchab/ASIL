@@ -17,9 +17,11 @@ from typing import Any
 
 import pytest
 from asil_temporal.linker import (
+    _EXPLICIT_REFERENCE_BONUS,
     _LAGGED_CORRELATION_BONUS,
     CausalCandidate,
     TemporalLinker,
+    _apply_explicit_reference,
     _apply_lagged_correlation,
     _exp_decay,
     _summarize,
@@ -174,6 +176,7 @@ def _incident(
     env: str = "prod",
     detected_at: str = "2026-04-12T14:24:00+00:00",
     affected_services: list[str] | None = None,
+    summary: str = "",
 ) -> dict[str, Any]:
     return {
         "id": id,
@@ -181,17 +184,20 @@ def _incident(
         "detected_at": detected_at,
         "title": "test",
         "affected_services": affected_services or [],
+        "summary": summary,
     }
 
 
-def _deploy(*, at: str, id_: str = "d1", svc: str = "auth") -> dict[str, Any]:
+def _deploy(
+    *, at: str, id_: str = "d1", svc: str = "auth", commit_sha: str | None = None
+) -> dict[str, Any]:
     return {
         "kind": "Deployment",
         "at": at,
         "deployment_id": id_,
         "service_name": svc,
         "description": None,
-        "commit_sha": None,
+        "commit_sha": commit_sha,
     }
 
 
@@ -391,3 +397,95 @@ def test_score_incident_applies_lagged_correlation() -> None:
     # The metric shift should be #2 (proximity only)
     assert scored[1].cause_kind == "MetricShift"
     assert scored[1].strategy == "temporal_proximity"
+
+
+# ---------------------------------------------------------------------------
+# explicit-reference boost (Phase 4 step 3)
+# ---------------------------------------------------------------------------
+
+
+def test_explicit_reference_boosts_when_deploy_id_in_summary() -> None:
+    c = _candidate(service_name="auth", confidence=0.5)
+    c.cause_node_key["deployment_id"] = "deploy-abc123"
+    c.cause_node_key["commit_sha"] = ""
+    incident = {
+        "summary": "Root cause was deploy-abc123 which broke Redis.",
+        "affected_services": [],
+    }
+    result = _apply_explicit_reference(c, incident)
+    assert result.confidence == pytest.approx(min(1.0, 0.5 + _EXPLICIT_REFERENCE_BONUS))
+    assert "explicit_reference" in result.strategy
+    assert "deployment_id 'deploy-abc123'" in result.derivation
+
+
+def test_explicit_reference_boosts_when_commit_sha_in_summary() -> None:
+    c = _candidate(service_name="auth", confidence=0.4)
+    c.cause_node_key["deployment_id"] = "deploy-xyz"
+    c.cause_node_key["commit_sha"] = "8f2c1d4"
+    incident = {"summary": "Auth deployment 8f2c1d4 caused the cascade.", "affected_services": []}
+    result = _apply_explicit_reference(c, incident)
+    assert result.confidence == pytest.approx(min(1.0, 0.4 + _EXPLICIT_REFERENCE_BONUS))
+    assert "explicit_reference" in result.strategy
+    assert "commit_sha '8f2c1d4'" in result.derivation
+
+
+def test_explicit_reference_no_match_leaves_unchanged() -> None:
+    c = _candidate(service_name="auth", confidence=0.5)
+    c.cause_node_key["deployment_id"] = "deploy-xyz"
+    c.cause_node_key["commit_sha"] = "abc123"
+    incident = {"summary": "Something unrelated happened.", "affected_services": []}
+    result = _apply_explicit_reference(c, incident)
+    assert result.confidence == 0.5
+    assert "explicit_reference" not in result.strategy
+
+
+def test_explicit_reference_caps_at_one() -> None:
+    c = _candidate(service_name="auth", confidence=0.9)
+    c.cause_node_key["deployment_id"] = "deploy-boom"
+    c.cause_node_key["commit_sha"] = ""
+    incident = {"summary": "deploy-boom was the root cause", "affected_services": []}
+    result = _apply_explicit_reference(c, incident)
+    assert result.confidence == 1.0
+
+
+def test_explicit_reference_skips_non_deployment() -> None:
+    c = CausalCandidate(
+        cause_kind="MetricShift",
+        cause_node_key={"service_name": "payments", "metric": "p99", "started_at": "x"},
+        cause_label="MetricShift payments.p99",
+        delta_seconds=60.0,
+        confidence=0.87,
+        derivation="temporal_proximity: ...",
+    )
+    incident = {"summary": "p99 was mentioned but shouldn't boost.", "affected_services": []}
+    result = _apply_explicit_reference(c, incident)
+    assert result.confidence == 0.87
+
+
+def test_score_incident_applies_all_three_strategies() -> None:
+    """End-to-end: a deploy on an affected service whose commit SHA appears
+    in the summary should get both lagged-correlation AND explicit-reference boosts."""
+    gs = FakeGraphStore(
+        incident=_incident(
+            affected_services=["auth", "payments"],
+            summary="Auth deployment 8f2c1d4 broke Redis pool.",
+        ),
+        candidates=[
+            _deploy(
+                at="2026-04-12T14:17:00+00:00",
+                id_="deploy-8f2c1d4",
+                svc="auth",
+                commit_sha="8f2c1d4",
+            ),
+        ],
+    )
+    linker = TemporalLinker(graph_store=gs)
+    scored = linker.score_incident("INC-test")
+    assert len(scored) == 1
+    c = scored[0]
+    # Should have all three strategies
+    assert "temporal_proximity" in c.strategy
+    assert "lagged_correlation" in c.strategy
+    assert "explicit_reference" in c.strategy
+    # Confidence should be capped at 1.0 (0.379 + 0.6 + 0.8 > 1.0)
+    assert c.confidence == 1.0

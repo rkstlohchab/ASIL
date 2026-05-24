@@ -1,4 +1,4 @@
-"""Temporal proximity causal linker + lagged-correlation strategy.
+"""Temporal proximity causal linker + lagged-correlation + explicit-reference strategies.
 
 Given an Incident node, walk every event in the same env that occurred
 within a configurable lookback window before the incident's detected_at
@@ -29,6 +29,12 @@ Phase 4 step 2 — lagged-correlation boost:
       LLM prediction. It composes cleanly with proximity; edges get
       strategy="temporal_proximity+lagged_correlation" so the derivation
       traces both contributions.
+
+Phase 4 step 3 — explicit-reference:
+  After lagged-correlation, check if a Deployment's deployment_id or
+  commit_sha appears literally in the incident's summary text. If so,
+  apply an additive +0.8 bonus. This is the strongest signal: the postmortem
+  author explicitly named this deploy as relevant.
 
 Confidence cap: capped at 1.0. Floor at 0.05 — anything quieter than that
 gets dropped as noise.
@@ -137,6 +143,8 @@ class TemporalLinker:
         scored = [c for c in scored if c is not None]
         # Phase 4 step 2: apply lagged-correlation boost after proximity scoring.
         scored = [_apply_lagged_correlation(c, incident) for c in scored]
+        # Phase 4 step 3: apply explicit-reference boost.
+        scored = [_apply_explicit_reference(c, incident) for c in scored]
         scored.sort(key=lambda c: c.confidence, reverse=True)
         return scored[:limit]
 
@@ -174,6 +182,8 @@ class TemporalLinker:
                 continue
             # Phase 4 step 2: apply lagged-correlation boost before writing.
             scored = _apply_lagged_correlation(scored, incident)
+            # Phase 4 step 3: apply explicit-reference boost.
+            scored = _apply_explicit_reference(scored, incident)
             self._write_edge(scored, incident_id)
             stats.edges_written += 1
             stats.by_kind[scored.cause_kind] = stats.by_kind.get(scored.cause_kind, 0) + 1
@@ -208,7 +218,8 @@ class TemporalLinker:
             """
             MATCH (i:Incident {id: $id})
             RETURN i.id AS id, i.env_key AS env_key, i.detected_at AS detected_at,
-                   i.title AS title, i.affected_services AS affected_services
+                   i.title AS title, i.affected_services AS affected_services,
+                   i.summary AS summary
             """,
             id=incident_id,
         )
@@ -372,6 +383,9 @@ def _summarize(
             # lagged-correlation strategy can check it against
             # incident.affected_services without parsing the label.
             "service_name": svc,
+            # commit_sha is carried for the explicit-reference strategy to
+            # match against the incident summary text.
+            "commit_sha": raw.get("commit_sha") or "",
         }
         label = f"Deployment {raw['deployment_id']} on {svc}"
         derivation = (
@@ -480,6 +494,61 @@ def _apply_lagged_correlation(
         candidate.confidence = new_confidence
         candidate.derivation += bonus_derivation
         candidate.strategy = "temporal_proximity+lagged_correlation"
+
+    return candidate
+
+
+# ---------------------------------------------------------------------------
+# explicit-reference boost (Phase 4 step 3)
+# ---------------------------------------------------------------------------
+
+# The additive bonus for a Deployment whose deployment_id or commit_sha
+# appears literally in the incident's summary text. This is the strongest
+# observable signal: the postmortem author explicitly named this deployment.
+# Stacks with lagged-correlation (+0.6), so a deploy with both gets up to
+# +1.4 total bonus (capped at 1.0).
+_EXPLICIT_REFERENCE_BONUS = 0.8
+
+
+def _apply_explicit_reference(
+    candidate: CausalCandidate,
+    incident: dict[str, Any],
+) -> CausalCandidate:
+    """Boost a Deployment candidate whose deployment_id or commit_sha
+    appears literally in the incident's summary text.
+
+    Observable-only: the boost is derived from string matching against the
+    summary field, not from an LLM. This is the 'explicit reference' strategy
+    from PLAN.md Phase 4.
+    """
+    if candidate.cause_kind != "Deployment":
+        return candidate
+
+    summary = str(incident.get("summary") or "")
+    if not summary:
+        return candidate
+
+    # Check for deployment_id or commit_sha in the summary text.
+    deploy_id = candidate.cause_node_key.get("deployment_id") or ""
+    commit_sha = candidate.cause_node_key.get("commit_sha") or ""
+
+    matched_on: str | None = None
+    if deploy_id and deploy_id in summary:
+        matched_on = f"deployment_id '{deploy_id}'"
+    elif commit_sha and commit_sha in summary:
+        matched_on = f"commit_sha '{commit_sha}'"
+
+    if matched_on is not None:
+        old_conf = candidate.confidence
+        new_confidence = min(1.0, candidate.confidence + _EXPLICIT_REFERENCE_BONUS)
+        bonus_derivation = (
+            f"; explicit_reference: {matched_on} found in incident summary; "
+            f"+{_EXPLICIT_REFERENCE_BONUS} bonus "
+            f"({old_conf:.3f} → {new_confidence:.3f})"
+        )
+        candidate.confidence = new_confidence
+        candidate.derivation += bonus_derivation
+        candidate.strategy += "+explicit_reference"
 
     return candidate
 
