@@ -494,6 +494,43 @@ class GraphStore:
         filtered.sort(key=_at_key)
         return filtered[:limit]
 
+    def causes_for_incident(
+        self,
+        incident_id: str,
+        *,
+        min_confidence: float = 0.0,
+        limit: int = 50,
+    ) -> list[dict[str, Any]]:
+        """Read-only: list :PRECEDED edges pointing at this incident, with
+        the cause node's identity + properties. Sorted by confidence desc.
+
+        This is the consumer side of the Phase 4 temporal linker. The CLI
+        and MCP `asil.find_causes` tool both call here — keeps causal-query
+        semantics centralized so future Phase 4 step 2+ extensions (lagged
+        correlation, explicit reference) compose without scattering Cypher
+        across callers.
+        """
+        cypher = """
+        MATCH (cause)-[r:PRECEDED]->(i:Incident {id: $id})
+        WHERE r.confidence >= $min_confidence
+        RETURN labels(cause)[0]      AS cause_kind,
+               cause                  AS cause_node,
+               r.confidence           AS confidence,
+               r.delta_seconds        AS delta_seconds,
+               r.derivation           AS derivation,
+               r.strategy             AS strategy
+        ORDER BY r.confidence DESC, r.delta_seconds ASC
+        LIMIT $limit
+        """
+        raw = self.query(cypher, id=incident_id, min_confidence=min_confidence, limit=limit)
+        out: list[dict[str, Any]] = []
+        for row in raw:
+            node = row.pop("cause_node", None)
+            # The node is a neo4j.graph.Node; copy its props out into a plain dict.
+            row["cause_props"] = dict(node) if node is not None else {}
+            out.append(row)
+        return out
+
     def runtime_stats(self, env_key: str | None = None) -> dict[str, int]:
         """Counts of runtime labels, optionally scoped to one env."""
         labels = ("Service", "Deployment", "MetricShift", "LogSignature", "Incident")

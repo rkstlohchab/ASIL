@@ -32,7 +32,7 @@ These are violations to surface in review, not preferences:
 
 ## Current phase
 
-**Phase 3 — Infra Bridge** (Phase 0 + 1 + 2 ✅ done; Phase 3 step 1 ✅). See PLAN.md for the full roadmap. Phase 3 step 1 shipped the `asil_infra` package, the runtime-event schema (Service/Deployment/MetricShift/LogSignature/Incident as a parallel namespace under `env_key`), a postmortem YAML loader+ingestor, and the `asil postmortem ingest` / `asil events` CLI commands. Step 2+ is live K8s/Prom/Loki adapters feeding the same schema.
+**Phase 3 + 4 in parallel** (Phase 0 + 1 + 2 ✅ done; Phase 3 step 1 ✅; Phase 4 step 1 ✅ — **THE MOAT**). See PLAN.md for the full roadmap. Phase 4 step 1 shipped the `asil_temporal` package: temporal-proximity causal linker, `(:Cause)-[:PRECEDED]->(:Incident)` edges with confidence + delta + derivation + strategy, `asil temporal link/causes` CLI, `asil.find_causes` MCP tool. The bundled postmortem regression-tests it (auth deploy → top-3 cause). Step 2+ adds lagged-correlation + explicit-reference strategies (cause-vs-symptom honesty).
 
 To check status during a session, run `/phase`. To run the regression harness, run `/eval`.
 
@@ -53,7 +53,9 @@ packages/asil_eval/        ✅ recall harness + Q&A corpus (`asil_self`) (Phase 
 packages/asil_reasoning/   ✅ verifier + canonical scorer (Phase 2)
 packages/asil_infra/       ◐ Phase 3 step 1: runtime-event models + postmortem ingestor.
                               K8s / Prometheus / Loki adapters land next.
-packages/asil_temporal/    THE MOAT — causal linker, time-windowed queries (Phase 4)
+packages/asil_temporal/    ◐ Phase 4 step 1 ✅ — THE MOAT: temporal-proximity causal linker,
+                              :PRECEDED edges with confidence + derivation. Lagged-correlation
+                              and explicit-reference strategies land next.
 packages/asil_replay/      incident timeline, cascade, state diff (Phase 5)
 packages/asil_drift/       architecture drift detector (Phase 6)
 
@@ -64,7 +66,7 @@ tests/           unit / integration / e2e
 docs/            human-facing guides (phase-0/1-testing, runbooks)
 ```
 
-Packages without `pyproject.toml` yet (asil_temporal, asil_replay, asil_drift) get added to `[tool.uv.workspace] members` in the root `pyproject.toml` when their first code lands.
+Packages without `pyproject.toml` yet (asil_replay, asil_drift) get added to `[tool.uv.workspace] members` in the root `pyproject.toml` when their first code lands.
 
 ---
 

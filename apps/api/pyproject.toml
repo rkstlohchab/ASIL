@@ -7,6 +7,7 @@ dependencies = [
     "asil-core",
     "asil-memory",
     "asil-reasoning",
+    "asil-temporal",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
 ]
@@ -25,3 +26,4 @@ packages = ["asil_api"]
 asil-core = { workspace = true }
 asil-memory = { workspace = true }
 asil-reasoning = { workspace = true }
+asil-temporal = { workspace = true }

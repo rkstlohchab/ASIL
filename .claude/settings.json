@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'ASIL — Engineering Intelligence Infrastructure. Phase 0+1+2 done; Phase 3 step 1 done (postmortem ingestor + runtime schema). Next: K8s/Prom/Loki adapters. See PLAN.md, CLAUDE.md.'"
+            "command": "echo 'ASIL — Engineering Intelligence Infrastructure. Phase 0+1+2 done; Phase 3 step 1 done; Phase 4 step 1 done (THE MOAT: temporal-proximity causal linker). See PLAN.md, CLAUDE.md, .claude/skills/asil-temporal-causality.md.'"
           }
         ]
       }

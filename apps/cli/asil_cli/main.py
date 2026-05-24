@@ -50,6 +50,7 @@ from asil_memory import (
     VectorStoreError,
 )
 from asil_reasoning import Verifier, VerifierResult, score_verified_answer
+from asil_temporal import TemporalLinker, find_causes
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -67,6 +68,9 @@ eval_app = typer.Typer(help="Retrieval / reasoning eval harness.", no_args_is_he
 memory_app = typer.Typer(help="Episodic memory (past conclusions).", no_args_is_help=True)
 postmortem_app = typer.Typer(help="Postmortem ingestion (Phase 3).", no_args_is_help=True)
 events_app = typer.Typer(help="Runtime events on the graph (Phase 3).", no_args_is_help=True)
+temporal_app = typer.Typer(
+    help="Temporal causality engine (Phase 4 — THE MOAT).", no_args_is_help=True
+)
 app.add_typer(llm_app, name="llm")
 app.add_typer(graph_app, name="graph")
 app.add_typer(vector_app, name="vector")
@@ -74,6 +78,7 @@ app.add_typer(eval_app, name="eval")
 app.add_typer(memory_app, name="memory")
 app.add_typer(postmortem_app, name="postmortem")
 app.add_typer(events_app, name="events")
+app.add_typer(temporal_app, name="temporal")
 
 console = Console()
 
@@ -1506,6 +1511,183 @@ def _format_event_detail(ev: dict) -> str:
             bits.append(f"sev={ev['severity']}")
         return " · ".join(bits)
     return str(ev)
+
+
+@temporal_app.command("link")
+def temporal_link(
+    env: Annotated[str, typer.Argument(help="Env scope to link, e.g. 'prod'.")],
+    half_life: Annotated[
+        float,
+        typer.Option(
+            help="Decay half-life in seconds. confidence(Δt) = exp(-ln2·Δt/half_life). "
+            "Default 300s = 5min."
+        ),
+    ] = 300.0,
+    lookback_minutes: Annotated[
+        float, typer.Option(help="How far back to look for candidate causes.")
+    ] = 360.0,
+    min_confidence: Annotated[
+        float, typer.Option(help="Drop candidates whose proximity score is below this.")
+    ] = 0.05,
+) -> None:
+    """Walk every Incident in `env` and resolve causal edges to it.
+
+    Idempotent: clears existing :PRECEDED edges per incident first so re-running
+    with different decay parameters gives a clean slate. Output is a per-incident
+    table showing how many candidates were scored vs how many edges were written.
+    """
+    from datetime import timedelta
+
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    linker = TemporalLinker(
+        graph_store=gstore,
+        lookback=timedelta(minutes=lookback_minutes),
+        half_life_seconds=half_life,
+        min_confidence=min_confidence,
+    )
+    all_stats = linker.link_env(env)
+    gstore.close()
+
+    if not all_stats:
+        console.print(f"[yellow]no incidents in env {env!r}.[/yellow]")
+        return
+
+    table = Table(title=f"temporal link — env={env}", expand=True)
+    table.add_column("incident", overflow="fold")
+    table.add_column("inspected", justify="right", no_wrap=True)
+    table.add_column("edges", justify="right", no_wrap=True)
+    table.add_column("after-incident", justify="right", no_wrap=True)
+    table.add_column("low-conf", justify="right", no_wrap=True)
+    table.add_column("by kind", overflow="fold")
+    for s in all_stats:
+        by_kind = ", ".join(f"{k}={n}" for k, n in s.by_kind.items()) or "-"
+        table.add_row(
+            s.incident_id,
+            str(s.candidates_inspected),
+            str(s.edges_written),
+            str(s.edges_skipped_after_incident),
+            str(s.edges_skipped_low_confidence),
+            by_kind,
+        )
+    console.print(table)
+    console.print(
+        f"[dim]decay half-life: {half_life}s · lookback: {lookback_minutes}min "
+        f"· min confidence: {min_confidence}[/dim]"
+    )
+
+
+@temporal_app.command("causes")
+def temporal_causes(
+    incident_id: Annotated[str, typer.Argument(help="Incident id to inspect.")],
+    min_confidence: Annotated[
+        float, typer.Option(help="Hide candidates below this confidence.")
+    ] = 0.05,
+    limit: Annotated[int, typer.Option(help="Max candidates to print.")] = 20,
+    score: Annotated[
+        bool,
+        typer.Option(
+            "--score/--read",
+            help="--score recomputes scores live without writing edges; "
+            "--read returns whatever edges are already in the graph.",
+        ),
+    ] = False,
+) -> None:
+    """Show the ranked causal candidates for one incident.
+
+    Two modes:
+      --read  (default): query existing :PRECEDED edges. Fast, deterministic.
+      --score: recompute live via the linker without writing. Useful when you
+               want to try different half-lives without re-linking.
+    """
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    if score:
+        candidates = find_causes(gstore, incident_id, min_confidence=min_confidence, limit=limit)
+        if not candidates:
+            console.print(f"[yellow]no candidates for {incident_id!r}.[/yellow]")
+            gstore.close()
+            return
+        table = Table(title=f"live-scored causes — {incident_id}", expand=True)
+        table.add_column("conf", justify="right", no_wrap=True)
+        table.add_column("Δt", justify="right", no_wrap=True)
+        table.add_column("kind", no_wrap=True)
+        table.add_column("cause", overflow="fold")
+        for c in candidates:
+            table.add_row(
+                _color_conf(c.confidence),
+                _fmt_delta(c.delta_seconds),
+                c.cause_kind,
+                c.cause_label,
+            )
+        console.print(table)
+    else:
+        rows = gstore.causes_for_incident(incident_id, min_confidence=min_confidence, limit=limit)
+        if not rows:
+            console.print(
+                f"[yellow]no :PRECEDED edges on {incident_id!r}. "
+                "Run `asil temporal link <env>` first, or use --score to compute live.[/yellow]"
+            )
+            gstore.close()
+            return
+        table = Table(title=f"persisted causes — {incident_id}", expand=True)
+        table.add_column("conf", justify="right", no_wrap=True)
+        table.add_column("Δt", justify="right", no_wrap=True)
+        table.add_column("kind", no_wrap=True)
+        table.add_column("identity", overflow="fold")
+        table.add_column("derivation", overflow="fold")
+        for r in rows:
+            ident = _identity_label(r["cause_kind"], r["cause_props"])
+            table.add_row(
+                _color_conf(float(r["confidence"])),
+                _fmt_delta(float(r["delta_seconds"])),
+                str(r["cause_kind"]),
+                ident,
+                str(r.get("derivation") or ""),
+            )
+        console.print(table)
+    gstore.close()
+
+
+def _color_conf(c: float) -> str:
+    color = "green" if c >= 0.6 else ("yellow" if c >= 0.3 else "red")
+    return f"[{color}]{c:.3f}[/{color}]"
+
+
+def _fmt_delta(seconds: float) -> str:
+    if seconds < 60:
+        return f"{seconds:.0f}s"
+    if seconds < 3600:
+        return f"{seconds / 60:.1f}min"
+    return f"{seconds / 3600:.2f}h"
+
+
+def _identity_label(kind: str, props: dict) -> str:
+    if kind == "Deployment":
+        return f"{props.get('deployment_id', '?')} on {props.get('service_name', '?')}"
+    if kind == "MetricShift":
+        before, after, unit = props.get("before"), props.get("after"), props.get("unit") or ""
+        delta = (
+            f" ({before}{unit} → {after}{unit})" if before is not None and after is not None else ""
+        )
+        return f"{props.get('service_name', '?')}.{props.get('metric', '?')}{delta}"
+    if kind == "LogSignature":
+        sig = str(props.get("signature") or "")
+        sig = sig if len(sig) < 70 else sig[:67] + "…"
+        return f'"{sig}" on {props.get("service_name", "?")}'
+    return str(props)
 
 
 if __name__ == "__main__":  # pragma: no cover

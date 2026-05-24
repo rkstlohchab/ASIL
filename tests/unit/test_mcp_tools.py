@@ -41,7 +41,7 @@ class FakeGraphStore:
 # ---------------------------------------------------------------------------
 
 
-def test_tool_catalog_contains_all_phase1_and_phase2_tools() -> None:
+def test_tool_catalog_contains_all_shipped_tools() -> None:
     names = {t.name for t in TOOL_CATALOG}
     assert names == {
         # Phase 1
@@ -55,6 +55,8 @@ def test_tool_catalog_contains_all_phase1_and_phase2_tools() -> None:
         "asil.remember",
         "asil.recall",
         "asil.forget",
+        # Phase 4 (temporal causality)
+        "asil.find_causes",
     }
 
 

@@ -207,6 +207,31 @@ TOOL_CATALOG: list[ToolSpec] = [
         },
     ),
     ToolSpec(
+        name="asil.find_causes",
+        description=(
+            "Phase 4 — temporal causality. Given an Incident id, return the "
+            "ranked causal candidates (Deployments / MetricShifts / "
+            "LogSignatures that occurred before it) with proximity-derived "
+            "confidence + a human-readable derivation string. Reads the "
+            ":PRECEDED edges produced by `TemporalLinker`; the same shape "
+            "you'd get from `asil temporal causes <id> --read`."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "incident_id": {"type": "string"},
+                "min_confidence": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0,
+                    "default": 0.05,
+                },
+                "limit": {"type": "integer", "minimum": 1, "maximum": 200, "default": 20},
+            },
+            "required": ["incident_id"],
+        },
+    ),
+    ToolSpec(
         name="asil.ask",
         description=(
             "Highest-level tool. Embeds the question, runs the hybrid retriever, "
@@ -351,6 +376,40 @@ async def commit_history(payload: dict[str, Any]) -> dict[str, Any]:
         "not_yet_implemented": True,
         "note": "Commit/Author nodes ship in Phase 2 (memory + commit ingestor).",
     }
+
+
+async def find_causes(payload: dict[str, Any], *, graph_store: GraphStore) -> dict[str, Any]:
+    """Phase 4 — temporal causality. Read-side tool: returns :PRECEDED edges
+    already in the graph. Run `asil temporal link <env>` (CLI) or call the
+    `TemporalLinker.link_env` API to populate them first."""
+    incident_id = _required_str(payload, "incident_id")
+    min_confidence = float(payload.get("min_confidence", 0.05))
+    limit = int(payload.get("limit", 20))
+    rows = graph_store.causes_for_incident(incident_id, min_confidence=min_confidence, limit=limit)
+    return {
+        "incident_id": incident_id,
+        "causes": [
+            {
+                "cause_kind": r["cause_kind"],
+                "confidence": round(float(r["confidence"]), 4),
+                "delta_seconds": round(float(r["delta_seconds"]), 1),
+                "derivation": r.get("derivation"),
+                "strategy": r.get("strategy"),
+                "cause_props": _scrub_neo4j_props(r["cause_props"]),
+            }
+            for r in rows
+        ],
+        "count": len(rows),
+    }
+
+
+def _scrub_neo4j_props(props: dict[str, Any]) -> dict[str, Any]:
+    """Convert Neo4j-native DateTime/Date objects into ISO strings so the
+    payload is JSON-serializable per the asil-mcp-tool contract."""
+    out: dict[str, Any] = {}
+    for k, v in props.items():
+        out[k] = str(v) if v is not None and type(v).__name__ in {"DateTime", "Date", "Time"} else v
+    return out
 
 
 async def remember(
@@ -550,6 +609,8 @@ async def call_tool(
         return await who_owns(payload, graph_store=graph_store)
     if name == "asil.commit_history":
         return await commit_history(payload)
+    if name == "asil.find_causes":
+        return await find_causes(payload, graph_store=graph_store)
     if name == "asil.ask":
         _need(vector_store, router, name=name)
         return await ask(

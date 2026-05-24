@@ -1,0 +1,20 @@
+[project]
+name = "asil-temporal"
+version = "0.0.1"
+description = "ASIL temporal causality engine — the moat. Derives causal edges between runtime events via temporal proximity, lagged correlation, and explicit references."
+requires-python = ">=3.12"
+dependencies = [
+    "asil-core",
+    "asil-memory",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["asil_temporal"]
+
+[tool.uv.sources]
+asil-core = { workspace = true }
+asil-memory = { workspace = true }

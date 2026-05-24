@@ -54,7 +54,7 @@ tests/        # unit, integration, e2e
 
 ## Status
 
-**Phase 0 + 1 + 2 ✅ done; Phase 3 step 1 ✅ (2026-05-20 → 2026-05-24).** ASIL now ingests any repo, builds a queryable knowledge graph + semantic vector index, answers natural-language questions with file:line citations, verifies each claim against its citations, persists every conclusion as episodic memory that subsequent runs recall automatically, and **ingests postmortem timelines as runtime events (Service / Deployment / MetricShift / LogSignature / Incident) into a parallel runtime namespace on the graph**.
+**Phase 0 + 1 + 2 ✅ done; Phase 3 step 1 ✅; Phase 4 step 1 ✅ — THE MOAT (2026-05-20 → 2026-05-24).** ASIL now ingests any repo, builds a queryable knowledge graph + semantic vector index, answers natural-language questions with file:line citations, verifies each claim against its citations, persists every conclusion as episodic memory that subsequent runs recall automatically, ingests postmortem timelines as runtime events (Service / Deployment / MetricShift / LogSignature / Incident), and **derives observable causal edges `(:Cause)-[:PRECEDED {confidence, delta_seconds, derivation, strategy}]->(:Incident)` from temporal proximity — no LLM hallucination, every claim auditable**.
 
 Try it:
 
@@ -71,9 +71,14 @@ uv run asil eval recall asil_self --repo "local:$(pwd)"
 # Phase 3: ingest a postmortem and walk the runtime timeline
 uv run asil postmortem ingest research/postmortems/2025-08-14-payments-redis-cascade.yaml
 uv run asil events list --service payments --env prod
+
+# Phase 4 — THE MOAT: derive observable causal edges from the timeline
+uv run asil temporal link prod
+uv run asil temporal causes INC-2026-04-12-payments-cascade
+# ↑ ranked (:Cause)-[:PRECEDED]->(:Incident) with confidence + derivation
 ```
 
-Currently progressing through **Phase 3 — Infra Bridge.** Step 1 done: postmortem ingestor + runtime-event schema (Service, Deployment, MetricShift, LogSignature, Incident). Next: live K8s / Prometheus / Loki adapters feeding the same schema. After Phase 3 lands the data foundation, Phase 4 ships the temporal causality engine — that's the moat.
+Currently progressing through **Phase 3 + Phase 4 in parallel.** Phase 3 step 1 done (postmortem ingestor + runtime schema); Phase 4 step 1 done (**temporal-proximity causal linker — THE MOAT**: observable causal edges with confidence, delta, and derivation, no LLM hallucination). Next up: live K8s/Prom/Loki adapters (Phase 3 step 2+) and lagged-correlation / explicit-reference strategies that distinguish causes from symptoms (Phase 4 step 2+).
 
 See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full roadmap, [docs/phase-0-testing.md](docs/phase-0-testing.md), and [docs/phase-1-testing.md](docs/phase-1-testing.md).
 
