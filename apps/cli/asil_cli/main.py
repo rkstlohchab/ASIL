@@ -1784,7 +1784,30 @@ def replay(
                 cascade_lines.append(" ↓")
         console.print(Panel("\n".join(cascade_lines), title="service cascade", border_style="cyan"))
 
-    # 5. Confidence card
+    # 5. State diff (before/after)
+    if result.state_diff is not None:
+        sd = result.state_diff
+        diff_parts: list[str] = []
+        if sd.deployments_during:
+            diff_parts.append("[bold]Deployments during incident window:[/bold]")
+            for d in sd.deployments_during:
+                at_short = d.at.split("T")[-1][:8] if "T" in d.at else d.at
+                sha_part = f" (sha: {d.commit_sha})" if d.commit_sha else ""
+                diff_parts.append(f"  • {d.deployment_id} on {d.service}{sha_part} at {at_short}")
+                if d.description:
+                    diff_parts.append(f"    {d.description}")
+        if sd.metric_deltas:
+            if diff_parts:
+                diff_parts.append("")
+            diff_parts.append("[bold]Metric changes:[/bold]")
+            for m in sd.metric_deltas:
+                before = f"{m.before}" if m.before is not None else "?"
+                after = f"{m.after}" if m.after is not None else "?"
+                diff_parts.append(f"  • {m.service}.{m.metric}: {before}{m.unit} → {after}{m.unit}")
+        if diff_parts:
+            console.print(Panel("\n".join(diff_parts), title="state diff", border_style="yellow"))
+
+    # 6. Confidence card
     conf = result.confidence
     conf_color = "green" if conf.score >= 0.6 else ("yellow" if conf.score >= 0.3 else "red")
     conf_text = (

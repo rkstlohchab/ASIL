@@ -255,6 +255,30 @@ TOOL_CATALOG: list[ToolSpec] = [
             "required": ["question"],
         },
     ),
+    ToolSpec(
+        name="asil.replay_incident",
+        description=(
+            "Phase 5 — execution replay. Given an Incident id, return the "
+            "full incident story: timeline, top causes, service cascade, "
+            "state diff (before/after), and aggregated confidence. The same "
+            "data `asil replay <id>` renders in the terminal. Reads "
+            ":PRECEDED edges + runtime events from the graph; run "
+            "`asil temporal link <env>` first to populate causal edges."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "incident_id": {"type": "string"},
+                "causes_limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "default": 5,
+                },
+            },
+            "required": ["incident_id"],
+        },
+    ),
 ]
 
 
@@ -410,6 +434,94 @@ def _scrub_neo4j_props(props: dict[str, Any]) -> dict[str, Any]:
     for k, v in props.items():
         out[k] = str(v) if v is not None and type(v).__name__ in {"DateTime", "Date", "Time"} else v
     return out
+
+
+async def replay_incident(payload: dict[str, Any], *, graph_store: GraphStore) -> dict[str, Any]:
+    """Phase 5 — execution replay. Returns the full incident story as JSON."""
+    from asil_replay import ReplayEngine
+
+    incident_id = _required_str(payload, "incident_id")
+    causes_limit = int(payload.get("causes_limit", 5))
+
+    engine = ReplayEngine(graph_store=graph_store)
+    result = engine.replay(incident_id, causes_limit=causes_limit)
+    if result is None:
+        return {"error": f"incident {incident_id!r} not found", "incident_id": incident_id}
+
+    # Serialize timeline
+    timeline = [
+        {
+            "at": e.at,
+            "kind": e.kind,
+            "service": e.service,
+            "description": e.description,
+            "marker": e.marker,
+        }
+        for e in result.timeline
+    ]
+
+    # Serialize causes (already dict-shaped from causes_for_incident)
+    causes = [
+        {
+            "cause_kind": c.get("cause_kind"),
+            "confidence": round(float(c.get("confidence", 0)), 4),
+            "delta_seconds": round(float(c.get("delta_seconds", 0)), 1),
+            "derivation": c.get("derivation"),
+            "strategy": c.get("strategy"),
+            "cause_props": _scrub_neo4j_props(c.get("cause_props", {})),
+        }
+        for c in result.top_causes
+    ]
+
+    # Serialize cascade
+    cascade = [
+        {
+            "service": s.service,
+            "first_event_at": s.first_event_at,
+            "first_event_kind": s.first_event_kind,
+            "first_event_description": s.first_event_description,
+        }
+        for s in result.service_cascade
+    ]
+
+    # Serialize state diff
+    state_diff = None
+    if result.state_diff is not None:
+        sd = result.state_diff
+        state_diff = {
+            "services_involved": sd.services_involved,
+            "deployments_during": [
+                {
+                    "deployment_id": d.deployment_id,
+                    "service": d.service,
+                    "description": d.description,
+                    "commit_sha": d.commit_sha,
+                    "at": d.at,
+                }
+                for d in sd.deployments_during
+            ],
+            "metric_deltas": [
+                {
+                    "service": m.service,
+                    "metric": m.metric,
+                    "before": m.before,
+                    "after": m.after,
+                    "unit": m.unit,
+                }
+                for m in sd.metric_deltas
+            ],
+        }
+
+    return {
+        "incident_id": incident_id,
+        "incident": _scrub_neo4j_props(result.incident),
+        "summary_lines": result.summary_lines,
+        "timeline": timeline,
+        "top_causes": causes,
+        "service_cascade": cascade,
+        "state_diff": state_diff,
+        "confidence": _confidence_dict(result.confidence),
+    }
 
 
 async def remember(
@@ -637,6 +749,8 @@ async def call_tool(
     if name == "asil.forget":
         _need(episodic_store, name=name)
         return await forget(payload, episodic_store=episodic_store)  # type: ignore[arg-type]
+    if name == "asil.replay_incident":
+        return await replay_incident(payload, graph_store=graph_store)
     return {"error": f"handler missing for {name!r}"}
 
 
@@ -746,6 +860,7 @@ __all__ = [
     "commit_history",
     "get_callers",
     "get_dependencies",
+    "replay_incident",
     "search_code",
     "tool_catalog",
     "who_owns",

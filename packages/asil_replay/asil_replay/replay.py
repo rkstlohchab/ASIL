@@ -20,6 +20,8 @@ from typing import Any
 from asil_core.confidence import Confidence
 from asil_core.logging import get_logger
 
+from asil_replay.state_diff import StateDiff, StateDiffer
+
 log = get_logger(__name__)
 
 
@@ -59,6 +61,7 @@ class IncidentReplay:
     top_causes: list[dict[str, Any]]
     service_cascade: list[ServiceCascadeEntry]
     confidence: Confidence
+    state_diff: StateDiff | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -102,6 +105,9 @@ class ReplayEngine:
         # 6. Build summary lines
         summary_lines = self._build_summary(incident, affected)
 
+        # 7. State diff (before/after architecture snapshot)
+        state_diff = StateDiffer(self._gs).diff(incident_id)
+
         log.info(
             "replay_built",
             incident_id=incident_id,
@@ -117,6 +123,7 @@ class ReplayEngine:
             top_causes=top_causes,
             service_cascade=cascade,
             confidence=confidence,
+            state_diff=state_diff,
         )
 
     # ---------------------------------------------------------------- internals

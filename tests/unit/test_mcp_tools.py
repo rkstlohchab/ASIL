@@ -57,6 +57,8 @@ def test_tool_catalog_contains_all_shipped_tools() -> None:
         "asil.forget",
         # Phase 4 (temporal causality)
         "asil.find_causes",
+        # Phase 5 (execution replay)
+        "asil.replay_incident",
     }
 
 

@@ -270,11 +270,7 @@ def test_db_pool_exhaustion_postmortem_loads_cleanly() -> None:
     assert len(pm.events) >= 8
     # The bad deployment that triggered the cascade should be parseable.
     bad_deploy = next(
-        (
-            e
-            for e in pm.events
-            if isinstance(e, Deployment) and e.deployment_id == "deploy-d1a7f3c"
-        ),
+        (e for e in pm.events if isinstance(e, Deployment) and e.deployment_id == "deploy-d1a7f3c"),
         None,
     )
     assert bad_deploy is not None
