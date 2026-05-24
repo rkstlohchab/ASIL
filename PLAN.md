@@ -363,11 +363,11 @@ Each phase ends with a **demoable artifact** and a written design doc in `resear
 | Phase | Solo duration | Cumulative | Status |
 |---|---|---|---|
 | 0 — Foundation | 2 weeks | M1 | ✅ DONE 2026-05-20 |
-| 1 — Repo Intelligence (structural) | 6 weeks | M2 | ✅ DONE 2026-05-23 (Python; JS/TS/Go + diff-aware re-index deferred to Phase 1.x polish) |
+| 1 — Repo Intelligence (structural) | 6 weeks | M2 | ✅ DONE 2026-05-23 (Python + JS/TS/TSX; Go + diff-aware re-index deferred to Phase 1.x polish) |
 | 2 — Memory + Confidence Scoring | 4 weeks | M3 | ✅ DONE 2026-05-24 (Verifier, canonical Scorer, EpisodicStore, memory MCP tools) |
 | 3 — Infra Bridge (event ingestion) | 6 weeks | M5 | ◐ step 1 ✅ 2026-05-24 (asil_infra, postmortem ingestor, runtime schema, `asil events` CLI). K8s/Prom/Loki adapters next. |
-| 4 — **Temporal Causality Engine** | 8 weeks | M7 | ◐ step 1 ✅ 2026-05-24 (THE MOAT: temporal-proximity linker, `(:Cause)-[:PRECEDED]->(:Incident)` edges with confidence + derivation, `asil temporal link`/`causes`, `asil.find_causes` MCP tool). Lagged-correlation + explicit-reference strategies next. |
-| 5 — **Execution Replay + Hero Demo** | 8 weeks | M9 | ⬜ |
+| 4 — **Temporal Causality Engine** | 8 weeks | M7 | ✅ steps 1–2 DONE 2026-05-24 (THE MOAT: temporal-proximity linker + lagged-correlation boost; auth deploy → #1 cause at 0.979; `asil temporal link`/`causes`, `asil.find_causes` MCP tool). Explicit-reference strategy next. |
+| 5 — **Execution Replay + Hero Demo** | 8 weeks | M9 | ◐ step 1 ✅ 2026-05-24 (ReplayEngine, `asil replay <id>`, hero demo rendering timeline + causes + cascade + confidence card). State diff + full pipeline integration next. |
 | 6 — Architecture Drift Detection | 6 weeks | M10 | ⬜ |
 | 7 (stretch) — Minimal UI + MCP polish | 6 weeks | M11–12 | ⬜ |
 | 8 (stretch) — Deterministic fix pipeline (PRs) | open | post-launch | ⬜ |
@@ -417,8 +417,9 @@ Phases 4 and 5 are the moat. Everything before them is necessary plumbing; every
 
 **Phase 1.x polish (deferred — not blocking Phase 2):**
 
+- [x] **1.8 JS/TS/TSX parsers** — per-language dispatch in `TreeSitterParser`, shared `_parse_js_family` extractor, module-name convention (repo-relative with `/` → `.`), 20 unit tests. Validated on 50-file React Native repo (149 functions, 891 call sites).
 - [ ] **1.7 Incremental re-index** — `git fetch` + diff-aware re-parse of only changed files + prune removed files from graph/vectors. Today re-ingest is a full re-scan; cheap on small repos, painful on large ones.
-- [ ] **1.8 JS/TS + Go parsers** — the parser uses a node shim that lifts trivially to other grammars, but each language has different idioms (CommonJS vs ESM imports, Go's exported-by-capitalization rule, TS-only declarations). Worth doing carefully as a focused commit. **Not blocking Phase 2** — the moat work (causality, replay, drift) is language-agnostic at the graph schema level.
+- [ ] **1.8b Go parser** — the parser uses a node shim that lifts trivially to other grammars. Worth doing carefully as a focused commit.
 - [ ] **1.6 Full SCIP** — promote the remaining 86% of call sites by running `scip-python` / `scip-typescript` and ingesting the protobuf. Becomes important for cross-file symbol resolution in big repos.
 
 **Demo (passed 2026-05-23):** `asil ingest .` on the ASIL repo itself: 43 files, 289 functions, 63 classes, 352 vector writes, 215 resolved call edges. `asil ask "How does the LLM router pick a provider for a given tier?"` returns `ModelRouter._provider` + `ModelRouter.call` with correct file:line citations and a 0.586 confidence score. End-to-end cost ~$0.0005 per query on `tight` profile.

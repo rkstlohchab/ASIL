@@ -2,8 +2,8 @@
 
 **Purpose:** Hand the project off to a fresh Claude Code session with zero context loss.
 **Last updated:** 2026-05-25.
-**Phase status:** Phase 0 + 1 + 2 ✅ done · Phase 3 step 1 ✅ · Phase 4 step 1 ✅ — **THE MOAT shipped**.
-**Test bar:** 168/168 passing on `pytest tests/unit tests/integration -q` against the live docker stack.
+**Phase status:** Phase 0 + 1 + 2 ✅ done · Phase 3 step 1 ✅ · Phase 4 steps 1–2 ✅ (THE MOAT + lagged-correlation) · Phase 5 step 1 ✅ (replay engine).
+**Test bar:** 203/203 passing on `pytest tests/unit tests/integration -q` against the live docker stack.
 
 ---
 
@@ -49,11 +49,14 @@ asil ask "<question>"  ──► HybridRetriever (vector + graph expand)
                           ──► Confidence (canonical scorer)
                           ──► EpisodicStore (Postgres + Qdrant; recall surfaces prior conclusions next time)
 
-asil temporal link <env> ──► TemporalLinker (proximity scoring)
+asil temporal link <env> ──► TemporalLinker (proximity + lagged-correlation)
                             ──► (:Cause)-[:PRECEDED {confidence, delta_seconds, derivation, strategy}]->(:Incident)
 
 asil temporal causes <id>  ──► causes_for_incident query
                               ──► ranked table OR JSON via asil.find_causes MCP tool
+
+asil replay <id>  ──► ReplayEngine (timeline + causes + cascade + confidence)
+                     ──► Rich terminal view with panels, tables, and markers
 ```
 
 **10 MCP tools live** at `POST /mcp/call/{name}`: `asil.{search_code, get_callers, get_dependencies, who_owns, commit_history (stub), ask, remember, recall, forget, find_causes}`.
@@ -69,8 +72,8 @@ packages/asil_memory/      ✅ GraphStore (Neo4j), VectorStore (Qdrant), HybridR
 packages/asil_reasoning/   ✅ Verifier (second-pass LLM checker), canonical Scorer
 packages/asil_eval/        ✅ recall harness + asil_self corpus (10 Q&A)
 packages/asil_infra/       ◐ Phase 3 step 1: runtime-event models + postmortem ingestor
-packages/asil_temporal/    ◐ Phase 4 step 1: temporal-proximity causal linker (THE MOAT)
-packages/asil_replay/      ⬜ Phase 5 — not started
+packages/asil_temporal/    ✅ Phase 4 steps 1–2: temporal-proximity linker + lagged-correlation (THE MOAT)
+packages/asil_replay/      ✅ Phase 5 step 1: replay engine (timeline + cascade + confidence)
 packages/asil_drift/       ⬜ Phase 6 — not started
 ```
 
@@ -92,11 +95,9 @@ b140efc  Phase 1.3 (Neo4j graph builder)
 
 ---
 
-## Your job: 6 tasks in priority order
+## Your job: remaining tasks
 
-Do them **in order**. Commit between each task. Run the test sweep + the live demo before moving on. Don't batch — confidence comes from green-bar verification of each chunk.
-
-The user is solo + startup-track. They value: forward progress on the moat, clear demos, no positioning drift, honest engineering. They have an OpenAI API key (`tight` profile defaults to gpt-4o-mini if no DeepSeek key). The bundled postmortem must always pass its regression test.
+Tasks 1–5 are **done**. Continue with Phase 4 step 3+ (explicit reference), Phase 5 remaining (state diff + full reasoning pipeline), or Phase 6.
 
 ### Task 1 — JS/TS Tree-sitter parser
 
