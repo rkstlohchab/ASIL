@@ -7,6 +7,7 @@ dependencies = [
     "asil-core",
     "neo4j>=5.24.0",
     "qdrant-client>=1.12.0",
+    "psycopg[binary]>=3.2.0",
 ]
 
 [build-system]

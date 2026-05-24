@@ -32,7 +32,7 @@ These are violations to surface in review, not preferences:
 
 ## Current phase
 
-**Phase 2 — Memory + Confidence Scoring** (Phase 0 + 1 ✅ done). See PLAN.md for the full roadmap; see [docs/phase-1-testing.md](docs/phase-1-testing.md) for the most recent validation checklist.
+**Phase 3 — Infra Bridge** (Phase 0 + 1 + 2 ✅ done). See PLAN.md for the full roadmap. Phase 2 shipped the Verifier (second-pass claim checker), canonical Scorer, EpisodicStore (Postgres + Qdrant memory of every conclusion), and the `asil.remember` / `asil.recall` / `asil.forget` MCP tools.
 
 To check status during a session, run `/phase`. To run the regression harness, run `/eval`.
 

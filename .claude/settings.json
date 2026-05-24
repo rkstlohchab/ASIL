@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'ASIL — Engineering Intelligence Infrastructure. Currently Phase 0 (Foundation). See PLAN.md for roadmap, CLAUDE.md for conventions, docs/phase-0-testing.md for validation steps.'"
+            "command": "echo 'ASIL — Engineering Intelligence Infrastructure. Phase 0 + 1 + 2 done; currently Phase 3 (Infra Bridge). See PLAN.md for roadmap, CLAUDE.md for conventions.'"
           }
         ]
       }

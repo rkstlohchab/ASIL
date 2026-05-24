@@ -28,4 +28,15 @@ def vector_store() -> VectorStore:
         store.verify_connectivity()
     except VectorStoreError as e:
         pytest.skip(f"qdrant unreachable: {e}")
-    return store
+    yield store
+    # Tests that touch the shared episodic collection size it for fake-vector
+    # dims (4 or 8); the live CLI uses 1536 (OpenAI). Nuke the test residue so
+    # subsequent CLI runs can recreate at the real dim.
+    from asil_memory import EPISODIC_COLLECTION
+
+    try:
+        if store._client.collection_exists(EPISODIC_COLLECTION):  # type: ignore[attr-defined]
+            store._client.delete_collection(EPISODIC_COLLECTION)  # type: ignore[attr-defined]
+    except Exception:
+        pass
+    store.close()

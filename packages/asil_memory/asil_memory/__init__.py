@@ -9,6 +9,13 @@ Future phases:
   - hybrid_retriever: combines the above for unified retrieval (Phase 1.5)
 """
 
+from asil_memory.episodic import (
+    EPISODIC_COLLECTION,
+    EpisodicStore,
+    EpisodicStoreError,
+    Memory,
+    MemoryHit,
+)
 from asil_memory.graph_store import GraphStore, GraphStoreError
 from asil_memory.hybrid_retriever import (
     HybridRetriever,
@@ -28,9 +35,14 @@ __version__ = "0.0.1"
 
 __all__ = [
     "DEFAULT_COLLECTION",
+    "EPISODIC_COLLECTION",
+    "EpisodicStore",
+    "EpisodicStoreError",
     "GraphStore",
     "GraphStoreError",
     "HybridRetriever",
+    "Memory",
+    "MemoryHit",
     "RetrievalCandidate",
     "RetrievalResult",
     "SearchHit",

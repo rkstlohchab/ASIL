@@ -12,6 +12,7 @@ Whichever tool you're running in (Claude Code, Antigravity, Cursor, OpenHands, A
    - [asil-graph-schema.md](.claude/skills/asil-graph-schema.md) — Neo4j schema invariants: `repo_key` on every node, MERGE-based idempotency, JSON-string properties for un-promoted relations.
    - [asil-mcp-tool.md](.claude/skills/asil-mcp-tool.md) — MCP tool contract: async, JSON-safe, Confidence on every reasoning result, read-only by default.
    - [asil-eval-corpus.md](.claude/skills/asil-eval-corpus.md) — don't tune the corpus to hide retrieval gaps; the eval is a regression catcher.
+   - [asil-memory.md](.claude/skills/asil-memory.md) — episodic-store invariants: Postgres is source of truth, Qdrant point ID == Postgres UUID, full provenance on every memory.
 4. **[docs/phase-0-testing.md](docs/phase-0-testing.md)** and **[docs/phase-1-testing.md](docs/phase-1-testing.md)** — local validation checklists. Phase 1's guide is the freshest pattern.
 
 ## The five hard rules

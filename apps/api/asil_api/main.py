@@ -167,7 +167,14 @@ async def mcp_call_tool(tool_name: str, req: _ToolCallRequest) -> dict[str, Any]
     backing-store handles. Fine at Phase 1 scale; Phase 2 introduces an
     app.state-scoped pool if latency matters."""
     from asil_core.llm import ModelRouter
-    from asil_memory import GraphStore, GraphStoreError, VectorStore, VectorStoreError
+    from asil_memory import (
+        EpisodicStore,
+        EpisodicStoreError,
+        GraphStore,
+        GraphStoreError,
+        VectorStore,
+        VectorStoreError,
+    )
 
     from asil_api.mcp_tools import call_tool
 
@@ -185,6 +192,14 @@ async def mcp_call_tool(tool_name: str, req: _ToolCallRequest) -> dict[str, Any]
         # Some tools don't need the vector store; let the dispatcher decide.
         vstore = None
 
+    estore: EpisodicStore | None = None
+    try:
+        estore = EpisodicStore(vector_store=vstore)
+        estore.verify_connectivity()
+        estore.apply_schema()
+    except EpisodicStoreError:
+        estore = None
+
     router = app.state.router if hasattr(app.state, "router") else ModelRouter.from_env()
     try:
         result = await call_tool(
@@ -193,6 +208,7 @@ async def mcp_call_tool(tool_name: str, req: _ToolCallRequest) -> dict[str, Any]
             graph_store=gstore,
             vector_store=vstore,
             router=router,
+            episodic_store=estore,
         )
         return {"tool": tool_name, "result": result}
     except ValueError as e:
@@ -201,3 +217,5 @@ async def mcp_call_tool(tool_name: str, req: _ToolCallRequest) -> dict[str, Any]
         gstore.close()
         if vstore is not None:
             vstore.close()
+        if estore is not None:
+            estore.close()

@@ -31,8 +31,10 @@ from typing import Any
 
 from asil_core.llm import ModelRouter
 from asil_memory import (
+    EpisodicStore,
     GraphStore,
     HybridRetriever,
+    Memory,
     VectorStore,
 )
 from asil_reasoning import Verifier, score_verified_answer
@@ -142,6 +144,66 @@ TOOL_CATALOG: list[ToolSpec] = [
                 "repo_key": {"type": ["string", "null"]},
             },
             "required": ["path"],
+        },
+    ),
+    ToolSpec(
+        name="asil.remember",
+        description=(
+            "Persist a conclusion to episodic memory. Most callers don't need this "
+            "directly — `asil.ask` writes to memory automatically. Use this to "
+            "record an out-of-band fact you want ASIL to recall later."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "repo_key": {"type": "string"},
+                "question": {"type": "string"},
+                "answer": {"type": "string"},
+                "citations": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "description": "Optional list of {qualified_name, file_path, start_line, kind}.",
+                    "default": [],
+                },
+            },
+            "required": ["repo_key", "question", "answer"],
+        },
+    ),
+    ToolSpec(
+        name="asil.recall",
+        description=(
+            "Semantic search over episodic memory. Returns past conclusions whose "
+            "questions are similar to the query. Useful when an agent wants to "
+            "check whether ASIL has already reasoned about a topic."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "repo_key": {"type": ["string", "null"]},
+                "limit": {"type": "integer", "minimum": 1, "maximum": 50, "default": 5},
+                "min_similarity": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0,
+                    "default": 0.5,
+                },
+            },
+            "required": ["query"],
+        },
+    ),
+    ToolSpec(
+        name="asil.forget",
+        description=(
+            "Hard-delete one memory by id. Idempotent. Use when ASIL persisted a "
+            "wrong or stale conclusion."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "memory_id": {"type": "string", "description": "Full UUID."},
+            },
+            "required": ["memory_id"],
         },
     ),
     ToolSpec(
@@ -291,6 +353,82 @@ async def commit_history(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+async def remember(
+    payload: dict[str, Any],
+    *,
+    episodic_store: EpisodicStore,
+    router: ModelRouter,
+    profile_name: str,
+) -> dict[str, Any]:
+    """Out-of-band write to episodic memory. Caller supplies the conclusion;
+    we embed the question + persist."""
+    from asil_core import Confidence
+
+    repo_key = _required_str(payload, "repo_key")
+    question = _required_str(payload, "question")
+    answer = _required_str(payload, "answer")
+    citations = payload.get("citations") or []
+    if not isinstance(citations, list):
+        raise ValueError("'citations' must be a list")
+
+    # Out-of-band remembers get a low-evidence baseline confidence so they
+    # don't outrank verified `asil.ask` conclusions when recalled.
+    conf = Confidence(
+        score=0.5,
+        evidence_count=0,
+        retrieval_strength=0.0,
+        causal_confidence=0.0,
+        derivation=["out-of-band write via asil.remember"],
+    )
+
+    episodic_store.apply_schema()
+    vec = (await router.embed([question]))[0]
+    mem = episodic_store.remember(
+        repo_key=repo_key,
+        question=question,
+        answer=answer,
+        confidence=conf,
+        citations=citations,
+        model="(remember)",
+        provider="(remember)",
+        cost_usd=0.0,
+        profile=profile_name,
+        question_vector=vec,
+    )
+    return {"id": mem.id, "created_at": mem.created_at.isoformat()}
+
+
+async def recall(
+    payload: dict[str, Any],
+    *,
+    episodic_store: EpisodicStore,
+    router: ModelRouter,
+) -> dict[str, Any]:
+    query = _required_str(payload, "query")
+    repo_key = payload.get("repo_key")
+    limit = int(payload.get("limit", 5))
+    min_sim = float(payload.get("min_similarity", 0.5))
+
+    vec = (await router.embed([query]))[0]
+    hits = episodic_store.recall_similar(
+        query_vector=vec,
+        repo_key=repo_key,
+        limit=limit,
+        min_similarity=min_sim,
+    )
+    return {
+        "query": query,
+        "hits": [_memory_hit_dict(h.memory, h.similarity) for h in hits],
+        "count": len(hits),
+    }
+
+
+async def forget(payload: dict[str, Any], *, episodic_store: EpisodicStore) -> dict[str, Any]:
+    memory_id = _required_str(payload, "memory_id")
+    removed = episodic_store.forget(memory_id)
+    return {"memory_id": memory_id, "removed": removed}
+
+
 async def ask(
     payload: dict[str, Any],
     *,
@@ -390,6 +528,7 @@ async def call_tool(
     graph_store: GraphStore,
     vector_store: VectorStore | None,
     router: ModelRouter | None,
+    episodic_store: EpisodicStore | None = None,
 ) -> dict[str, Any]:
     """Route a tool call by name. Validates name + required deps for that tool."""
     if name not in _TOOL_HANDLERS:
@@ -419,6 +558,24 @@ async def call_tool(
             vector_store=vector_store,
             router=router,  # type: ignore[arg-type]
         )
+    if name == "asil.remember":
+        _need(episodic_store, router, name=name)
+        return await remember(
+            payload,
+            episodic_store=episodic_store,  # type: ignore[arg-type]
+            router=router,  # type: ignore[arg-type]
+            profile_name=getattr(router, "active_profile_name", "(remember)"),
+        )
+    if name == "asil.recall":
+        _need(episodic_store, router, name=name)
+        return await recall(
+            payload,
+            episodic_store=episodic_store,  # type: ignore[arg-type]
+            router=router,  # type: ignore[arg-type]
+        )
+    if name == "asil.forget":
+        _need(episodic_store, name=name)
+        return await forget(payload, episodic_store=episodic_store)  # type: ignore[arg-type]
     return {"error": f"handler missing for {name!r}"}
 
 
@@ -440,6 +597,25 @@ def _need(*deps: Any, name: str) -> None:
             f"tool {name!r} requires the vector store and LLM router; "
             "they were not available in this server context."
         )
+
+
+def _memory_hit_dict(m: Memory, similarity: float) -> dict[str, Any]:
+    return {
+        "id": m.id,
+        "similarity": round(similarity, 4),
+        "repo_key": m.repo_key,
+        "question": m.question,
+        "answer": m.answer,
+        "confidence": {
+            "score": round(m.confidence.score, 4),
+            "evidence_count": m.confidence.evidence_count,
+        },
+        "citations": m.citations,
+        "verifier_unsupported": m.verifier_unsupported,
+        "created_at": m.created_at.isoformat() if m.created_at else None,
+        "model": m.model,
+        "provider": m.provider,
+    }
 
 
 def _candidate_dict(c: Any) -> dict[str, Any]:

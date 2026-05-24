@@ -54,20 +54,24 @@ tests/        # unit, integration, e2e
 
 ## Status
 
-**Phase 1 — Repo Intelligence ✅ DONE 2026-05-23.** ASIL can now ingest a real GitHub repo, build a queryable knowledge graph + semantic vector index, and answer natural-language questions with file:line citations and a confidence score.
+**Phase 0 + 1 + 2 ✅ done (2026-05-20 → 2026-05-24).** ASIL now ingests any repo, builds a queryable knowledge graph + semantic vector index, answers natural-language questions with file:line citations, verifies each claim against its citations, and persists every conclusion as episodic memory that subsequent runs recall automatically.
 
 Try it:
 
 ```bash
 make up
-uv run asil ingest . --embed         # parse + graph + embed the current repo
+uv run asil ingest . --embed             # parse + graph + embed the current repo
 uv run asil ask "How does the LLM router pick a provider for a given tier?"
+# ↑ runs verifier; downgrades Confidence on any unsupported claim
+uv run asil ask "How does the LLM router pick a provider for a given tier?"
+# ↑ second run surfaces the prior conclusion from episodic memory
+uv run asil memory list
 uv run asil eval recall asil_self --repo "local:$(pwd)"
 ```
 
-Next: **Phase 2 — Memory + Confidence Scoring.** Episodic store via Mem0, verifier-pass downgrade on unsupported claims, day-1/day-7 recall demo.
+Currently at **Phase 3 — Infra Bridge.** K8s / Prometheus / Loki adapters feed runtime events (Deployment, MetricShift, LogSignature) into the graph — the data foundation for Phase 4's temporal causality engine, which is the moat.
 
-See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full roadmap, [docs/phase-0-testing.md](docs/phase-0-testing.md) for the Phase 0 checklist, and [docs/phase-1-testing.md](docs/phase-1-testing.md) for the Phase 1 end-to-end validation guide.
+See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full roadmap, [docs/phase-0-testing.md](docs/phase-0-testing.md), and [docs/phase-1-testing.md](docs/phase-1-testing.md).
 
 ## For contributors (and AI coding agents)
 

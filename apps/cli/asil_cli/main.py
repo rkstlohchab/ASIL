@@ -34,9 +34,12 @@ from asil_ingest import (
     resolve_repo,
 )
 from asil_memory import (
+    EpisodicStore,
+    EpisodicStoreError,
     GraphStore,
     GraphStoreError,
     HybridRetriever,
+    Memory,
     RetrievalResult,
     VectorStore,
     VectorStoreError,
@@ -56,10 +59,12 @@ llm_app = typer.Typer(help="LLM router commands.", no_args_is_help=True)
 graph_app = typer.Typer(help="Neo4j graph commands.", no_args_is_help=True)
 vector_app = typer.Typer(help="Qdrant vector commands.", no_args_is_help=True)
 eval_app = typer.Typer(help="Retrieval / reasoning eval harness.", no_args_is_help=True)
+memory_app = typer.Typer(help="Episodic memory (past conclusions).", no_args_is_help=True)
 app.add_typer(llm_app, name="llm")
 app.add_typer(graph_app, name="graph")
 app.add_typer(vector_app, name="vector")
 app.add_typer(eval_app, name="eval")
+app.add_typer(memory_app, name="memory")
 
 console = Console()
 
@@ -649,12 +654,26 @@ def ask(
             "Adds one LLM call (~$0.0003 on tight).",
         ),
     ] = True,
+    remember: Annotated[
+        bool,
+        typer.Option(
+            "--remember/--no-remember",
+            help="After answering, persist the conclusion to episodic memory (Postgres + Qdrant).",
+        ),
+    ] = True,
+    recall_prior: Annotated[
+        bool,
+        typer.Option(
+            "--recall/--no-recall",
+            help="Before answering, check episodic memory for similar prior questions and surface them.",
+        ),
+    ] = True,
 ) -> None:
     """Ask ASIL a question about the indexed code.
 
     Pipeline (Phase 2): hybrid retrieve -> reasoning LLM -> verifier pass ->
-    composed Confidence. The verifier checks every claim in the answer against
-    its citations; unsupported claims discount the score.
+    composed Confidence -> persist to episodic memory. Subsequent runs
+    surface similar prior conclusions before producing a fresh answer.
     """
     configure_logging()
     try:
@@ -678,9 +697,40 @@ def ask(
         final_limit=limit,
     )
 
+    # Episodic memory is best-effort — if Postgres is unreachable we still
+    # answer; the user just doesn't get prior-conclusion recall or persistence.
+    estore: EpisodicStore | None = None
+    if remember or recall_prior:
+        try:
+            estore = EpisodicStore(vector_store=vstore)
+            estore.verify_connectivity()
+            estore.apply_schema()
+        except EpisodicStoreError as e:
+            console.print(f"[yellow]episodic memory unavailable: {e}[/yellow]")
+            estore = None
+
     verifier = Verifier(router=router) if verify else None
 
-    async def _run() -> tuple[RetrievalResult, str, float, VerifierResult | None]:
+    async def _run() -> tuple[
+        RetrievalResult, str, float, VerifierResult | None, list[Memory], str
+    ]:
+        # Recall first so the LLM has prior context (cheap — one extra vector query).
+        prior_memories: list[Memory] = []
+        question_vec_for_memory: list[float] | None = None
+        if estore is not None and recall_prior:
+            try:
+                vec_batch = await router.embed([question])
+                question_vec_for_memory = vec_batch[0]
+                hits = estore.recall_similar(
+                    query_vector=question_vec_for_memory,
+                    repo_key=repo,
+                    limit=3,
+                    min_similarity=0.85,
+                )
+                prior_memories = [h.memory for h in hits]
+            except Exception as e:
+                console.print(f"[yellow]memory recall failed: {e}[/yellow]")
+
         result = await retriever.retrieve(question, repo_key=repo)
         if not result.candidates:
             return (
@@ -688,8 +738,10 @@ def ask(
                 "(no candidates retrieved — index may be empty for this repo)",
                 0.0,
                 None,
+                prior_memories,
+                "tight",
             )
-        prompt = _build_ask_prompt(question, result)
+        prompt = _build_ask_prompt(question, result, prior_memories=prior_memories)
         resp = await router.call(
             tier="reasoning",
             messages=[{"role": "user", "content": prompt}],
@@ -701,9 +753,54 @@ def ask(
         if verifier is not None:
             verifier_result = await verifier.verify(question, resp.text, result.candidates)
         total_cost = resp.cost_usd + (verifier_result.cost_usd if verifier_result else 0.0)
-        return result, resp.text, total_cost, verifier_result
 
-    result, answer_text, cost, verifier_result = asyncio.run(_run())
+        # Persist after we have the final composed confidence (verifier may
+        # downgrade). Best-effort: if Postgres is down the answer still ships.
+        if estore is not None and remember:
+            final_conf = result.confidence
+            if verifier_result is not None and not verifier_result.skipped:
+                final_conf = score_verified_answer(result.confidence, verifier_result)
+            try:
+                if question_vec_for_memory is None:
+                    vec_batch = await router.embed([question])
+                    question_vec_for_memory = vec_batch[0]
+                estore.remember(
+                    repo_key=repo or "(unscoped)",
+                    question=question,
+                    answer=resp.text,
+                    confidence=final_conf,
+                    citations=[
+                        {
+                            "qualified_name": c.qualified_name,
+                            "file_path": c.file_path,
+                            "start_line": c.start_line,
+                            "kind": c.kind,
+                            "score": round(c.score, 4),
+                        }
+                        for c in result.candidates
+                    ],
+                    model=resp.model,
+                    provider=resp.provider,
+                    cost_usd=total_cost,
+                    profile=router.active_profile_name,
+                    verifier_unsupported=(
+                        verifier_result.unsupported_count if verifier_result else 0
+                    ),
+                    question_vector=question_vec_for_memory,
+                )
+            except Exception as e:
+                console.print(f"[yellow]memory write failed: {e}[/yellow]")
+
+        return (
+            result,
+            resp.text,
+            total_cost,
+            verifier_result,
+            prior_memories,
+            router.active_profile_name,
+        )
+
+    result, answer_text, cost, verifier_result, prior_memories, _profile_name = asyncio.run(_run())
 
     if verifier_result is not None and not verifier_result.skipped:
         # Replace the retriever's confidence with the verifier-aware composed one.
@@ -729,6 +826,20 @@ def ask(
                 f"{c.file_path}:{c.start_line}",
             )
         console.print(cand_table)
+
+    if prior_memories:
+        mem_table = Table(
+            title=f"recalled {len(prior_memories)} similar prior conclusion(s)",
+            expand=True,
+            border_style="magenta",
+        )
+        mem_table.add_column("when", no_wrap=True)
+        mem_table.add_column("score", justify="right", no_wrap=True)
+        mem_table.add_column("question", overflow="fold")
+        for m in prior_memories:
+            when = m.created_at.strftime("%Y-%m-%d %H:%M") if m.created_at else "?"
+            mem_table.add_row(when, f"{m.confidence.score:.2f}", m.question)
+        console.print(mem_table)
 
     console.print(
         Panel(
@@ -771,8 +882,24 @@ _ASK_SYSTEM_PROMPT = (
 )
 
 
-def _build_ask_prompt(question: str, result: RetrievalResult) -> str:
-    lines = [f"Question: {question}", "", "Code snippets retrieved (most relevant first):"]
+def _build_ask_prompt(
+    question: str,
+    result: RetrievalResult,
+    *,
+    prior_memories: list[Memory] | None = None,
+) -> str:
+    lines = [f"Question: {question}", ""]
+    if prior_memories:
+        lines.append(
+            "Prior conclusions on similar questions (use these as background, but answer the current question on its own merits):"
+        )
+        for i, m in enumerate(prior_memories, 1):
+            ts = m.created_at.isoformat(timespec="minutes") if m.created_at else "?"
+            lines.append("")
+            lines.append(f"[prior {i}] {m.question!r} ({ts}, confidence {m.confidence.score:.2f})")
+            lines.append(f"  {m.answer.strip()[:600]}")
+        lines.append("")
+    lines.append("Code snippets retrieved (most relevant first):")
     for i, c in enumerate(result.candidates, 1):
         header = f"[{i}] {c.qualified_name}  —  {c.file_path}:{c.start_line}"
         if c.signature:
@@ -988,6 +1115,202 @@ def eval_recall(
 def _color_recall(v: float) -> str:
     color = "green" if v >= 0.8 else ("yellow" if v >= 0.5 else "red")
     return f"[{color}]{v:.0%}[/{color}]"
+
+
+@memory_app.command("stats")
+def memory_stats() -> None:
+    """Total + per-repo memory counts."""
+    configure_logging()
+    estore = _open_episodic_or_exit()
+    info = estore.stats()
+    overall = Table(title="episodic memory")
+    overall.add_column("metric")
+    overall.add_column("value", justify="right")
+    overall.add_row("total memories", f"{info['total']:,}")
+    console.print(overall)
+    if info["per_repo"]:
+        per = Table(title="per repo")
+        per.add_column("repo_key")
+        per.add_column("count", justify="right")
+        for rk, n in sorted(info["per_repo"].items(), key=lambda x: -x[1]):
+            per.add_row(rk, f"{n:,}")
+        console.print(per)
+    estore.close()
+
+
+@memory_app.command("list")
+def memory_list(
+    repo: Annotated[str | None, typer.Option("--repo", help="Scope to one repo.")] = None,
+    limit: Annotated[int, typer.Option(help="Max rows to print.")] = 10,
+) -> None:
+    """Most-recent-first list of past conclusions."""
+    configure_logging()
+    estore = _open_episodic_or_exit()
+    mems = estore.recall_recent(repo_key=repo, limit=limit)
+    if not mems:
+        console.print("[dim]no memories yet — run `asil ask` first.[/dim]")
+        estore.close()
+        return
+    table = Table(title=f"recent memories ({len(mems)})", expand=True)
+    table.add_column("when", no_wrap=True)
+    table.add_column("conf", justify="right", no_wrap=True)
+    table.add_column("repo", overflow="fold")
+    table.add_column("question", overflow="fold")
+    table.add_column("id", no_wrap=True)
+    for m in mems:
+        when = m.created_at.strftime("%Y-%m-%d %H:%M") if m.created_at else "?"
+        table.add_row(when, f"{m.confidence.score:.2f}", m.repo_key, m.question, m.id[:8])
+    console.print(table)
+    estore.close()
+
+
+@memory_app.command("recall")
+def memory_recall(
+    query: Annotated[str, typer.Argument(help="Natural-language query.")],
+    repo: Annotated[str | None, typer.Option("--repo", help="Scope to one repo.")] = None,
+    limit: Annotated[int, typer.Option(help="Top-K similar memories.")] = 5,
+    min_similarity: Annotated[float, typer.Option(help="Hide hits below this cosine score.")] = 0.5,
+) -> None:
+    """Find past conclusions whose question is semantically similar to `query`."""
+    configure_logging()
+    estore = _open_episodic_or_exit()
+
+    async def _run() -> list:
+        router = ModelRouter.from_env()
+        vec = (await router.embed([query]))[0]
+        return estore.recall_similar(
+            query_vector=vec,
+            repo_key=repo,
+            limit=limit,
+            min_similarity=min_similarity,
+        )
+
+    hits = asyncio.run(_run())
+    if not hits:
+        console.print("[dim]no similar memories above the threshold.[/dim]")
+        estore.close()
+        return
+    table = Table(title=f"top {len(hits)} memories for: {query!r}", expand=True)
+    table.add_column("sim", justify="right", no_wrap=True)
+    table.add_column("conf", justify="right", no_wrap=True)
+    table.add_column("when", no_wrap=True)
+    table.add_column("question", overflow="fold")
+    table.add_column("id", no_wrap=True)
+    for h in hits:
+        when = h.memory.created_at.strftime("%Y-%m-%d %H:%M") if h.memory.created_at else "?"
+        table.add_row(
+            f"{h.similarity:.3f}",
+            f"{h.memory.confidence.score:.2f}",
+            when,
+            h.memory.question,
+            h.memory.id[:8],
+        )
+    console.print(table)
+    estore.close()
+
+
+@memory_app.command("show")
+def memory_show(
+    memory_id: Annotated[str, typer.Argument(help="Memory id (full or first 8 chars).")],
+) -> None:
+    """Print one memory's full answer + citations."""
+    configure_logging()
+    estore = _open_episodic_or_exit()
+    mem = _resolve_memory(estore, memory_id)
+    if mem is None:
+        console.print(f"[red]no memory found for {memory_id!r}[/red]")
+        estore.close()
+        raise typer.Exit(code=1)
+    console.print(f"[bold]id:[/bold] {mem.id}")
+    console.print(f"[bold]when:[/bold] {mem.created_at}")
+    console.print(f"[bold]repo:[/bold] {mem.repo_key}")
+    console.print(f"[bold]question:[/bold] {mem.question}")
+    console.print(
+        f"[bold]confidence:[/bold] {mem.confidence.score:.3f}  "
+        f"(evidence={mem.confidence.evidence_count}, "
+        f"unsupported={mem.verifier_unsupported})"
+    )
+    console.print()
+    console.print(Panel(Markdown(mem.answer), title="answer", border_style="cyan"))
+    if mem.citations:
+        cit_table = Table(title="citations", expand=True)
+        cit_table.add_column("qualified_name", overflow="fold")
+        cit_table.add_column("file:line", overflow="fold")
+        for c in mem.citations:
+            loc = f"{c.get('file_path', '?')}:{c.get('start_line', '?')}"
+            cit_table.add_row(c.get("qualified_name", "?"), loc)
+        console.print(cit_table)
+    estore.close()
+
+
+@memory_app.command("forget")
+def memory_forget(
+    memory_id: Annotated[str, typer.Argument(help="Memory id (full or first 8 chars).")],
+    yes: Annotated[bool, typer.Option("--yes", help="Skip confirmation.")] = False,
+) -> None:
+    """Delete one memory (Postgres row + Qdrant point)."""
+    configure_logging()
+    estore = _open_episodic_or_exit()
+    mem = _resolve_memory(estore, memory_id)
+    if mem is None:
+        console.print(f"[red]no memory found for {memory_id!r}[/red]")
+        estore.close()
+        raise typer.Exit(code=1)
+    if not yes and not typer.confirm(
+        f"delete memory {mem.id[:8]} ({mem.question!r})?", default=False
+    ):
+        console.print("aborted")
+        estore.close()
+        raise typer.Exit(code=1)
+    ok = estore.forget(mem.id)
+    console.print(
+        f"[green]forgot {mem.id[:8]}[/green]" if ok else f"[red]could not forget {mem.id[:8]}[/red]"
+    )
+    estore.close()
+
+
+@memory_app.command("clear")
+def memory_clear(
+    repo: Annotated[str, typer.Argument(help="Repo key to clear all memories for.")],
+    yes: Annotated[bool, typer.Option("--yes", help="Skip confirmation.")] = False,
+) -> None:
+    """Wipe every memory for one repo (Postgres rows + Qdrant points)."""
+    configure_logging()
+    estore = _open_episodic_or_exit()
+    if not yes and not typer.confirm(f"delete ALL memories for repo {repo!r}?", default=False):
+        console.print("aborted")
+        estore.close()
+        raise typer.Exit(code=1)
+    n = estore.clear_repo(repo)
+    console.print(f"[green]cleared {n} memories for {repo!r}[/green]")
+    estore.close()
+
+
+def _open_episodic_or_exit() -> EpisodicStore:
+    try:
+        vstore = VectorStore()
+        vstore.verify_connectivity()
+    except VectorStoreError:
+        vstore = None  # type: ignore[assignment]
+    try:
+        estore = EpisodicStore(vector_store=vstore)
+        estore.verify_connectivity()
+        estore.apply_schema()
+        return estore
+    except EpisodicStoreError as e:
+        console.print(f"[red]postgres unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+
+def _resolve_memory(estore: EpisodicStore, memory_id: str) -> Memory | None:
+    """Accept either a full UUID or its first 8 characters."""
+    if len(memory_id) == 36:
+        return estore.get(memory_id)
+    # Prefix match against recent rows. Phase 2 only — fine for hundreds of memories.
+    for m in estore.recall_recent(limit=200):
+        if m.id.startswith(memory_id):
+            return m
+    return None
 
 
 if __name__ == "__main__":  # pragma: no cover

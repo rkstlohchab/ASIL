@@ -41,15 +41,20 @@ class FakeGraphStore:
 # ---------------------------------------------------------------------------
 
 
-def test_tool_catalog_contains_all_phase1_tools() -> None:
+def test_tool_catalog_contains_all_phase1_and_phase2_tools() -> None:
     names = {t.name for t in TOOL_CATALOG}
     assert names == {
+        # Phase 1
         "asil.search_code",
         "asil.get_callers",
         "asil.get_dependencies",
         "asil.who_owns",
         "asil.commit_history",
         "asil.ask",
+        # Phase 2 (episodic memory)
+        "asil.remember",
+        "asil.recall",
+        "asil.forget",
     }
 
 
@@ -201,3 +206,48 @@ async def test_call_tool_search_code_needs_vector_store_and_router() -> None:
             vector_store=None,
             router=None,
         )
+
+
+# ---------------------------------------------------------------------------
+# memory tools (Phase 2)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_call_tool_remember_requires_episodic_store_and_router() -> None:
+    gs = FakeGraphStore([])
+    with pytest.raises(RuntimeError, match=r"vector store and LLM router|episodic"):
+        await call_tool(
+            "asil.remember",
+            {"repo_key": "r", "question": "q", "answer": "a"},
+            graph_store=gs,
+            vector_store=None,
+            router=None,
+            episodic_store=None,
+        )
+
+
+@pytest.mark.asyncio
+async def test_call_tool_forget_routes_with_only_episodic_store() -> None:
+    """`asil.forget` doesn't need the LLM router — just the episodic store."""
+
+    class FakeEpisodic:
+        def __init__(self) -> None:
+            self.forgotten: list[str] = []
+
+        def forget(self, memory_id: str) -> bool:
+            self.forgotten.append(memory_id)
+            return True
+
+    estore = FakeEpisodic()
+    gs = FakeGraphStore([])
+    result = await call_tool(
+        "asil.forget",
+        {"memory_id": "deadbeef-cafe-1234-5678-abcdef012345"},
+        graph_store=gs,
+        vector_store=None,
+        router=None,
+        episodic_store=estore,  # type: ignore[arg-type]
+    )
+    assert result["removed"] is True
+    assert estore.forgotten == ["deadbeef-cafe-1234-5678-abcdef012345"]
