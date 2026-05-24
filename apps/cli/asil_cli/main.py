@@ -1689,5 +1689,113 @@ def _identity_label(kind: str, props: dict) -> str:
     return str(props)
 
 
+# ---------------------------------------------------------------------------
+# replay command (Phase 5 step 1 — the hero demo)
+# ---------------------------------------------------------------------------
+
+
+@app.command()
+def replay(
+    incident_id: Annotated[str, typer.Argument(help="Incident id to replay.")],
+    causes_limit: Annotated[int, typer.Option(help="Max top causes to show.")] = 5,
+) -> None:
+    """Replay an incident: timeline + top causes + service cascade + confidence card.
+
+    Reads from the causal graph — does NOT invent causes. If :PRECEDED edges
+    haven't been written yet, run `asil temporal link <env>` first.
+    """
+    configure_logging()
+    try:
+        gstore = GraphStore()
+        gstore.verify_connectivity()
+    except GraphStoreError as e:
+        console.print(f"[red]neo4j unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+
+    from asil_replay import ReplayEngine
+
+    engine = ReplayEngine(graph_store=gstore)
+    result = engine.replay(incident_id, causes_limit=causes_limit)
+    if result is None:
+        console.print(f"[yellow]incident {incident_id!r} not found in graph.[/yellow]")
+        gstore.close()
+        raise typer.Exit(code=1)
+
+    # 1. Header panel
+    header_text = "\n".join(result.summary_lines)
+    console.print(Panel(header_text, title="incident", border_style="bold cyan"))
+
+    # 2. Timeline table
+    if result.timeline:
+        tl = Table(title="timeline", expand=True, show_lines=False)
+        tl.add_column("at", no_wrap=True)
+        tl.add_column("marker", no_wrap=True)
+        tl.add_column("kind", no_wrap=True)
+        tl.add_column("service", no_wrap=True)
+        tl.add_column("description", overflow="fold")
+        for entry in result.timeline:
+            marker_color = {
+                "↗ cause": "green",
+                "▶ INCIDENT": "bold red",
+                "↓ response": "dim",
+            }.get(entry.marker, "")
+            marker_str = f"[{marker_color}]{entry.marker}[/{marker_color}]" if marker_color else ""
+            tl.add_row(entry.at, marker_str, entry.kind, entry.service, entry.description)
+        console.print(tl)
+    else:
+        console.print("[dim]no timeline events found.[/dim]")
+
+    # 3. Top causes table
+    if result.top_causes:
+        ct = Table(title="top causes", expand=True)
+        ct.add_column("conf", justify="right", no_wrap=True)
+        ct.add_column("Δt", justify="right", no_wrap=True)
+        ct.add_column("kind", no_wrap=True)
+        ct.add_column("identity", overflow="fold")
+        ct.add_column("strategy", overflow="fold")
+        for c in result.top_causes:
+            ident = _identity_label(c.get("cause_kind", ""), c.get("cause_props", {}))
+            ct.add_row(
+                _color_conf(float(c.get("confidence", 0))),
+                _fmt_delta(float(c.get("delta_seconds", 0))),
+                str(c.get("cause_kind", "")),
+                ident,
+                str(c.get("strategy", "")),
+            )
+        console.print(ct)
+    else:
+        console.print(
+            "[yellow]no causal edges found. Run `asil temporal link <env>` first.[/yellow]"
+        )
+
+    # 4. Service cascade
+    if result.service_cascade:
+        cascade_lines: list[str] = []
+        for i, sc in enumerate(result.service_cascade):
+            at_short = (
+                sc.first_event_at.split("T")[-1][:8]
+                if "T" in sc.first_event_at
+                else sc.first_event_at
+            )
+            cascade_lines.append(
+                f"[bold]{sc.service}[/bold]  (first event {at_short} — {sc.first_event_kind})"
+            )
+            if i < len(result.service_cascade) - 1:
+                cascade_lines.append(" ↓")
+        console.print(Panel("\n".join(cascade_lines), title="service cascade", border_style="cyan"))
+
+    # 5. Confidence card
+    conf = result.confidence
+    conf_color = "green" if conf.score >= 0.6 else ("yellow" if conf.score >= 0.3 else "red")
+    conf_text = (
+        f"[{conf_color}]Score: {conf.score:.3f}[/{conf_color}]\n"
+        f"Evidence: {conf.evidence_count} causal edges\n"
+        f"Derivation: {conf.derivation}"
+    )
+    console.print(Panel(conf_text, title="confidence", border_style="cyan"))
+
+    gstore.close()
+
+
 if __name__ == "__main__":  # pragma: no cover
     app()
