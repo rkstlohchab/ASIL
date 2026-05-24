@@ -41,6 +41,7 @@ from asil_memory import (
     VectorStore,
     VectorStoreError,
 )
+from asil_reasoning import Verifier, VerifierResult, score_verified_answer
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -640,11 +641,20 @@ def ask(
         bool,
         typer.Option("--show-candidates", help="Also print the raw retrieval table."),
     ] = False,
+    verify: Annotated[
+        bool,
+        typer.Option(
+            "--verify/--no-verify",
+            help="Run the second-pass verifier; downgrades Confidence on unsupported claims. "
+            "Adds one LLM call (~$0.0003 on tight).",
+        ),
+    ] = True,
 ) -> None:
     """Ask ASIL a question about the indexed code.
 
-    Pipeline: hybrid retrieve (vector + graph expand) -> reasoning LLM with the
-    retrieved snippets as context -> structured answer with Confidence + citations.
+    Pipeline (Phase 2): hybrid retrieve -> reasoning LLM -> verifier pass ->
+    composed Confidence. The verifier checks every claim in the answer against
+    its citations; unsupported claims discount the score.
     """
     configure_logging()
     try:
@@ -668,10 +678,17 @@ def ask(
         final_limit=limit,
     )
 
-    async def _run() -> tuple[RetrievalResult, str, float]:
+    verifier = Verifier(router=router) if verify else None
+
+    async def _run() -> tuple[RetrievalResult, str, float, VerifierResult | None]:
         result = await retriever.retrieve(question, repo_key=repo)
         if not result.candidates:
-            return result, "(no candidates retrieved — index may be empty for this repo)", 0.0
+            return (
+                result,
+                "(no candidates retrieved — index may be empty for this repo)",
+                0.0,
+                None,
+            )
         prompt = _build_ask_prompt(question, result)
         resp = await router.call(
             tier="reasoning",
@@ -680,9 +697,21 @@ def ask(
             max_tokens=900,
             temperature=0.1,
         )
-        return result, resp.text, resp.cost_usd
+        verifier_result = None
+        if verifier is not None:
+            verifier_result = await verifier.verify(question, resp.text, result.candidates)
+        total_cost = resp.cost_usd + (verifier_result.cost_usd if verifier_result else 0.0)
+        return result, resp.text, total_cost, verifier_result
 
-    result, answer_text, cost = asyncio.run(_run())
+    result, answer_text, cost, verifier_result = asyncio.run(_run())
+
+    if verifier_result is not None and not verifier_result.skipped:
+        # Replace the retriever's confidence with the verifier-aware composed one.
+        result = RetrievalResult(
+            query=result.query,
+            candidates=result.candidates,
+            confidence=score_verified_answer(result.confidence, verifier_result),
+        )
 
     if show_candidates and result.candidates:
         cand_table = Table(title="retrieval candidates", expand=True)
@@ -708,7 +737,25 @@ def ask(
             border_style="cyan",
         )
     )
+    if verifier_result is not None:
+        _print_verifier(verifier_result)
     _print_confidence(result.confidence, cost_usd=cost)
+
+
+def _print_verifier(vr: VerifierResult) -> None:
+    if vr.skipped:
+        console.print(f"[dim]verifier skipped: {vr.skip_reason}[/dim]")
+        return
+    title = f"verifier — {len(vr.claims)} claim(s), {vr.unsupported_count} unsupported"
+    border = "yellow" if vr.unsupported_count > 0 else "green"
+    table = Table(title=title, show_header=True, expand=True, border_style=border)
+    table.add_column("ok", no_wrap=True)
+    table.add_column("claim", overflow="fold")
+    table.add_column("citation", no_wrap=True, overflow="fold")
+    for claim in vr.claims:
+        flag = "[green]✓[/green]" if claim.supported else "[red]✗[/red]"
+        table.add_row(flag, claim.claim, claim.citation or "[dim]none[/dim]")
+    console.print(table)
 
 
 _ASK_SYSTEM_PROMPT = (

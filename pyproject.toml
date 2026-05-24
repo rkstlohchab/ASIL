@@ -12,6 +12,7 @@ members = [
     "packages/asil_eval",
     "packages/asil_ingest",
     "packages/asil_memory",
+    "packages/asil_reasoning",
 ]
 
 [dependency-groups]

@@ -35,6 +35,7 @@ from asil_memory import (
     HybridRetriever,
     VectorStore,
 )
+from asil_reasoning import Verifier, score_verified_answer
 
 # ---------------------------------------------------------------------------
 # Tool catalog — public-facing JSON Schemas, paired with handler refs.
@@ -148,7 +149,9 @@ TOOL_CATALOG: list[ToolSpec] = [
         description=(
             "Highest-level tool. Embeds the question, runs the hybrid retriever, "
             "passes the top candidates to the reasoning LLM with a strict cite-"
-            "everything system prompt. Returns {answer, confidence, citations}."
+            "everything system prompt, then runs a verifier pass that downgrades "
+            "Confidence if any claim isn't backed by a citation. Returns "
+            "{answer, confidence, citations, verifier}."
         ),
         input_schema={
             "type": "object",
@@ -156,6 +159,11 @@ TOOL_CATALOG: list[ToolSpec] = [
                 "question": {"type": "string"},
                 "repo_key": {"type": ["string", "null"]},
                 "limit": {"type": "integer", "minimum": 1, "maximum": 20, "default": 8},
+                "verify": {
+                    "type": "boolean",
+                    "default": True,
+                    "description": "Run the second-pass claim verifier (adds one LLM call).",
+                },
             },
             "required": ["question"],
         },
@@ -293,6 +301,7 @@ async def ask(
     question = _required_str(payload, "question")
     repo_key = payload.get("repo_key")
     limit = int(payload.get("limit", 8))
+    run_verifier = bool(payload.get("verify", True))
 
     retriever = HybridRetriever(
         graph_store=graph_store,
@@ -307,6 +316,7 @@ async def ask(
             "answer": "No indexed code matched this question. Try a different phrasing or ingest the relevant repo.",
             "citations": [],
             "confidence": _confidence_dict(result.confidence),
+            "verifier": None,
             "cost_usd": 0.0,
         }
 
@@ -318,6 +328,31 @@ async def ask(
         max_tokens=900,
         temperature=0.1,
     )
+
+    confidence = result.confidence
+    verifier_payload: dict[str, Any] | None = None
+    verifier_cost = 0.0
+    if run_verifier:
+        verifier = Verifier(router=router)
+        vr = await verifier.verify(question, resp.text, result.candidates)
+        verifier_cost = vr.cost_usd
+        if not vr.skipped:
+            confidence = score_verified_answer(result.confidence, vr)
+        verifier_payload = {
+            "skipped": vr.skipped,
+            "skip_reason": vr.skip_reason,
+            "unsupported_count": vr.unsupported_count,
+            "claims": [
+                {
+                    "claim": c.claim,
+                    "supported": c.supported,
+                    "citation": c.citation,
+                    "reason": c.reason,
+                }
+                for c in vr.claims
+            ],
+        }
+
     citations = [
         {
             "qualified_name": c.qualified_name,
@@ -332,8 +367,9 @@ async def ask(
         "question": question,
         "answer": resp.text,
         "citations": citations,
-        "confidence": _confidence_dict(result.confidence),
-        "cost_usd": resp.cost_usd,
+        "confidence": _confidence_dict(confidence),
+        "verifier": verifier_payload,
+        "cost_usd": resp.cost_usd + verifier_cost,
         "model": resp.model,
         "provider": resp.provider,
     }
