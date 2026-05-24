@@ -183,6 +183,6 @@ def test_loc_count() -> None:
     assert pf.loc == 4  # 3 lines + trailing newline
 
 
-def test_non_python_language_raises_until_implemented() -> None:
-    with pytest.raises(NotImplementedError, match="Python only"):
-        TreeSitterParser(SourceLanguage.typescript)
+def test_unsupported_language_raises_until_implemented() -> None:
+    with pytest.raises(NotImplementedError, match="not yet implemented"):
+        TreeSitterParser(SourceLanguage.go)

@@ -36,6 +36,7 @@ from asil_ingest import (
     TreeSitterParser,
     iter_source_files,
     language_of,
+    module_name_for,
     resolve_repo,
 )
 from asil_memory import (
@@ -344,9 +345,7 @@ def ingest(
             continue
 
         rel = path.relative_to(repo.path).as_posix()
-        module = (
-            rel.removesuffix(".py").replace("/", ".") if lang is SourceLanguage.python else None
-        )
+        module = module_name_for(rel, lang)
         parsed = parsers[lang].parse(text, path=rel, module_name=module)
         files_parsed += 1
         per_language_count[lang] += 1

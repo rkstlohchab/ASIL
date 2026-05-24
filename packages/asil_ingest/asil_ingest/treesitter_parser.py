@@ -1,6 +1,18 @@
 """Tree-sitter-based parser producing typed `ParsedFile` records.
 
-Phase 1 milestone 1.1: Python only. JS/TS/Go follow.
+Phase 1 step 1.1 shipped Python. Phase 1 step 1.8 adds JS / TS / TSX.
+
+JS / TS / TSX coverage is intentionally narrow:
+  - Captured: function declarations, named arrow functions
+    (`const foo = () => {...}`), classes + methods, ES module imports,
+    call sites inside function bodies.
+  - Deferred: interfaces, type aliases, enums, declaration merging,
+    `export default <anonymous>`, dynamic imports, decorators, JSDoc
+    docstrings, JSX-specific extraction (TSX still parses but JSX
+    structure is not exposed beyond the host function).
+
+The deferrals are scoped to step 1; the moat work (causality, replay,
+drift) is language-agnostic at the graph schema level.
 
 Design notes:
   - The parser is intentionally permissive — tree-sitter never raises, it just
@@ -50,12 +62,23 @@ def parse_source(
     return parser.parse(source, path=path, module_name=module_name)
 
 
+_SUPPORTED_LANGUAGES: frozenset[SourceLanguage] = frozenset(
+    {
+        SourceLanguage.python,
+        SourceLanguage.typescript,
+        SourceLanguage.javascript,
+        SourceLanguage.tsx,
+    }
+)
+
+
 class TreeSitterParser:
     def __init__(self, language: SourceLanguage) -> None:
         self.language = language
-        if language is not SourceLanguage.python:
+        if language not in _SUPPORTED_LANGUAGES:
             raise NotImplementedError(
-                f"Phase 1 milestone 1.1 ships Python only; {language} arrives next."
+                f"{language} is not yet implemented; supported: "
+                f"{sorted(lang.value for lang in _SUPPORTED_LANGUAGES)}."
             )
         self._parser = _get_parser(language)
 
@@ -81,8 +104,15 @@ class TreeSitterParser:
         if _has_error(root):
             parsed.parse_errors.append("tree-sitter reported syntax errors during parse")
 
+        mod = module_name or _stem(path)
         if self.language is SourceLanguage.python:
-            self._parse_python(root, src_bytes, parsed, module_name or _stem(path))
+            self._parse_python(root, src_bytes, parsed, mod)
+        elif self.language is SourceLanguage.typescript:
+            self._parse_typescript(root, src_bytes, parsed, mod)
+        elif self.language is SourceLanguage.javascript:
+            self._parse_javascript(root, src_bytes, parsed, mod)
+        elif self.language is SourceLanguage.tsx:
+            self._parse_tsx(root, src_bytes, parsed, mod)
         return parsed
 
     # ------------------------------------------------------------------ python
@@ -336,6 +366,255 @@ class TreeSitterParser:
                 out.append(text)
         return out
 
+    # ------------------------------------------------------------ js / ts / tsx
+
+    def _parse_typescript(self, root: Any, src: bytes, parsed: ParsedFile, mod: str) -> None:
+        self._parse_js_family(root, src, parsed, mod)
+
+    def _parse_javascript(self, root: Any, src: bytes, parsed: ParsedFile, mod: str) -> None:
+        self._parse_js_family(root, src, parsed, mod)
+
+    def _parse_tsx(self, root: Any, src: bytes, parsed: ParsedFile, mod: str) -> None:
+        # TSX is TypeScript + JSX. The tree-sitter grammar for tsx covers both;
+        # JSX expressions appear as plain expressions inside function bodies, so
+        # the host function/class extraction logic is identical.
+        self._parse_js_family(root, src, parsed, mod)
+
+    def _parse_js_family(self, root: Any, src: bytes, parsed: ParsedFile, mod: str) -> None:
+        for child in _named_children(root):
+            self._dispatch_js_top_level(child, src, parsed, mod)
+
+    def _dispatch_js_top_level(self, node: Any, src: bytes, parsed: ParsedFile, mod: str) -> None:
+        t = _kind(node)
+        if t == "import_statement":
+            parsed.imports.extend(self._js_import(node, src))
+        elif t == "function_declaration":
+            fn = self._js_function_declaration(node, src, mod, parent_class=None)
+            parsed.functions.append(fn)
+            parsed.symbols.append(_symbol(fn.name, "function", fn.start_line, fn.qualified_name))
+        elif t == "class_declaration":
+            cls = self._js_class(node, src, mod)
+            parsed.classes.append(cls)
+            parsed.symbols.append(_symbol(cls.name, "class", cls.start_line, cls.qualified_name))
+        elif t in {"lexical_declaration", "variable_declaration"}:
+            for declarator in _named_children(node):
+                if _kind(declarator) == "variable_declarator":
+                    self._js_handle_declarator(declarator, src, parsed, mod)
+        elif t == "export_statement":
+            # `export function foo() {...}`, `export default class X {...}`,
+            # `export const Y = () => {...}`. Recurse on inner declarations so
+            # they land via the same dispatch.
+            for child in _named_children(node):
+                self._dispatch_js_top_level(child, src, parsed, mod)
+        # Deliberate skips: interface_declaration, type_alias_declaration,
+        # enum_declaration, ambient_declaration. Step-1 scope cut.
+
+    def _js_handle_declarator(
+        self, declarator: Any, src: bytes, parsed: ParsedFile, mod: str
+    ) -> None:
+        name_node = declarator.child_by_field_name("name")
+        value_node = declarator.child_by_field_name("value")
+        if name_node is None or _kind(name_node) != "identifier":
+            return
+        name = _text(name_node, src)
+        if value_node is not None and _kind(value_node) in {
+            "arrow_function",
+            "function_expression",
+            "function",
+        }:
+            fn = self._js_anonymous_function(value_node, src, mod, name=name, parent_class=None)
+            parsed.functions.append(fn)
+            parsed.symbols.append(_symbol(name, "function", fn.start_line, fn.qualified_name))
+        else:
+            kind = "constant" if name.isupper() else "variable"
+            parsed.symbols.append(_symbol(name, kind, _start_row(name_node), f"{mod}.{name}"))
+
+    def _js_function_declaration(
+        self,
+        node: Any,
+        src: bytes,
+        mod: str,
+        *,
+        parent_class: str | None,
+    ) -> ParsedFunction:
+        name_node = node.child_by_field_name("name")
+        name = _text(name_node, src) if name_node else "<anonymous>"
+        qualified = f"{parent_class}.{name}" if parent_class else f"{mod}.{name}"
+        return self._js_build_function(
+            node, src, name=name, qualified=qualified, parent_class=parent_class
+        )
+
+    def _js_anonymous_function(
+        self,
+        node: Any,
+        src: bytes,
+        mod: str,
+        *,
+        name: str,
+        parent_class: str | None,
+    ) -> ParsedFunction:
+        qualified = f"{parent_class}.{name}" if parent_class else f"{mod}.{name}"
+        return self._js_build_function(
+            node, src, name=name, qualified=qualified, parent_class=parent_class
+        )
+
+    def _js_method(self, node: Any, src: bytes, *, parent_class: str) -> ParsedFunction:
+        name_node = node.child_by_field_name("name")
+        name = _text(name_node, src) if name_node else "<anonymous>"
+        qualified = f"{parent_class}.{name}"
+        return self._js_build_function(
+            node, src, name=name, qualified=qualified, parent_class=parent_class
+        )
+
+    def _js_build_function(
+        self,
+        node: Any,
+        src: bytes,
+        *,
+        name: str,
+        qualified: str,
+        parent_class: str | None,
+    ) -> ParsedFunction:
+        params_node = node.child_by_field_name("parameters")
+        if params_node is None:
+            # arrow_function with a single bare identifier param: `x => x*2`
+            params_node = node.child_by_field_name("parameter")
+        if params_node is None:
+            params = "()"
+        else:
+            params = _text(params_node, src)
+            if not params.startswith("("):
+                params = f"({params})"
+        # TS return-type annotations land as a `type_annotation` node whose
+        # text already includes the leading `:`. Empty for plain JS.
+        return_type_node = node.child_by_field_name("return_type")
+        return_type = _text(return_type_node, src) if return_type_node else ""
+        signature = f"{params}{return_type}".strip()
+
+        body = node.child_by_field_name("body")
+        calls = self._js_calls(body, src) if body is not None else []
+        is_async = any(_kind(c) == "async" for c in _children(node))
+
+        return ParsedFunction(
+            name=name,
+            qualified_name=qualified,
+            start_line=_start_row(node),
+            end_line=_end_row(node),
+            signature=signature,
+            docstring=None,  # JSDoc handling deferred (step 1 scope cut)
+            is_async=is_async,
+            is_method=parent_class is not None,
+            parent_class=parent_class,
+            calls=calls,
+            decorators=[],
+        )
+
+    def _js_class(self, node: Any, src: bytes, mod: str) -> ParsedClass:
+        name_node = node.child_by_field_name("name")
+        name = _text(name_node, src) if name_node else "<anonymous>"
+        qualified = f"{mod}.{name}"
+
+        # tree-sitter-javascript exposes `class_heritage` as a positional named
+        # child (no field name); tree-sitter-typescript wraps the same data in
+        # an `extends_clause`. Handle both by iterating the class's named
+        # children and recognising either shape.
+        base_classes: list[str] = []
+        for child in _named_children(node):
+            ck = _kind(child)
+            if ck == "class_heritage":
+                for sub in _named_children(child):
+                    sub_kind = _kind(sub)
+                    if sub_kind == "extends_clause":
+                        for ident in _named_children(sub):
+                            base_classes.append(_text(ident, src))
+                    elif sub_kind == "implements_clause":
+                        continue
+                    else:
+                        base_classes.append(_text(sub, src))
+
+        body = node.child_by_field_name("body")
+        methods: list[ParsedFunction] = []
+        if body is not None:
+            for child in _named_children(body):
+                if _kind(child) == "method_definition":
+                    methods.append(self._js_method(child, src, parent_class=qualified))
+
+        return ParsedClass(
+            name=name,
+            qualified_name=qualified,
+            start_line=_start_row(node),
+            end_line=_end_row(node),
+            docstring=None,
+            base_classes=base_classes,
+            methods=methods,
+            decorators=[],
+        )
+
+    def _js_import(self, node: Any, src: bytes) -> list[ParsedImport]:
+        """Handles ES module forms:
+        `import x from 'y'`, `import { a, b as c } from 'd'`,
+        `import * as ns from 'e'`, `import 'side-effect-only'`,
+        and combinations such as `import def, { a } from 'm'`.
+        """
+        line = _start_row(node)
+        source_node = node.child_by_field_name("source")
+        if source_node is None:
+            return []
+        module_text = _strip_js_string_quotes(_text(source_node, src))
+
+        names: list[str] = []
+        alias_of: dict[str, str] = {}
+
+        for clause in _named_children(node):
+            if _kind(clause) != "import_clause":
+                continue
+            for child in _named_children(clause):
+                ck = _kind(child)
+                if ck == "identifier":
+                    # default import: `import X from "m"` — record as alias of "default"
+                    name = _text(child, src)
+                    names.append(name)
+                    alias_of[name] = "default"
+                elif ck == "named_imports":
+                    for spec in _named_children(child):
+                        if _kind(spec) != "import_specifier":
+                            continue
+                        spec_name_node = spec.child_by_field_name("name")
+                        spec_alias_node = spec.child_by_field_name("alias")
+                        if spec_name_node is None:
+                            continue
+                        original = _text(spec_name_node, src)
+                        names.append(original)
+                        if spec_alias_node is not None:
+                            alias_of[_text(spec_alias_node, src)] = original
+                elif ck == "namespace_import":
+                    # `import * as ns from "m"` — record under the namespace alias.
+                    for sub in _named_children(child):
+                        if _kind(sub) == "identifier":
+                            names.append("*")
+                            alias_of[_text(sub, src)] = "*"
+
+        return [
+            ParsedImport(
+                module=module_text,
+                names=names,
+                alias_of=alias_of,
+                line=line,
+                is_relative=module_text.startswith(".") or module_text.startswith("/"),
+            )
+        ]
+
+    def _js_calls(self, body: Any, src: bytes) -> list[ParsedCall]:
+        out: list[ParsedCall] = []
+        for node in _walk(body):
+            if _kind(node) != "call_expression":
+                continue
+            fn_node = node.child_by_field_name("function")
+            if fn_node is None:
+                continue
+            out.append(ParsedCall(callee=_text(fn_node, src), line=_start_row(node)))
+        return out
+
 
 # ---------------------------------------------------------------------------
 # node / source shim — bridges tree-sitter-language-pack's method-based API
@@ -385,11 +664,23 @@ def _symbol(name: str, kind: str, line: int, qualified: str) -> ParsedSymbol:
     return ParsedSymbol(name=name, kind=kind, line=line, qualified_name=qualified)
 
 
+_STRIPPABLE_SUFFIXES: tuple[str, ...] = (".tsx", ".mjs", ".cjs", ".ts", ".js", ".py")
+
+
 def _stem(path: str) -> str:
     p = path.rsplit("/", 1)[-1]
-    if p.endswith(".py"):
-        p = p[:-3]
+    for ext in _STRIPPABLE_SUFFIXES:
+        if p.endswith(ext):
+            p = p[: -len(ext)]
+            break
     return p or "module"
+
+
+def _strip_js_string_quotes(s: str) -> str:
+    """Strip the surrounding quotes from a JS / TS module-source literal."""
+    if len(s) >= 2 and s[0] in {"'", '"', "`"} and s[-1] == s[0]:
+        return s[1:-1]
+    return s
 
 
 def _strip_python_string_quotes(s: str) -> str:

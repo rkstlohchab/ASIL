@@ -29,6 +29,7 @@ from asil_ingest.repo_cloner import (
     ResolvedRepo,
     iter_source_files,
     language_of,
+    module_name_for,
     resolve_repo,
 )
 from asil_ingest.treesitter_parser import TreeSitterParser, parse_source
@@ -55,6 +56,7 @@ __all__ = [
     "TreeSitterParser",
     "iter_source_files",
     "language_of",
+    "module_name_for",
     "parse_source",
     "repo_key_for",
     "resolve_repo",

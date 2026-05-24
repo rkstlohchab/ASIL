@@ -197,6 +197,22 @@ def language_of(path: Path) -> SourceLanguage | None:
     return None
 
 
+def module_name_for(rel: str, language: SourceLanguage) -> str:
+    """Repo-relative path → dotted module name.
+
+    Python convention is `pkg.subpkg.module`. JS / TS have no module system
+    in the language proper, so we adopt the same dotted-path shape: e.g.
+    `src/components/Button.tsx` → `src.components.Button`. The convention
+    keeps qualified-name lookups uniform across languages.
+    """
+    stem = rel
+    for ext in LANGUAGE_EXTENSIONS.get(language, ()):
+        if rel.endswith(ext):
+            stem = rel[: -len(ext)]
+            break
+    return stem.replace("/", ".")
+
+
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
