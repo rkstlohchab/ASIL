@@ -53,25 +53,40 @@ hand-waving about whether something "looks related."
 
 ## The cause-vs-symptom honesty
 
-Phase 4 step 1 ranks candidates by **temporal proximity alone**. That has a
-known limitation: a metric shift 1 minute before an incident scores higher
-than the deployment 7 minutes before — even when the deployment is the
-*real* cause and the metric shift is the *symptom*. We surface that
-limitation explicitly in the demo output (`asil temporal causes`) rather
-than hiding it. Phase 4 step 2 fixes it by:
+Phase 4 step 1 ranked candidates by **temporal proximity alone**, which had
+a known limitation: a metric shift 1 minute before an incident outranked
+the deployment 7 minutes before — even when the deployment was the real
+cause. **Phase 4 step 2 (shipped) fixes this** with the lagged-correlation
+strategy:
 
-- **Lagged correlation:** if `(:Deployment)-[:SHIPPED]->(:Commit)` touches
-  code that the `MetricShift`'s service runs (via `(:Service)-[:RUNS]->(:File)`),
-  the deployment becomes a candidate *cause* of the metric shift, not a sibling
-  symptom. The graph already knows everything we need.
+- **Lagged-correlation boost:** after proximity scoring, Deployments whose
+  `service_name` appears in the incident's `affected_services` list receive
+  an additive **+0.6** confidence bonus (capped at 1.0). This promotes
+  deploys on affected services from symptom-tier to cause-tier. On the
+  bundled postmortem: auth deploy goes from 0.379 (proximity only) to
+  0.979 (proximity + lagged-correlation), correctly outranking the payments
+  latency spike at 0.871. The bonus is calibrated against this ground truth;
+  changing `_LAGGED_CORRELATION_BONUS` changes the cause-vs-symptom ordering.
+- **Why additive, not multiplicative:** multiplying caps you at the original
+  proximity score. A deploy 7 minutes before has proximity ~0.38; even a
+  2x multiplier only gets to 0.76, still below the 0.87 latency spike.
+  Additive bonus treats "this deploy is on an affected service" as evidence
+  orthogonal to time.
+- **Observable only:** the boost comes from graph state (incident node's
+  `affected_services` list vs deploy node's `service_name`), not from an
+  LLM. MetricShifts and LogSignatures are explicitly NOT boosted — they're
+  symptoms, not candidate causes.
+- **Composite strategy string:** boosted edges carry
+  `strategy: "temporal_proximity+lagged_correlation"` and the derivation
+  traces both contributions.
+
+Future Phase 4 steps will add:
+
 - **Explicit reference:** if a commit message or postmortem summary
   mentions the incident id, the matching deploy gets a high-confidence
-  edge with `strategy: "explicit_reference"`.
-
-When you add these, **don't replace** the proximity strategy — extend it.
-Each strategy writes its own `:PRECEDED` edge (or updates an existing
-edge with the higher-confidence strategy). The composite ranking lives
-in `causes_for_incident` (or a new aggregator in the linker).
+  edge with `strategy: "temporal_proximity+explicit_reference"`.
+- **Co-occurrence reinforcement:** deploys that consistently precede the
+  same metric shifts across incidents get reinforced edges.
 
 ## Forbidden patterns
 

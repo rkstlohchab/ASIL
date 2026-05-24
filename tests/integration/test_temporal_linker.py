@@ -53,11 +53,11 @@ def test_bundled_postmortem_links_auth_deployment_as_top_cause(
     graph_store: GraphStore, cleanup: str
 ) -> None:
     """The auth deployment (8f2c1d4) shipped 7 minutes before the incident
-    was detected. With the default 5-minute half-life, its proximity
-    confidence is exp(-ln2 · 420/300) ≈ 0.38 — high enough to land in the
-    top-3 even after the metric shifts and log signatures (which are closer
-    in time but are SYMPTOMS, not causes; Phase 4 step 2's lagged
-    correlation will distinguish them properly)."""
+    was detected. With Phase 4 step 2's lagged-correlation, the deploy on an
+    affected service gets a +0.6 additive boost on its proximity score
+    (0.379 → 0.979), making it the #1 cause. This tightens the original
+    Phase 4 step 1 assertion (was top-3; now #1) because lagged-correlation
+    closes the cause-vs-symptom honesty gap."""
     incident_id = _ingest_bundled(graph_store, cleanup)
 
     linker = TemporalLinker(graph_store=graph_store)
@@ -68,23 +68,15 @@ def test_bundled_postmortem_links_auth_deployment_as_top_cause(
     causes = graph_store.causes_for_incident(incident_id, limit=20)
     assert causes, "no :PRECEDED edges visible after linking"
 
-    # The auth deploy that started the cascade must be among the top-3 causes.
-    top3_deploy_ids = [
-        c["cause_props"].get("deployment_id") for c in causes[:3] if c["cause_kind"] == "Deployment"
-    ]
-    assert "deploy-8f2c1d4" in top3_deploy_ids, (
-        f"the cascading deploy did not land in top-3 causes; got {[c['cause_kind'] + ':' + str(c['cause_props']) for c in causes[:3]]}"
-    )
+    # Phase 4 step 2: the auth deploy must be the TOP cause (not just top-3).
+    assert causes[0]["cause_kind"] == "Deployment"
+    assert causes[0]["cause_props"].get("deployment_id") == "deploy-8f2c1d4"
 
-    # Confidence sanity check: the auth deploy is ~7min before → ~0.38 with default decay.
-    auth_cause = next(
-        c
-        for c in causes
-        if c["cause_kind"] == "Deployment"
-        and c["cause_props"].get("deployment_id") == "deploy-8f2c1d4"
-    )
-    assert 0.3 <= float(auth_cause["confidence"]) <= 0.45
-    assert "temporal_proximity" in str(auth_cause.get("derivation") or "")
+    # Confidence sanity: proximity ~0.379 + lagged-correlation +0.6 → ~0.979.
+    auth_confidence = float(causes[0]["confidence"])
+    assert auth_confidence >= 0.85, f"auth deploy confidence too low: {auth_confidence}"
+    assert "lagged_correlation" in str(causes[0].get("derivation") or "")
+    assert causes[0].get("strategy") == "temporal_proximity+lagged_correlation"
 
 
 def test_link_is_idempotent_on_rerun(graph_store: GraphStore, cleanup: str) -> None:
@@ -191,3 +183,34 @@ def test_lookback_window_excludes_distant_events(graph_store: GraphStore, cleanu
         c.cause_node_key.get("deployment_id") for c in causes if c.cause_kind == "Deployment"
     ]
     assert "deploy-8f2c1d4" not in deploy_ids
+
+
+def test_lagged_correlation_promotes_deploy_above_symptom_metric_shift(
+    graph_store: GraphStore, cleanup: str
+) -> None:
+    """Phase 4 step 2 validation: after lagged-correlation, the auth deploy
+    must outrank every MetricShift in the cause list. The latency spike
+    (payments p99 at 14:23, 1min before) has proximity ~0.87 but is a
+    symptom; the auth deploy (7min before) has proximity ~0.38 + lagged-
+    correlation +0.6 = ~0.98. Deploy wins."""
+    incident_id = _ingest_bundled(graph_store, cleanup)
+    linker = TemporalLinker(graph_store=graph_store)
+    linker.link_incident(incident_id)
+
+    causes = graph_store.causes_for_incident(incident_id, limit=20)
+    # Find the auth deploy and the highest-scoring MetricShift.
+    auth = next(
+        c
+        for c in causes
+        if c["cause_kind"] == "Deployment"
+        and c["cause_props"].get("deployment_id") == "deploy-8f2c1d4"
+    )
+    metric_shifts = [c for c in causes if c["cause_kind"] == "MetricShift"]
+    assert metric_shifts, "no MetricShifts in cause list"
+    top_metric = metric_shifts[0]  # already sorted by confidence desc
+
+    assert float(auth["confidence"]) > float(top_metric["confidence"]), (
+        f"auth deploy ({auth['confidence']}) should outrank top MetricShift "
+        f"({top_metric['confidence']}); lagged-correlation failed"
+    )
+    assert auth.get("strategy") == "temporal_proximity+lagged_correlation"

@@ -17,8 +17,10 @@ from typing import Any
 
 import pytest
 from asil_temporal.linker import (
+    _LAGGED_CORRELATION_BONUS,
     CausalCandidate,
     TemporalLinker,
+    _apply_lagged_correlation,
     _exp_decay,
     _summarize,
     find_causes,
@@ -171,13 +173,14 @@ def _incident(
     id: str = "INC-test",
     env: str = "prod",
     detected_at: str = "2026-04-12T14:24:00+00:00",
+    affected_services: list[str] | None = None,
 ) -> dict[str, Any]:
     return {
         "id": id,
         "env_key": env,
         "detected_at": detected_at,
         "title": "test",
-        "affected_services": [],
+        "affected_services": affected_services or [],
     }
 
 
@@ -288,3 +291,103 @@ def test_causal_candidate_default_state() -> None:
     assert c.cause_kind == "Deployment"
     assert c.delta_seconds == 60.0
     assert math.isclose(c.confidence, 0.5)
+
+
+# ---------------------------------------------------------------------------
+# lagged-correlation boost (Phase 4 step 2)
+# ---------------------------------------------------------------------------
+
+
+def _candidate(
+    *,
+    kind: str = "Deployment",
+    deployment_id: str = "d1",
+    service_name: str = "auth",
+    confidence: float = 0.38,
+    derivation: str = "temporal_proximity: ...",
+) -> CausalCandidate:
+    """Build a CausalCandidate for lagged-correlation tests."""
+    return CausalCandidate(
+        cause_kind=kind,
+        cause_node_key={"deployment_id": deployment_id, "service_name": service_name},
+        cause_label=f"Deployment {deployment_id} on {service_name}",
+        delta_seconds=420.0,
+        confidence=confidence,
+        derivation=derivation,
+    )
+
+
+def test_lagged_correlation_boosts_deploy_on_affected_service() -> None:
+    c = _candidate(service_name="auth", confidence=0.38)
+    incident = {"affected_services": ["auth", "payments", "cart"]}
+    result = _apply_lagged_correlation(c, incident)
+    assert result.confidence == pytest.approx(0.38 + _LAGGED_CORRELATION_BONUS, rel=1e-6)
+    assert "lagged_correlation" in result.strategy
+    assert result.strategy == "temporal_proximity+lagged_correlation"
+    assert "lagged_correlation" in result.derivation
+    assert "affected service 'auth'" in result.derivation
+
+
+def test_lagged_correlation_does_not_boost_metric_shift() -> None:
+    c = CausalCandidate(
+        cause_kind="MetricShift",
+        cause_node_key={"service_name": "payments", "metric": "p99", "started_at": "..."},
+        cause_label="MetricShift p99 on payments",
+        delta_seconds=60.0,
+        confidence=0.87,
+        derivation="temporal_proximity: ...",
+    )
+    incident = {"affected_services": ["auth", "payments", "cart"]}
+    result = _apply_lagged_correlation(c, incident)
+    # MetricShifts are symptoms; no boost.
+    assert result.confidence == 0.87
+    assert result.strategy == "temporal_proximity"
+
+
+def test_lagged_correlation_does_not_boost_deploy_not_on_affected() -> None:
+    c = _candidate(service_name="unrelated", confidence=0.5)
+    incident = {"affected_services": ["auth", "payments"]}
+    result = _apply_lagged_correlation(c, incident)
+    assert result.confidence == 0.5
+    assert result.strategy == "temporal_proximity"
+
+
+def test_lagged_correlation_caps_at_one() -> None:
+    c = _candidate(service_name="auth", confidence=0.95)
+    incident = {"affected_services": ["auth"]}
+    result = _apply_lagged_correlation(c, incident)
+    # 0.95 + 0.6 = 1.55 → capped at 1.0
+    assert result.confidence == 1.0
+    assert "lagged_correlation" in result.strategy
+
+
+def test_score_incident_applies_lagged_correlation() -> None:
+    """End-to-end through FakeGraphStore: a deploy 7min before on an affected
+    service should outrank a MetricShift 1min before."""
+    gs = FakeGraphStore(
+        incident=_incident(affected_services=["auth", "payments", "cart"]),
+        candidates=[
+            # auth deploy 7min before → proximity ~0.38
+            _deploy(at="2026-04-12T14:17:00+00:00", id_="deploy-8f2c1d4", svc="auth"),
+            # payments metric shift 1min before → proximity ~0.87
+            {
+                "kind": "MetricShift",
+                "at": "2026-04-12T14:23:00+00:00",
+                "service_name": "payments",
+                "metric": "p99",
+                "before": 120.0,
+                "after": 4200.0,
+                "unit": "ms",
+            },
+        ],
+    )
+    linker = TemporalLinker(graph_store=gs)
+    scored = linker.score_incident("INC-test")
+    # The deploy should be #1 now (boosted by lagged-correlation)
+    assert scored[0].cause_kind == "Deployment"
+    assert scored[0].cause_node_key["deployment_id"] == "deploy-8f2c1d4"
+    assert scored[0].confidence >= 0.85
+    assert "lagged_correlation" in scored[0].strategy
+    # The metric shift should be #2 (proximity only)
+    assert scored[1].cause_kind == "MetricShift"
+    assert scored[1].strategy == "temporal_proximity"
