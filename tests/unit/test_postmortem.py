@@ -256,3 +256,51 @@ def test_bundled_example_postmortem_loads_cleanly() -> None:
     )
     assert rollback is not None
     assert rollback.commit_sha == "7b1a3e9"
+
+
+def test_db_pool_exhaustion_postmortem_loads_cleanly() -> None:
+    """The DB-pool-exhaustion cascade postmortem (Phase 4 step 2 eval seed)."""
+    repo_root = Path(__file__).resolve().parents[2]
+    pm_path = repo_root / "research" / "postmortems" / "2026-02-08-db-pool-exhaustion.yaml"
+    assert pm_path.exists(), f"missing postmortem: {pm_path}"
+    pm = load_postmortem(pm_path)
+    assert pm.incident.id == "INC-2026-02-08-db-pool-exhaustion"
+    assert pm.incident.env_key == "prod"
+    assert set(pm.incident.affected_services) >= {"orders", "inventory", "notifications"}
+    assert len(pm.events) >= 8
+    # The bad deployment that triggered the cascade should be parseable.
+    bad_deploy = next(
+        (
+            e
+            for e in pm.events
+            if isinstance(e, Deployment) and e.deployment_id == "deploy-d1a7f3c"
+        ),
+        None,
+    )
+    assert bad_deploy is not None
+    assert bad_deploy.commit_sha == "d1a7f3c"
+    assert bad_deploy.service_name == "orders"
+
+
+def test_dns_misconfig_postmortem_loads_cleanly() -> None:
+    """The DNS-misconfig cascade postmortem (Phase 4 step 2 eval seed)."""
+    repo_root = Path(__file__).resolve().parents[2]
+    pm_path = repo_root / "research" / "postmortems" / "2026-03-19-dns-misconfig-checkout.yaml"
+    assert pm_path.exists(), f"missing postmortem: {pm_path}"
+    pm = load_postmortem(pm_path)
+    assert pm.incident.id == "INC-2026-03-19-dns-misconfig-checkout"
+    assert pm.incident.env_key == "prod"
+    assert set(pm.incident.affected_services) >= {"gateway", "payments", "email"}
+    # The ConfigMap rollout is modelled as a Deployment with no commit_sha
+    # (Phase 3 schema-extension question deferred — see file header).
+    cm_rollout = next(
+        (
+            e
+            for e in pm.events
+            if isinstance(e, Deployment) and e.deployment_id == "cm-2026-03-19-1"
+        ),
+        None,
+    )
+    assert cm_rollout is not None
+    assert cm_rollout.commit_sha is None
+    assert "ConfigMap" in (cm_rollout.description or "")

@@ -1,0 +1,123 @@
+# Hand-authored cascade postmortem #2: a query "optimization" on orders
+# starves the shared Postgres connection pool. Inventory and notifications,
+# which share the same instance, time out — checkout fails until rollback.
+#
+# Pedagogical purpose: different shape from the Redis-cascade. The root cause
+# is a code change in orders, but the visible symptoms appear in inventory /
+# notifications first because they have the tightest connection-acquire
+# timeouts. The Phase 4 lagged-correlation strategy (step 2) needs this
+# pattern: deploy on one service, observable damage on its dependents.
+
+incident:
+  id: INC-2026-02-08-db-pool-exhaustion
+  title: "Checkout failure cascade from orders DB pool exhaustion"
+  env: prod
+  detected_at: "2026-02-08T09:57:00Z"
+  resolved_at: "2026-02-08T10:44:00Z"
+  severity: high
+  summary: >
+    Orders service deployment d1a7f3c shipped a query change that added a
+    JOIN to the order-line lookup, doubling per-request DB time. Connections
+    held longer; the shared Postgres pool (max=120 across orders, inventory,
+    notifications) saturated at 09:54. Inventory and notifications were the
+    first to surface the symptom because their connection-acquire timeout
+    was 2s vs orders' 8s. Checkout success rate fell from 99% to 61% over
+    three minutes. Rollback to the prior query at 10:42 restored normal
+    pool utilization within 2 minutes.
+  affected_services: [orders, inventory, notifications]
+
+timeline:
+  - at: "2026-02-08T09:42:00Z"
+    kind: deployment
+    service: orders
+    deployment_id: deploy-d1a7f3c
+    commit_sha: d1a7f3c
+    description: "Orders deploy: order-line lookup query rewritten with extra JOIN for richer inventory data"
+
+  - at: "2026-02-08T09:48:00Z"
+    kind: metric_shift
+    service: orders
+    metric: http_request_duration_p95_ms
+    before: 80
+    after: 220
+    unit: ms
+    description: "Orders p95 latency climbs as the JOIN doubles per-request DB time"
+
+  - at: "2026-02-08T09:51:00Z"
+    kind: metric_shift
+    service: orders
+    metric: postgres_pool_connections_in_use
+    before: 35
+    after: 95
+    unit: count
+    description: "Connections held longer; pool utilization climbs from 29% to 79%"
+
+  - at: "2026-02-08T09:54:00Z"
+    kind: log_signature
+    service: inventory
+    signature: "could not acquire connection from pool within 2000ms"
+    count: 1842
+    level: error
+
+  - at: "2026-02-08T09:55:00Z"
+    kind: log_signature
+    service: notifications
+    signature: "connection acquire timeout after 2000ms"
+    count: 967
+    level: error
+
+  - at: "2026-02-08T09:57:00Z"
+    kind: metric_shift
+    service: orders
+    metric: checkout_success_rate
+    before: 0.992
+    after: 0.61
+    unit: ratio
+    description: "Checkout success rate collapses; pool fully saturated at max=120"
+
+  - at: "2026-02-08T09:58:00Z"
+    kind: log_signature
+    service: orders
+    signature: "postgres pool exhausted: max=120 in_use=120 waiters=487"
+    count: 612
+    level: error
+
+  - at: "2026-02-08T10:32:00Z"
+    kind: deployment
+    service: orders
+    deployment_id: deploy-mit-pool-bump-1
+    description: "Mitigation: raise shared Postgres pool max from 120 to 240 (config only, no code change)"
+
+  - at: "2026-02-08T10:36:00Z"
+    kind: metric_shift
+    service: orders
+    metric: checkout_success_rate
+    before: 0.61
+    after: 0.74
+    unit: ratio
+    description: "Partial recovery only — the query is still expensive, the pool just delays saturation"
+
+  - at: "2026-02-08T10:42:00Z"
+    kind: deployment
+    service: orders
+    deployment_id: deploy-rollback-3c91ab2
+    commit_sha: 3c91ab2
+    description: "Rollback to pre-d1a7f3c order-line query"
+
+  - at: "2026-02-08T10:44:00Z"
+    kind: metric_shift
+    service: orders
+    metric: http_request_duration_p95_ms
+    before: 230
+    after: 85
+    unit: ms
+    description: "Orders p95 latency returns to baseline"
+
+  - at: "2026-02-08T10:44:00Z"
+    kind: metric_shift
+    service: orders
+    metric: checkout_success_rate
+    before: 0.74
+    after: 0.995
+    unit: ratio
+    description: "Checkout success rate recovers; incident resolved"

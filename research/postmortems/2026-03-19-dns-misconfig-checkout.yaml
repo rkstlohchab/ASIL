@@ -1,0 +1,111 @@
+# Hand-authored cascade postmortem #3: a ConfigMap rollout changes the DNS
+# search-suffix used by the payments service. `email.internal` no longer
+# resolves; payments' synchronous email-receipt step in checkout fails;
+# gateway 5xx rate climbs because payments returns 502.
+#
+# Modelling note: ConfigMap rollouts are emitted by the K8s adapter (Phase 3
+# step 2+) as `kind: deployment` events with no commit_sha and a description
+# tagging the artifact. We don't ship a `:ConfigChange` label yet — that's a
+# Phase 3 step 2 schema question, not a postmortem-author question. The
+# linker only needs a temporally-located cause node, which `Deployment`
+# already provides. The eventual schema refactor will rewrite these rows
+# without changing the moat semantics.
+
+incident:
+  id: INC-2026-03-19-dns-misconfig-checkout
+  title: "Checkout 5xx cascade from email.internal DNS resolution failure"
+  env: prod
+  detected_at: "2026-03-19T13:42:00Z"
+  resolved_at: "2026-03-19T14:05:00Z"
+  severity: high
+  summary: >
+    Platform team rolled out ConfigMap cm-2026-03-19-1 which renamed the
+    internal DNS search suffix from `svc.cluster.local` to
+    `prod.svc.cluster.local`. The payments service's synchronous receipt
+    step calls `email.internal`, which only resolved under the old suffix.
+    Within 2 minutes of the rollout, payments started returning 502 for
+    checkout requests; gateway propagated those as 5xx to clients. Reverting
+    the ConfigMap at 13:58 restored resolution within 4 minutes; full
+    recovery once payments' retry queue drained at 14:05.
+  affected_services: [gateway, payments, email]
+
+timeline:
+  - at: "2026-03-19T13:35:00Z"
+    kind: deployment
+    service: payments
+    deployment_id: cm-2026-03-19-1
+    description: "ConfigMap rollout: DNS search suffix change (svc.cluster.local -> prod.svc.cluster.local) applied cluster-wide"
+
+  - at: "2026-03-19T13:37:00Z"
+    kind: log_signature
+    service: payments
+    signature: "name resolution failed: email.internal: no such host"
+    count: 1240
+    level: error
+
+  - at: "2026-03-19T13:39:00Z"
+    kind: metric_shift
+    service: payments
+    metric: receipt_send_error_rate
+    before: 0.001
+    after: 0.84
+    unit: ratio
+    description: "Payments' synchronous receipt step fails for almost every checkout"
+
+  - at: "2026-03-19T13:41:00Z"
+    kind: metric_shift
+    service: payments
+    metric: http_status_5xx_rate
+    before: 0.002
+    after: 0.61
+    unit: ratio
+    description: "Payments returns 502 when receipt send fails inside the request"
+
+  - at: "2026-03-19T13:42:00Z"
+    kind: metric_shift
+    service: gateway
+    metric: http_status_5xx_rate
+    before: 0.003
+    after: 0.58
+    unit: ratio
+    description: "Gateway propagates payments 5xx to clients; incident pages oncall"
+
+  - at: "2026-03-19T13:44:00Z"
+    kind: log_signature
+    service: gateway
+    signature: "downstream 5xx from payments.create_intent: upstream returned 502"
+    count: 2103
+    level: error
+
+  - at: "2026-03-19T13:48:00Z"
+    kind: metric_shift
+    service: payments
+    metric: retry_queue_depth
+    before: 12
+    after: 4880
+    unit: count
+    description: "Async retry queue saturates as failed receipts pile up"
+
+  - at: "2026-03-19T13:58:00Z"
+    kind: deployment
+    service: payments
+    deployment_id: cm-revert-2026-03-19-1
+    description: "Revert ConfigMap cm-2026-03-19-1; restore prior DNS search suffix"
+
+  - at: "2026-03-19T14:02:00Z"
+    kind: metric_shift
+    service: payments
+    metric: receipt_send_error_rate
+    before: 0.81
+    after: 0.004
+    unit: ratio
+    description: "DNS resolution recovers; receipts succeed again"
+
+  - at: "2026-03-19T14:05:00Z"
+    kind: metric_shift
+    service: gateway
+    metric: http_status_5xx_rate
+    before: 0.42
+    after: 0.003
+    unit: ratio
+    description: "Gateway 5xx returns to baseline; incident resolved"
