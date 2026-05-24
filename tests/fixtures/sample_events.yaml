@@ -1,0 +1,21 @@
+- kind: deployment
+  deployment_id: deploy-test-001
+  service_name: auth
+  at: "2026-04-12T14:17:00+00:00"
+  commit_sha: "abc123"
+  description: "Redis pool refactor"
+
+- kind: metric_shift
+  service_name: payments
+  metric: p99_latency
+  started_at: "2026-04-12T14:23:00+00:00"
+  before: 120
+  after: 4200
+  unit: ms
+
+- kind: log_signature
+  service_name: payments
+  signature: "Connection pool exhausted"
+  first_seen_at: "2026-04-12T14:24:00+00:00"
+  count: 42
+  level: error
