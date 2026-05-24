@@ -1,0 +1,89 @@
+# Postmortem: Feature flag config push causes memory leak
+# 2025-11-22 — feature-flag service config update triggers OOM
+# Tests multi-service cascade with metric shifts and log signatures.
+# No commit SHA in summary — tests that lagged-correlation alone can
+# rank the config push as root cause.
+
+incident:
+  id: INC-2025-11-22-config-oom
+  env: prod
+  title: "Feature-flag config push triggers OOM on recommendation service"
+  severity: P2
+  detected_at: "2025-11-22T16:30:00+00:00"
+  resolved_at: "2025-11-22T18:45:00+00:00"
+  summary: >
+    A feature-flag configuration push enabled a new recommendation
+    algorithm variant for all users. The new variant loaded the full product
+    catalog into memory (instead of sampling) on every request. Memory usage
+    on the recommendation pods climbed from 2GB to 14GB over 20 minutes,
+    triggering OOM kills. The search service degraded because it depended on
+    recommendation for "related items." Disabling the flag restored normal
+    memory usage within 5 minutes.
+  affected_services:
+    - feature-flags
+    - recommendations
+    - search
+
+services:
+  - name: feature-flags
+    repo_key: platform/feature-flags
+  - name: recommendations
+    repo_key: platform/recommendations
+  - name: search
+    repo_key: platform/search
+
+timeline:
+  # Cause: config push (modeled as deployment)
+  - at: "2025-11-22T16:10:00+00:00"
+    kind: deployment
+    service: feature-flags
+    deployment_id: deploy-ff-config-2025-11-22
+    description: "Feature flag config push — enable full-catalog reco variant for 100% traffic"
+
+  # Symptom: memory spike on recommendations
+  - at: "2025-11-22T16:15:00+00:00"
+    kind: metric_shift
+    service: recommendations
+    metric: memory_usage_bytes
+    before: 2147483648
+    after: 15032385536
+    unit: bytes
+    description: "Memory usage climbed from 2GB to 14GB"
+
+  - at: "2025-11-22T16:25:00+00:00"
+    kind: metric_shift
+    service: recommendations
+    metric: p99_latency
+    before: 85.0
+    after: 12000.0
+    unit: ms
+
+  - at: "2025-11-22T16:30:00+00:00"
+    kind: log_signature
+    service: recommendations
+    signature: "OOMKilled: container exceeded memory limit"
+    count: 12
+    level: error
+
+  # Cascade: search degrades
+  - at: "2025-11-22T16:32:00+00:00"
+    kind: metric_shift
+    service: search
+    metric: related_items_availability
+    before: 0.999
+    after: 0.12
+    unit: ratio
+
+  - at: "2025-11-22T16:31:00+00:00"
+    kind: log_signature
+    service: search
+    signature: "recommendations service unavailable: connection refused"
+    count: 4500
+    level: warning
+
+  # Response: disable the flag
+  - at: "2025-11-22T18:40:00+00:00"
+    kind: deployment
+    service: feature-flags
+    deployment_id: deploy-ff-disable-reco-variant
+    description: "Disable full-catalog recommendation variant"

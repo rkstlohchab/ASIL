@@ -1,0 +1,87 @@
+# Postmortem: TLS cert rotation breaks API gateway
+# 2026-01-15 — staging cluster spilled to prod
+# Tests explicit-reference strategy: the postmortem summary names
+# the deployment ID "deploy-tls-renew-v2" explicitly.
+
+incident:
+  id: INC-2026-01-15-tls-gateway-outage
+  env: prod
+  title: "API Gateway 503s after TLS cert rotation"
+  severity: P1
+  detected_at: "2026-01-15T09:42:00+00:00"
+  resolved_at: "2026-01-15T11:15:00+00:00"
+  summary: >
+    The scheduled TLS cert rotation deployment deploy-tls-renew-v2 on the
+    gateway service used a staging CA root that was accidentally included
+    in the production bundle. All downstream services (orders, inventory)
+    rejected the untrusted cert, causing 503s. The rollback deploy
+    deploy-tls-rollback restored the previous cert chain at 11:12.
+  affected_services:
+    - gateway
+    - orders
+    - inventory
+
+services:
+  - name: gateway
+    repo_key: monorepo/gateway
+  - name: orders
+    repo_key: monorepo/orders
+  - name: inventory
+    repo_key: monorepo/inventory
+
+timeline:
+  # Cause: TLS cert rotation deploy
+  - at: "2026-01-15T09:35:00+00:00"
+    kind: deployment
+    service: gateway
+    deployment_id: deploy-tls-renew-v2
+    commit_sha: f4a9c12
+    description: "Scheduled TLS cert rotation — new Let's Encrypt root"
+
+  # Symptom cascade
+  - at: "2026-01-15T09:42:00+00:00"
+    kind: metric_shift
+    service: gateway
+    metric: error_rate_5xx
+    before: 0.001
+    after: 0.72
+    unit: ratio
+    description: "Gateway 5xx rate spiked from 0.1% to 72%"
+
+  - at: "2026-01-15T09:43:00+00:00"
+    kind: metric_shift
+    service: orders
+    metric: success_rate
+    before: 0.998
+    after: 0.15
+    unit: ratio
+
+  - at: "2026-01-15T09:44:00+00:00"
+    kind: metric_shift
+    service: inventory
+    metric: upstream_errors
+    before: 2.0
+    after: 1450.0
+    unit: count/min
+
+  - at: "2026-01-15T09:42:30+00:00"
+    kind: log_signature
+    service: orders
+    signature: "TLS handshake failed: certificate signed by unknown authority"
+    count: 8200
+    level: error
+
+  - at: "2026-01-15T09:43:15+00:00"
+    kind: log_signature
+    service: inventory
+    signature: "upstream SSL error: unable to verify leaf certificate"
+    count: 3100
+    level: error
+
+  # Response
+  - at: "2026-01-15T11:12:00+00:00"
+    kind: deployment
+    service: gateway
+    deployment_id: deploy-tls-rollback
+    commit_sha: b2e7d89
+    description: "Emergency rollback to previous TLS cert bundle"
