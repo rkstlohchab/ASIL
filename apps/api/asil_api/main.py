@@ -218,6 +218,52 @@ async def dashboard_stats() -> dict[str, Any]:
     }
 
 
+@app.get("/dashboard/cost")
+async def dashboard_cost(days: int = 30) -> dict[str, Any]:
+    """LLM cost aggregates + episodic-memory savings, for the /cost UI page.
+
+    Returns zero-valued fields if Postgres isn't reachable so the UI can render
+    a useful empty state instead of erroring.
+    """
+    from asil_core.llm.postgres_ledger import from_settings_or_none
+    from asil_memory import EpisodicStore
+
+    out: dict[str, Any] = {
+        "days": days,
+        "ledger_available": False,
+        "total_usd": 0.0,
+        "calls": 0,
+        "by_provider": {},
+        "by_tier": {},
+        "by_day": [],
+        "memory_count": 0,
+        "savings": None,
+    }
+
+    ledger = from_settings_or_none()
+    if ledger is not None:
+        agg = ledger.aggregates(days=days)
+        out["ledger_available"] = True
+        out["total_usd"] = round(agg.total_usd, 4)
+        out["calls"] = agg.calls
+        out["by_provider"] = {k: round(v, 4) for k, v in agg.by_provider.items()}
+        out["by_tier"] = {k: round(v, 4) for k, v in agg.by_tier.items()}
+        out["by_day"] = [{"day": d, "cost": round(c, 4)} for d, c in agg.by_day]
+
+    try:
+        with EpisodicStore() as e:
+            e.verify_connectivity()
+            e.apply_schema()
+            out["memory_count"] = e.count()
+    except Exception as exc:
+        log.warning("dashboard_cost_episodic_unavailable", error=str(exc))
+
+    if ledger is not None:
+        out["savings"] = ledger.savings_vs_no_memory(out["memory_count"])
+
+    return out
+
+
 @app.get("/incidents")
 async def list_incidents(env_key: str | None = None) -> dict[str, Any]:
     """Every Incident node, newest first. Used by the UI's /incidents page."""

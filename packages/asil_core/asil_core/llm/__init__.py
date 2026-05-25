@@ -6,6 +6,7 @@ makes the active profile a refactor instead of a config flip.
 """
 
 from asil_core.llm.ledger import CostLedger, CostRecord, InMemoryCostLedger
+from asil_core.llm.postgres_ledger import CostAggregates, PostgresCostLedger
 from asil_core.llm.profiles import (
     Profile,
     Tier,
@@ -31,6 +32,7 @@ __all__ = [
     "AnthropicProvider",
     "CompletionRequest",
     "CompletionResponse",
+    "CostAggregates",
     "CostLedger",
     "CostRecord",
     "DeepSeekProvider",
@@ -43,6 +45,7 @@ __all__ = [
     "ModelRouter",
     "OpenAIEmbeddingProvider",
     "OpenAIProvider",
+    "PostgresCostLedger",
     "Profile",
     "Tier",
     "VoyageEmbeddingProvider",

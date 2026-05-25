@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Activity,
   Brain,
+  DollarSign,
   GitBranch,
   HomeIcon,
   MessageSquare,
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/causality", label: "Causality", icon: Network },
   { href: "/drift", label: "Drift", icon: GitBranch },
   { href: "/memory", label: "Memory", icon: Brain },
+  { href: "/cost", label: "Cost", icon: DollarSign },
   { href: "/mcp", label: "MCP tools", icon: Plug },
   { href: "/health", label: "Health", icon: Activity },
 ];

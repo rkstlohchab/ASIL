@@ -47,6 +47,13 @@ class ModelRouter:
         settings = get_settings()
         primary = load_profile(profile_name, settings=settings)
         fallback = load_profile("tight", settings=settings) if primary.name != "tight" else None
+        if ledger is None:
+            # Prefer Postgres so cost history survives API restarts. Falls back
+            # to the in-memory ledger if Postgres is unreachable so unit tests
+            # and offline development never break.
+            from asil_core.llm.postgres_ledger import from_settings_or_none
+
+            ledger = from_settings_or_none() or InMemoryCostLedger()
         return cls(
             profile=primary,
             ledger=ledger,

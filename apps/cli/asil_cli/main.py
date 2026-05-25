@@ -1946,5 +1946,110 @@ def drift_report(
     gstore.close()
 
 
+# ---------------------------------------------------------------------------
+# cost commands (Phase 7 — LLM cost ledger + savings visualisation)
+# ---------------------------------------------------------------------------
+
+cost_app = typer.Typer(help="LLM cost ledger + savings calculator.", no_args_is_help=True)
+app.add_typer(cost_app, name="cost")
+
+
+@cost_app.command("summary")
+def cost_summary(
+    days: Annotated[int, typer.Option(help="Window size in days for aggregations.")] = 30,
+) -> None:
+    """Show total LLM spend, breakdown by provider/tier, and the savings
+    estimate from episodic memory. Falls back gracefully if Postgres isn't
+    reachable — explains what's missing instead of crashing."""
+    configure_logging()
+    from asil_core.llm.postgres_ledger import from_settings_or_none
+
+    ledger = from_settings_or_none()
+    if ledger is None:
+        console.print(
+            "[red]Postgres unreachable — no persistent cost ledger.[/red]\n"
+            "[dim]Run `make up` to start the docker stack, then retry.[/dim]"
+        )
+        raise typer.Exit(code=1)
+
+    agg = ledger.aggregates(days=days)
+
+    header = Table(title=f"LLM spend, last {days} days", expand=False)
+    header.add_column("metric", no_wrap=True)
+    header.add_column("value", no_wrap=True, justify="right")
+    header.add_row("total spent", f"${agg.total_usd:.4f}")
+    header.add_row("# of LLM calls", str(agg.calls))
+    if agg.calls > 0:
+        header.add_row("avg / call", f"${agg.total_usd / agg.calls:.6f}")
+    console.print(header)
+    console.print()
+
+    if agg.by_provider:
+        bp = Table(title="by provider", expand=False)
+        bp.add_column("provider", no_wrap=True)
+        bp.add_column("cost", justify="right")
+        for prov, cost in agg.by_provider.items():
+            bp.add_row(prov, f"${cost:.4f}")
+        console.print(bp)
+        console.print()
+
+    if agg.by_tier:
+        bt = Table(title="by tier", expand=False)
+        bt.add_column("tier", no_wrap=True)
+        bt.add_column("cost", justify="right")
+        for tier, cost in agg.by_tier.items():
+            bt.add_row(tier, f"${cost:.4f}")
+        console.print(bt)
+        console.print()
+
+    # Savings: pull memory count from the EpisodicStore.
+    estore = _open_episodic_or_exit()
+    try:
+        memory_count = estore.count()
+    finally:
+        estore.close()
+
+    savings = ledger.savings_vs_no_memory(memory_count)
+    sv = Table(title="episodic memory savings", expand=False)
+    sv.add_column("metric", no_wrap=True)
+    sv.add_column("value", no_wrap=True, justify="right")
+    sv.add_row("memories stored", str(savings["memory_conclusions"]))
+    sv.add_row("fresh-only estimate", f"${savings['fresh_cost_estimate_usd']}")
+    sv.add_row("with-memory estimate", f"${savings['with_memory_cost_estimate_usd']}")
+    sv.add_row("saved", f"${savings['saved_usd']}")
+    sv.add_row("savings %", f"{savings['savings_pct']}%")
+    console.print(sv)
+
+
+@cost_app.command("daily")
+def cost_daily(
+    days: Annotated[int, typer.Option(help="Number of days to show.")] = 14,
+) -> None:
+    """Daily LLM spend as a sparkline-ish text chart. Useful for blog
+    screenshots and trend spotting."""
+    configure_logging()
+    from asil_core.llm.postgres_ledger import from_settings_or_none
+
+    ledger = from_settings_or_none()
+    if ledger is None:
+        console.print("[red]Postgres unreachable.[/red]")
+        raise typer.Exit(code=1)
+
+    agg = ledger.aggregates(days=days)
+    if not agg.by_day:
+        console.print(f"[yellow]No LLM activity in the last {days} days.[/yellow]")
+        return
+
+    max_cost = max(c for _, c in agg.by_day) or 1.0
+    t = Table(title=f"daily spend, last {days} days", expand=False)
+    t.add_column("day", no_wrap=True)
+    t.add_column("$ cost", justify="right")
+    t.add_column("bar", overflow="fold")
+    for day, cost in agg.by_day:
+        bars = int((cost / max_cost) * 30)
+        t.add_row(day, f"${cost:.4f}", "█" * bars)
+    console.print(t)
+
+
 if __name__ == "__main__":  # pragma: no cover
     app()
