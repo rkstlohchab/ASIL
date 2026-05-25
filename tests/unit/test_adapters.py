@@ -120,11 +120,19 @@ async def test_k8s_adapter_raises_not_configured() -> None:
 
 @pytest.mark.asyncio
 async def test_prometheus_adapter_raises_not_configured() -> None:
-    with pytest.raises(NotConfiguredError, match="endpoint"):
-        await PrometheusAdapter().poll("prod")
+    # The live implementation now takes an endpoint; an unreachable URL
+    # still surfaces as NotConfiguredError so callers can fall through.
+    with pytest.raises(NotConfiguredError):
+        await PrometheusAdapter(
+            "http://127.0.0.1:1",
+            probes=[("svc", "metric", "up")],
+            timeout_seconds=0.2,
+        ).poll("prod")
 
 
 @pytest.mark.asyncio
 async def test_loki_adapter_raises_not_configured() -> None:
-    with pytest.raises(NotConfiguredError, match="endpoint"):
-        await LokiAdapter().poll("prod")
+    # Same as Prometheus — pointing at an unreachable endpoint should
+    # raise NotConfiguredError rather than crash the poll loop.
+    with pytest.raises(NotConfiguredError):
+        await LokiAdapter("http://127.0.0.1:1", timeout_seconds=0.2).poll("prod")

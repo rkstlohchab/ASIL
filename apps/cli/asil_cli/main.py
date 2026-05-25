@@ -1947,6 +1947,196 @@ def drift_report(
 
 
 # ---------------------------------------------------------------------------
+# adapters commands (Phase 3 step 3+ — live ingestion from K8s / Prom / Loki)
+# ---------------------------------------------------------------------------
+
+adapters_app = typer.Typer(
+    help="Poll live infrastructure adapters and merge events into the graph.",
+    no_args_is_help=True,
+)
+app.add_typer(adapters_app, name="adapters")
+
+
+@adapters_app.command("prometheus")
+def adapters_prometheus(
+    env: Annotated[str, typer.Option(help="env_key the events land under.")] = "prod",
+    endpoint: Annotated[str, typer.Option(help="Prometheus base URL.")] = "",
+    probe: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--probe",
+            help=(
+                "Repeatable. Format: 'service:metric:promql'. "
+                "Example: --probe 'payments:p99_latency:histogram_quantile(...)'"
+            ),
+        ),
+    ] = None,
+    threshold: Annotated[
+        float, typer.Option(help="Emit a MetricShift when ratio >= this.")
+    ] = 1.5,
+    write: Annotated[
+        bool, typer.Option(help="If true, MERGE results into Neo4j; else dry-run.")
+    ] = False,
+) -> None:
+    """Poll Prometheus for the configured probes. Optionally writes the
+    resulting MetricShift events into the runtime namespace.
+
+    Defaults endpoint to `settings.prometheus_url` when --endpoint is empty.
+    """
+    import asyncio as _asyncio
+
+    from asil_core import get_settings
+    from asil_infra.adapters import NotConfiguredError, PrometheusAdapter
+
+    configure_logging()
+    settings = get_settings()
+    url = endpoint or settings.prometheus_url
+    probes: list[tuple[str, str, str]] = []
+    for entry in probe or []:
+        try:
+            service, metric, promql = entry.split(":", 2)
+        except ValueError:
+            console.print(f"[red]bad --probe {entry!r}, expected svc:metric:promql[/red]")
+            raise typer.Exit(code=1) from None
+        probes.append((service, metric, promql))
+
+    prom = PrometheusAdapter(url, probes=probes, shift_threshold=threshold)
+    try:
+        events = _asyncio.run(prom.poll(env))
+    except NotConfiguredError as exc:
+        console.print(f"[red]Prometheus unreachable: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    if not events:
+        console.print(f"[dim]no shifts detected over {len(probes)} probe(s)[/dim]")
+    else:
+        t = Table(title=f"prometheus -> {len(events)} MetricShift(s)")
+        t.add_column("service")
+        t.add_column("metric")
+        t.add_column("before", justify="right")
+        t.add_column("after", justify="right")
+        t.add_column("ratio", justify="right")
+        for e in events:
+            ratio = (e.after or 0) / (e.before or 1)
+            t.add_row(e.service_name, e.metric, f"{e.before:.3f}", f"{e.after:.3f}", f"{ratio:.2f}x")
+        console.print(t)
+
+    if write and events:
+        _write_runtime_events(events)
+        console.print(f"[green]wrote {len(events)} event(s) to graph[/green]")
+
+
+@adapters_app.command("loki")
+def adapters_loki(
+    env: Annotated[str, typer.Option(help="env_key the events land under.")] = "prod",
+    endpoint: Annotated[str, typer.Option(help="Loki base URL.")] = "",
+    service: Annotated[
+        list[str] | None,
+        typer.Option("--service", help="Service to filter on (repeatable)."),
+    ] = None,
+    lookback: Annotated[int, typer.Option(help="Lookback window in seconds.")] = 300,
+    level: Annotated[
+        str, typer.Option(help="Log level regex to filter on.")
+    ] = "error",
+    write: Annotated[bool, typer.Option(help="MERGE results into Neo4j.")] = False,
+) -> None:
+    """Poll Loki for recent error logs and emit one LogSignature per pattern."""
+    import asyncio as _asyncio
+
+    from asil_core import get_settings
+    from asil_infra.adapters import LokiAdapter, NotConfiguredError
+
+    configure_logging()
+    settings = get_settings()
+    url = endpoint or settings.loki_url
+
+    loki = LokiAdapter(
+        url, services=service or [], lookback_seconds=lookback, level_filter=level
+    )
+    try:
+        events = _asyncio.run(loki.poll(env))
+    except NotConfiguredError as exc:
+        console.print(f"[red]Loki unreachable: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    if not events:
+        console.print(f"[dim]no {level} log signatures in last {lookback}s[/dim]")
+    else:
+        t = Table(title=f"loki -> {len(events)} LogSignature(s)")
+        t.add_column("service")
+        t.add_column("signature", overflow="fold")
+        t.add_column("count", justify="right")
+        for e in events:
+            t.add_row(e.service_name, e.signature[:80], str(e.count))
+        console.print(t)
+
+    if write and events:
+        _write_runtime_events(events)
+        console.print(f"[green]wrote {len(events)} event(s) to graph[/green]")
+
+
+@adapters_app.command("k8s")
+def adapters_k8s(
+    env: Annotated[str, typer.Option(help="env_key the events land under.")] = "prod",
+    kubeconfig: Annotated[
+        str, typer.Option(help="Path to kubeconfig. Defaults to $KUBECONFIG / ~/.kube/config.")
+    ] = "",
+    namespace: Annotated[str, typer.Option(help="K8s namespace.")] = "default",
+    write: Annotated[bool, typer.Option(help="MERGE results into Neo4j.")] = False,
+) -> None:
+    """Poll a Kubernetes cluster for Deployments + Services. Requires a
+    reachable kubeconfig — no live cluster is provisioned by docker-compose."""
+    import asyncio as _asyncio
+
+    from asil_infra.adapters import K8sAdapter, NotConfiguredError
+
+    configure_logging()
+    k8s = K8sAdapter(kubeconfig=kubeconfig or None, namespace=namespace)
+    try:
+        events = _asyncio.run(k8s.poll(env))
+    except NotConfiguredError as exc:
+        console.print(f"[red]K8s skipped: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    if not events:
+        console.print(f"[dim]no services / deployments in namespace {namespace}[/dim]")
+    else:
+        t = Table(title=f"k8s {namespace} -> {len(events)} event(s)")
+        t.add_column("kind")
+        t.add_column("name")
+        for e in events:
+            t.add_row(type(e).__name__, getattr(e, "name", getattr(e, "deployment_id", "?")))
+        console.print(t)
+
+    if write and events:
+        _write_runtime_events(events)
+        console.print(f"[green]wrote {len(events)} event(s) to graph[/green]")
+
+
+def _write_runtime_events(events) -> None:
+    """Dispatch a typed RuntimeEvent list to the right GraphStore method."""
+    from asil_infra.models import Deployment, Incident, LogSignature, MetricShift, Service
+
+    gstore = GraphStore()
+    try:
+        gstore.verify_connectivity()
+        for e in events:
+            props = e.model_dump(mode="json")
+            if isinstance(e, Service):
+                gstore.merge_service(props)
+            elif isinstance(e, Deployment):
+                gstore.merge_deployment(props)
+            elif isinstance(e, MetricShift):
+                gstore.merge_metric_shift(props)
+            elif isinstance(e, LogSignature):
+                gstore.merge_log_signature(props)
+            elif isinstance(e, Incident):
+                gstore.merge_incident(props, e.affected_services)
+    finally:
+        gstore.close()
+
+
+# ---------------------------------------------------------------------------
 # cost commands (Phase 7 — LLM cost ledger + savings visualisation)
 # ---------------------------------------------------------------------------
 

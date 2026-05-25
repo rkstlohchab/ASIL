@@ -314,6 +314,7 @@ source = { editable = "packages/asil_infra" }
 dependencies = [
     { name = "asil-core" },
     { name = "asil-memory" },
+    { name = "kubernetes-asyncio" },
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
@@ -333,6 +334,7 @@ prom = [
 requires-dist = [
     { name = "asil-core", editable = "packages/asil_core" },
     { name = "asil-memory", editable = "packages/asil_memory" },
+    { name = "kubernetes-asyncio", specifier = ">=35.0.1" },
     { name = "kubernetes-asyncio", marker = "extra == 'k8s'", specifier = ">=32.0.0" },
     { name = "loki-logger-handler", marker = "extra == 'loki'", specifier = ">=1.0.0" },
     { name = "prometheus-api-client", marker = "extra == 'prom'", specifier = ">=0.5.5" },

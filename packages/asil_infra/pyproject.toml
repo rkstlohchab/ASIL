@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "asil-core",
     "asil-memory",
+    "kubernetes-asyncio>=35.0.1",
     "pydantic>=2.9.0",
     "pyyaml>=6.0",
 ]
