@@ -22,6 +22,14 @@ class SourceLanguage(StrEnum):
     javascript = "javascript"
     tsx = "tsx"
     go = "go"
+    ruby = "ruby"
+    java = "java"
+    rust = "rust"
+    c = "c"
+    cpp = "cpp"
+    php = "php"
+    swift = "swift"
+    kotlin = "kotlin"
 
 
 class ParsedImport(BaseModel):

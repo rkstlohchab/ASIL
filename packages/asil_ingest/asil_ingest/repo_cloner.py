@@ -82,6 +82,14 @@ LANGUAGE_EXTENSIONS: dict[SourceLanguage, tuple[str, ...]] = {
     SourceLanguage.tsx: (".tsx",),
     SourceLanguage.javascript: (".js", ".mjs", ".cjs"),
     SourceLanguage.go: (".go",),
+    SourceLanguage.ruby: (".rb",),
+    SourceLanguage.java: (".java",),
+    SourceLanguage.rust: (".rs",),
+    SourceLanguage.c: (".c", ".h"),
+    SourceLanguage.cpp: (".cpp", ".cc", ".cxx", ".hpp", ".hh", ".hxx"),
+    SourceLanguage.php: (".php",),
+    SourceLanguage.swift: (".swift",),
+    SourceLanguage.kotlin: (".kt", ".kts"),
 }
 
 

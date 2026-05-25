@@ -68,8 +68,109 @@ _SUPPORTED_LANGUAGES: frozenset[SourceLanguage] = frozenset(
         SourceLanguage.typescript,
         SourceLanguage.javascript,
         SourceLanguage.tsx,
+        SourceLanguage.go,
+        SourceLanguage.ruby,
+        SourceLanguage.java,
+        SourceLanguage.rust,
+        SourceLanguage.c,
+        SourceLanguage.cpp,
+        SourceLanguage.php,
+        SourceLanguage.swift,
+        SourceLanguage.kotlin,
     }
 )
+
+
+# Per-language node-type / field-name configuration for the generic structural
+# extractor used by every non-Python, non-JS-family language. The extractor is
+# intentionally coarse — it finds function-like and class-like declarations at
+# any nesting depth, harvests imports, and records every call expression. Each
+# language has subtle quirks the generic walker cannot capture (decorators,
+# docstrings, sophisticated dispatch); those are accepted gaps for v1.
+_GENERIC_LANG_CONFIG: dict[SourceLanguage, dict[str, Any]] = {
+    SourceLanguage.go: {
+        # type_declaration wraps one or more type_specs; the name lives on
+        # type_spec, so we treat the spec itself as the class-like node.
+        "function_kinds": {"function_declaration", "method_declaration"},
+        "class_kinds": {"type_spec"},
+        "import_kinds": {"import_declaration"},
+        "import_spec_kinds": {"import_spec"},
+        "call_kinds": {"call_expression"},
+        "name_field": "name",
+        "class_name_field": "name",
+        "function_callee_field": "function",
+    },
+    SourceLanguage.ruby: {
+        "function_kinds": {"method", "singleton_method"},
+        "class_kinds": {"class", "module"},
+        "import_kinds": {"call"},  # `require 'x'` is parsed as a call
+        "import_callee_names": {"require", "require_relative", "load"},
+        "call_kinds": {"call"},
+        "name_field": "name",
+        "function_callee_field": "method",
+    },
+    SourceLanguage.java: {
+        "function_kinds": {"method_declaration", "constructor_declaration"},
+        "class_kinds": {"class_declaration", "interface_declaration", "record_declaration", "enum_declaration"},
+        "import_kinds": {"import_declaration"},
+        "call_kinds": {"method_invocation", "object_creation_expression"},
+        "name_field": "name",
+        "function_callee_field": "name",
+    },
+    SourceLanguage.rust: {
+        "function_kinds": {"function_item"},
+        "class_kinds": {"struct_item", "enum_item", "trait_item", "impl_item"},
+        "import_kinds": {"use_declaration"},
+        "call_kinds": {"call_expression", "macro_invocation"},
+        "name_field": "name",
+        "function_callee_field": "function",
+    },
+    SourceLanguage.c: {
+        # C/C++ functions hide their name under
+        # function_definition.declarator (a function_declarator wrapper).
+        # Classes / structs put their name on the `name` field directly.
+        "function_kinds": {"function_definition"},
+        "class_kinds": {"struct_specifier", "union_specifier", "enum_specifier"},
+        "import_kinds": {"preproc_include"},
+        "call_kinds": {"call_expression"},
+        "name_field": "declarator",
+        "class_name_field": "name",
+        "function_callee_field": "function",
+    },
+    SourceLanguage.cpp: {
+        "function_kinds": {"function_definition"},
+        "class_kinds": {"class_specifier", "struct_specifier", "namespace_definition", "union_specifier", "enum_specifier"},
+        "import_kinds": {"preproc_include", "using_declaration"},
+        "call_kinds": {"call_expression"},
+        "name_field": "declarator",
+        "class_name_field": "name",
+        "function_callee_field": "function",
+    },
+    SourceLanguage.php: {
+        "function_kinds": {"function_definition", "method_declaration"},
+        "class_kinds": {"class_declaration", "interface_declaration", "trait_declaration"},
+        "import_kinds": {"namespace_use_declaration"},
+        "call_kinds": {"function_call_expression", "member_call_expression", "scoped_call_expression"},
+        "name_field": "name",
+        "function_callee_field": "function",
+    },
+    SourceLanguage.swift: {
+        "function_kinds": {"function_declaration", "init_declaration"},
+        "class_kinds": {"class_declaration", "protocol_declaration", "extension_declaration"},
+        "import_kinds": {"import_declaration"},
+        "call_kinds": {"call_expression"},
+        "name_field": "name",
+        "function_callee_field": "function",
+    },
+    SourceLanguage.kotlin: {
+        "function_kinds": {"function_declaration"},
+        "class_kinds": {"class_declaration", "object_declaration"},
+        "import_kinds": {"import_header"},
+        "call_kinds": {"call_expression"},
+        "name_field": "name",
+        "function_callee_field": "function",
+    },
+}
 
 
 class TreeSitterParser:
@@ -113,6 +214,8 @@ class TreeSitterParser:
             self._parse_javascript(root, src_bytes, parsed, mod)
         elif self.language is SourceLanguage.tsx:
             self._parse_tsx(root, src_bytes, parsed, mod)
+        elif self.language in _GENERIC_LANG_CONFIG:
+            self._parse_generic(root, src_bytes, parsed, mod, _GENERIC_LANG_CONFIG[self.language])
         return parsed
 
     # ------------------------------------------------------------------ python
@@ -616,6 +719,294 @@ class TreeSitterParser:
         return out
 
 
+    # --------------------------------- generic structural extractor (9 langs)
+
+    def _parse_generic(
+        self,
+        root: Any,
+        src: bytes,
+        parsed: ParsedFile,
+        mod: str,
+        cfg: dict[str, Any],
+    ) -> None:
+        """Coarse but consistent extraction for languages whose grammars share
+        the same conceptual shape: functions, classes (or class-like nodes
+        such as struct/trait/protocol), imports, and call expressions. The
+        per-language `cfg` dict pins the exact node-type strings to look for;
+        see `_GENERIC_LANG_CONFIG`.
+
+        Limitations accepted by design:
+          - No docstring / decorator extraction (each language has its own
+            convention; out of v1 scope).
+          - Methods of classes are emitted as standalone functions whose
+            `parent_class` is the enclosing class's qualified name — we do
+            *not* re-emit them as `ParsedFunction` inside `ParsedClass.methods`
+            for the generic case, to keep the extractor simple. The graph
+            builder already deduplicates by qualified name.
+          - Ruby `require` is recognised; other dynamic-import idioms (PHP's
+            `include`/`require`, C++ templates, Rust macros) are skipped.
+        """
+        function_kinds: set[str] = set(cfg["function_kinds"])
+        class_kinds: set[str] = set(cfg["class_kinds"])
+        import_kinds: set[str] = set(cfg["import_kinds"])
+        call_kinds: set[str] = set(cfg["call_kinds"])
+        name_field: str = cfg.get("name_field", "name")
+        class_name_field: str = cfg.get("class_name_field", name_field)
+        callee_field: str = cfg.get("function_callee_field", "function")
+        import_callee_names: set[str] = set(cfg.get("import_callee_names", []))
+        is_ruby_require_call_form = self.language is SourceLanguage.ruby
+
+        # Track which class we are currently inside while walking, so the
+        # method's `parent_class` resolves correctly. We do this with a
+        # manual DFS that maintains a stack rather than mutating shared state.
+        stack: list[tuple[Any, str | None]] = [(root, None)]
+        emitted_imports_for: set[int] = set()  # byte offsets, dedup
+        emitted_functions_for: set[int] = set()
+        emitted_classes_for: set[int] = set()
+
+        while stack:
+            node, parent_qname = stack.pop()
+            kind = _kind(node)
+
+            if kind in class_kinds:
+                cls_qname = self._generic_class(
+                    node, src, parsed, mod, class_name_field
+                )
+                if cls_qname is not None:
+                    emitted_classes_for.add(node.start_byte())
+                # descend into the class body with parent context updated
+                for child in _named_children(node):
+                    stack.append((child, cls_qname or parent_qname))
+                continue
+
+            if kind in function_kinds:
+                if node.start_byte() not in emitted_functions_for:
+                    self._generic_function(
+                        node, src, parsed, mod, parent_qname, name_field
+                    )
+                    emitted_functions_for.add(node.start_byte())
+                # don't recurse into function bodies for *more* functions;
+                # nested local functions are uncommon enough that we accept
+                # the gap. But still collect calls inside.
+                continue
+
+            if kind in import_kinds:
+                if node.start_byte() in emitted_imports_for:
+                    continue
+                if is_ruby_require_call_form:
+                    # ruby parses `require 'x'` as a call; only treat it as
+                    # an import if the callee name is in the allowlist.
+                    callee = node.child_by_field_name("method")
+                    callee_text = _text(callee, src) if callee else ""
+                    if callee_text not in import_callee_names:
+                        # still a normal call — descend so it lands in calls
+                        for child in _named_children(node):
+                            stack.append((child, parent_qname))
+                        continue
+                imports = self._generic_imports(node, src, cfg)
+                if imports:
+                    parsed.imports.extend(imports)
+                    emitted_imports_for.add(node.start_byte())
+                continue
+
+            if kind in call_kinds and parent_qname is not None:
+                # Attach the call to the most recently emitted function.
+                # DFS order makes this usually correct for top-level
+                # functions; the graph builder later relinks via the
+                # qualified-name index.
+                fn = node.child_by_field_name(callee_field)
+                if fn is not None and parsed.functions:
+                    parsed.functions[-1].calls.append(
+                        ParsedCall(callee=_text(fn, src), line=_start_row(node))
+                    )
+
+            for child in _named_children(node):
+                stack.append((child, parent_qname))
+
+    def _generic_function(
+        self,
+        node: Any,
+        src: bytes,
+        parsed: ParsedFile,
+        mod: str,
+        parent_qname: str | None,
+        name_field: str,
+    ) -> None:
+        name = self._extract_declarator_name(node, src, name_field)
+        if not name:
+            name = "<anonymous>"
+        qualified = f"{parent_qname}.{name}" if parent_qname else f"{mod}.{name}"
+        params_node = node.child_by_field_name("parameters") or node.child_by_field_name(
+            "parameter_list"
+        )
+        params = _text(params_node, src) if params_node else "()"
+        fn = ParsedFunction(
+            name=name,
+            qualified_name=qualified,
+            start_line=_start_row(node),
+            end_line=_end_row(node),
+            signature=params,
+            docstring=None,
+            is_async=any(_kind(c) == "async" for c in _children(node)),
+            is_method=parent_qname is not None,
+            parent_class=parent_qname,
+            calls=[],
+            decorators=[],
+        )
+        parsed.functions.append(fn)
+        parsed.symbols.append(_symbol(name, "function", fn.start_line, qualified))
+
+    def _generic_class(
+        self,
+        node: Any,
+        src: bytes,
+        parsed: ParsedFile,
+        mod: str,
+        name_field: str,
+    ) -> str | None:
+        name = self._extract_declarator_name(node, src, name_field)
+        if not name:
+            return None
+        qualified = f"{mod}.{name}"
+        cls = ParsedClass(
+            name=name,
+            qualified_name=qualified,
+            start_line=_start_row(node),
+            end_line=_end_row(node),
+            docstring=None,
+            base_classes=[],
+            methods=[],
+            decorators=[],
+        )
+        parsed.classes.append(cls)
+        parsed.symbols.append(_symbol(name, "class", cls.start_line, qualified))
+        return qualified
+
+    def _extract_declarator_name(self, node: Any, src: bytes, field: str) -> str | None:
+        """Find the name of a function or class declaration.
+
+        Grammars expose the name three different ways:
+          1. via `child_by_field_name("name")` (Python, JS family, Java, Swift)
+          2. via `child_by_field_name("declarator")` -> nested identifier
+             (C / C++ function definitions)
+          3. as an unnamed `type_identifier` / `simple_identifier` child of
+             the declaration node itself (Kotlin, sometimes Rust)
+
+        We try them in that order; the first match wins.
+        """
+        name_node = node.child_by_field_name(field)
+        if name_node is not None:
+            kind = _kind(name_node)
+            if kind in {"identifier", "type_identifier", "simple_identifier", "constant"}:
+                return _text(name_node, src)
+            ident = _find_first_identifier(name_node)
+            if ident is not None:
+                return _text(ident, src)
+            return _text(name_node, src)
+
+        decl = node.child_by_field_name("declarator")
+        if decl is not None:
+            ident = _find_first_identifier(decl)
+            if ident is not None:
+                return _text(ident, src)
+
+        # last resort — first identifier-like leaf among the declaration's
+        # immediate named children (skips body for class declarations because
+        # `_find_first_identifier` is a DFS but the type_identifier appears
+        # before the class_body in the AST).
+        for child in _named_children(node):
+            ck = _kind(child)
+            if ck in {"identifier", "type_identifier", "simple_identifier", "constant"}:
+                return _text(child, src)
+        return None
+
+    def _generic_imports(
+        self, node: Any, src: bytes, cfg: dict[str, Any]
+    ) -> list[ParsedImport]:
+        """Extract import / use / require / include directives. Each language's
+        node shape is different; we collect a best-effort module string."""
+        line = _start_row(node)
+        if self.language is SourceLanguage.go:
+            # `import_declaration` -> `import_spec_list` or single `import_spec`
+            out: list[ParsedImport] = []
+            for spec in _walk(node):
+                if _kind(spec) == "import_spec":
+                    path = spec.child_by_field_name("path") or spec.child_by_field_name("name")
+                    if path is not None:
+                        out.append(
+                            ParsedImport(
+                                module=_strip_js_string_quotes(_text(path, src)),
+                                names=[],
+                                line=_start_row(spec),
+                                is_relative=False,
+                            )
+                        )
+            return out
+        if self.language is SourceLanguage.ruby:
+            arg = None
+            for child in _named_children(node):
+                if _kind(child) == "argument_list":
+                    arg = child
+                    break
+            if arg is None:
+                return []
+            for child in _named_children(arg):
+                if _kind(child) == "string":
+                    return [
+                        ParsedImport(
+                            module=_strip_ruby_string(_text(child, src)),
+                            names=[],
+                            line=line,
+                            is_relative=False,
+                        )
+                    ]
+            return []
+        if self.language is SourceLanguage.rust:
+            ident = _find_first_identifier(node)
+            mod = _text(node, src).removeprefix("use").strip().rstrip(";").strip()
+            return [
+                ParsedImport(
+                    module=mod or (_text(ident, src) if ident else ""),
+                    names=[],
+                    line=line,
+                    is_relative=False,
+                )
+            ]
+        if self.language in {SourceLanguage.c, SourceLanguage.cpp}:
+            path = node.child_by_field_name("path")
+            if path is None:
+                return []
+            return [
+                ParsedImport(
+                    module=_strip_angle_or_quote(_text(path, src)),
+                    names=[],
+                    line=line,
+                    is_relative=_text(path, src).startswith('"'),
+                )
+            ]
+        if self.language is SourceLanguage.java:
+            path = _text(node, src).removeprefix("import").rstrip(";").strip()
+            return [
+                ParsedImport(module=path, names=[], line=line, is_relative=False)
+            ]
+        if self.language is SourceLanguage.php:
+            path = _text(node, src).removeprefix("use").rstrip(";").strip()
+            return [
+                ParsedImport(module=path, names=[], line=line, is_relative=False)
+            ]
+        if self.language is SourceLanguage.swift:
+            path = _text(node, src).removeprefix("import").strip()
+            return [
+                ParsedImport(module=path, names=[], line=line, is_relative=False)
+            ]
+        if self.language is SourceLanguage.kotlin:
+            path = _text(node, src).removeprefix("import").strip()
+            return [
+                ParsedImport(module=path, names=[], line=line, is_relative=False)
+            ]
+        return []
+
+
 # ---------------------------------------------------------------------------
 # node / source shim — bridges tree-sitter-language-pack's method-based API
 # ---------------------------------------------------------------------------
@@ -664,7 +1055,30 @@ def _symbol(name: str, kind: str, line: int, qualified: str) -> ParsedSymbol:
     return ParsedSymbol(name=name, kind=kind, line=line, qualified_name=qualified)
 
 
-_STRIPPABLE_SUFFIXES: tuple[str, ...] = (".tsx", ".mjs", ".cjs", ".ts", ".js", ".py")
+_STRIPPABLE_SUFFIXES: tuple[str, ...] = (
+    ".tsx",
+    ".mjs",
+    ".cjs",
+    ".ts",
+    ".js",
+    ".py",
+    ".go",
+    ".rb",
+    ".java",
+    ".rs",
+    ".cpp",
+    ".cxx",
+    ".cc",
+    ".hpp",
+    ".hxx",
+    ".hh",
+    ".c",
+    ".h",
+    ".php",
+    ".swift",
+    ".kts",
+    ".kt",
+)
 
 
 def _stem(path: str) -> str:
@@ -681,6 +1095,35 @@ def _strip_js_string_quotes(s: str) -> str:
     if len(s) >= 2 and s[0] in {"'", '"', "`"} and s[-1] == s[0]:
         return s[1:-1]
     return s
+
+
+def _strip_ruby_string(s: str) -> str:
+    """Strip surrounding quotes from a Ruby string literal as rendered by tree-sitter.
+    Tree-sitter's `string` node text already includes both quote characters."""
+    if len(s) >= 2 and s[0] in {"'", '"'} and s[-1] == s[0]:
+        return s[1:-1]
+    return s
+
+
+def _strip_angle_or_quote(s: str) -> str:
+    """For C/C++ `#include <foo.h>` or `#include "foo.h"` paths."""
+    s = s.strip()
+    if s.startswith("<") and s.endswith(">"):
+        return s[1:-1]
+    if s.startswith('"') and s.endswith('"'):
+        return s[1:-1]
+    return s
+
+
+def _find_first_identifier(node: Any) -> Any | None:
+    """Find the first identifier-like leaf under a node. Used for C-family
+    function declarators where the function name is buried under several
+    `function_declarator` / `pointer_declarator` wrappers."""
+    target_kinds = {"identifier", "type_identifier", "simple_identifier", "field_identifier"}
+    for sub in _walk(node):
+        if _kind(sub) in target_kinds:
+            return sub
+    return None
 
 
 def _strip_python_string_quotes(s: str) -> str:

@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from textwrap import dedent
 
-import pytest
 from asil_ingest import (
     ParsedFile,
     SourceLanguage,
-    TreeSitterParser,
     parse_source,
 )
 
@@ -183,6 +181,12 @@ def test_loc_count() -> None:
     assert pf.loc == 4  # 3 lines + trailing newline
 
 
-def test_unsupported_language_raises_until_implemented() -> None:
-    with pytest.raises(NotImplementedError, match="not yet implemented"):
-        TreeSitterParser(SourceLanguage.go)
+def test_supported_languages_includes_python() -> None:
+    # The set of supported languages expanded substantially in Phase 1.8b
+    # (Go / Ruby / Java / Rust / C / C++ / PHP / Swift / Kotlin). This test
+    # used to guard the unsupported branch; the guard is still exercised by
+    # `test_treesitter_parser_multilang.test_unsupported_language_still_raises`.
+    from asil_ingest.treesitter_parser import _SUPPORTED_LANGUAGES
+
+    assert SourceLanguage.python in _SUPPORTED_LANGUAGES
+    assert SourceLanguage.go in _SUPPORTED_LANGUAGES
