@@ -202,6 +202,49 @@ When you're ready, `asil fix run INC-...` does the same thing plus copies the re
 
 ---
 
+## The CI integration — SonarQube for engineering intelligence
+
+Once people see the dashboard, the first question is always: "OK but how do I get this in my pull-request flow?" SonarQube and Semgrep and CodeQL all run as a CI step that posts back to the PR; ASIL needed to do the same. So I built `asil scan` — the single command CI runs on every PR.
+
+It's intentionally cheap. The scan path never touches the reasoning LLM. Every signal comes from observable graph state or a saved baseline, which means a scan completes in seconds and costs essentially nothing per run. You can wire it as a `pre-push` hook without slowing anyone down.
+
+```
+uv run asil scan \
+  --baseline asil-baseline.json \
+  --gate normal \
+  --sarif asil.sarif \
+  --pr-comment asil-pr-comment.md \
+  --json asil.json
+```
+
+What it does, in order: connects to the local Neo4j graph; runs the Phase-6 drift detector against the baseline JSON; queries the Phase-4 causal links for incidents in the last 168 hours so each incident's top causal chain becomes a `note` finding ("by the way, the auth-cascade incident last Tuesday had a deploy of code touched by this PR as its top cause"); aggregates everything into a `ScanReport` with severity counts; applies the quality gate; and emits whichever output formats CI asked for.
+
+Four gate levels, same shape as every linter you've ever used. `strict` fails on warning and above, `normal` (the default) fails on error and above, `lenient` only on critical, `none` always passes. Exit code is `0` if the gate passed, `1` if it failed, `2` if ASIL itself crashed — so any CI tool's failure handling Just Works.
+
+Three output formats. **SARIF 2.1.0** is the format every static analyser worth deploying speaks; emitting it means ASIL's findings land in GitHub code scanning, SonarQube, Semgrep, and any other SARIF-consuming UI without custom integration. **GitHub-flavored markdown PR comment** ships a pass/fail badge, severity counts, and one collapsible `<details>` block per tier. **JSON** is the full `ScanReport` for archival or your own dashboards.
+
+The repo ships a full GitHub Action workflow you can drop into any project. It spins Neo4j + Qdrant + Postgres as service containers (no external ASIL server required), ingests the PR's code, runs the scan, edits-or-posts the PR comment in place on subsequent runs, uploads the SARIF to GitHub code scanning, and fails the workflow on a gate failure. Roughly 100 lines of YAML, copy-paste ready.
+
+For the `pre-commit` framework, the repo ships a `.pre-commit-hooks.yaml` with `asil-scan` and `asil-scan-strict` ids — three lines in your project's `.pre-commit-config.yaml` and the gate runs locally on every push.
+
+This is the same product surface SonarQube built its business on, with one important difference: ASIL's findings are derived from the temporal/causal graph, not from static-analysis rule packs. A critical finding from `asil scan` says "the auth service shipped a deploy that preceded an incident touching this code 7 minutes later." A critical finding from SonarQube says "this line has cyclomatic complexity 12." Both are useful. Only one of them tells you what production has actually been telling you.
+
+---
+
+## The "is it offline?" question, answered honestly
+
+Every ASIL install is its own world. There is no central server. There is no telemetry. Your graph, your memories, your cost ledger, your audit log — all on your machine.
+
+The whole docker-compose stack runs locally: Neo4j, Qdrant, Postgres, Redis, Prometheus, Loki, Grafana. Tree-sitter parsing, the graph builder, the vector store, the episodic memory, the causal linker, the replay engine, the drift detector, the fix sandbox, the audit log — all local Python, zero network. Embeddings can be 100% local too (the `tight` profile uses BGE-large via sentence-transformers).
+
+There is one network dependency in the default config: the reasoning LLM. That's the call that goes to OpenAI / Anthropic / DeepSeek. The `ModelRouter` already supports swapping providers via a `LLMProvider` Protocol; adding an `OllamaProvider` for fully-offline reasoning is roughly 50 lines and on my short list.
+
+External adapters (GitHub PRs, Slack, Jira, Linear, live K8s + Prom + Loki) are optional and token-gated. They only run when you configure them, and they only reach the systems you point them at.
+
+If your security review needs "no data leaves the host except the LLM call," you're already there. If it needs "no data leaves the host at all," you swap the LLM tier to a local provider and you're done.
+
+---
+
 ## The cost story — how it saves around 90% on a per-question basis
 
 Here's the part I want to be honest about. ASIL doesn't make individual LLM calls cheaper. It makes the second, third, and fourth time you ask the same question essentially free.
@@ -363,11 +406,15 @@ Want Slack, Jira, Linear? Set the env vars (`SLACK_BOT_TOKEN`, `JIRA_*`, `LINEAR
 
 Want to try the fix pipeline? Ingest one of the bundled postmortems, run `asil temporal link prod`, then `asil fix propose INC-2026-04-12-payments-cascade`. The diff plus confidence breakdown will land in your terminal.
 
+Want to try the CI scan? `uv run asil scan --pr-comment -` prints the same markdown a GitHub Action would post on a PR — gate badge, severity counts, the lot. Drop the bundled `.github/workflows/asil-scan.yml` into any project to wire it in for real.
+
 ---
 
 ## What's still ahead
 
-I've shipped the whole stack now — Phases 0 through 8. There is no remaining "stretch" item on the roadmap. The shape of the next six months is iteration, not new pillars.
+I've shipped the whole stack now — Phases 0 through 8 plus the CI integration. There is no remaining "stretch" item on the roadmap. The shape of the next six months is iteration, not new pillars.
+
+**Local-LLM provider.** The reasoning tier currently defaults to a cloud LLM. An `OllamaProvider` for fully-offline reasoning is roughly 50 lines and slots into the existing `LLMProvider` Protocol — no other layer needs to change.
 
 **Hosted public demo.** One polished postmortem replay at a public URL, so reviewers can click through without setting up Docker.
 
@@ -377,6 +424,8 @@ I've shipped the whole stack now — Phases 0 through 8. There is no remaining "
 
 **Eval expansion.** The current postmortem corpus is five incidents. Doubling it tightens the regression bar on the causal linker.
 
+**More scan rule sources.** Phase-7.5's GitHub PR adapter could feed `asil scan` with "this PR touches a file mentioned in three open Linear tickets." The wiring is already there; it's a query away.
+
 ---
 
 ## Why I'm building this in the open
@@ -385,7 +434,7 @@ Three reasons.
 
 **The market is overcrowded at the wrong layer.** I'd rather work on the unglamorous slot than ship the 47th competitor to Cursor.
 
-**Trust comes from evidence, not from confidence.** Every claim ASIL makes is auditable — including the fix proposals, where the proposed diff, the causal chain it acted on, the sandbox stdout, and the aggregate outcome are all in one Postgres row. You can only sell that if people can see the code.
+**Trust comes from evidence, not from confidence.** Every claim ASIL makes is auditable — the fix proposals, where the proposed diff and the causal chain and the sandbox stdout and the aggregate outcome are all in one Postgres row; the CI findings, where every SARIF result carries the rule id and the derivation it was built from; the cost ledger, where every LLM call is one row with provider and tier and token counts. You can only sell that if people can see the code.
 
 **The composition is the moat.** Individually each layer is solved. Combining them in this exact way — with confidence threading through every layer, causality coming from observable graph state rather than LLM guesses, and patches constrained by the causal chain rather than free-form prompts — is the part nobody has shipped.
 
@@ -395,4 +444,4 @@ The agents you already use are about to get a lot smarter, because they're about
 
 ---
 
-*Built solo over 6 months. Python + FastAPI + Neo4j + Qdrant + Postgres + Tree-sitter + Next.js + Tailwind + ReactFlow. 13 source languages, 13 MCP tools, 251 unit + 39 integration tests, roughly 6 hours from `git clone` to "ask my own codebase a question." MIT-licensed.*
+*Built solo over 6 months. Python + FastAPI + Neo4j + Qdrant + Postgres + Tree-sitter + Next.js + Tailwind + ReactFlow. 13 source languages, 13 MCP tools, `asil scan` CI command with SARIF + PR-comment output, GitHub Action template + pre-commit hooks, 274 unit + 39 integration tests, roughly 6 hours from `git clone` to "ask my own codebase a question." MIT-licensed.*
