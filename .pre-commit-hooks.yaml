@@ -1,0 +1,36 @@
+# pre-commit hook definitions for ASIL.
+#
+# To use, add the following to your repo's `.pre-commit-config.yaml`:
+#
+#   repos:
+#     - repo: https://github.com/rkstlohchab/ASIL
+#       rev: main
+#       hooks:
+#         - id: asil-scan
+#         # or for a stricter gate that fires on warnings too:
+#         - id: asil-scan-strict
+#
+# Requires: an ASIL workspace already bootstrapped on the machine
+# (`make bootstrap && make up`). The hooks shell out to `uv run asil`
+# so the docker stack must be reachable.
+
+- id: asil-scan
+  name: ASIL scan (normal gate)
+  description: >
+    Run `asil scan --gate normal` over the repo, blocking the commit
+    only when an `error` or `critical` finding lands. Pulls drift +
+    recent-incident signals from the local ASIL instance.
+  entry: uv run asil scan --gate normal --quiet
+  language: system
+  pass_filenames: false
+  stages: [pre-push]
+
+- id: asil-scan-strict
+  name: ASIL scan (strict gate)
+  description: >
+    Strict variant — also fires on warnings. Use as a pre-push hook
+    when you want a noisier signal during refactors.
+  entry: uv run asil scan --gate strict --quiet
+  language: system
+  pass_filenames: false
+  stages: [pre-push]

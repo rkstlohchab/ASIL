@@ -7,6 +7,7 @@ dependencies = [
     "asil-core",
     "asil-memory",
     "asil-ingest",
+    "asil-drift",
     "pydantic>=2.9.0",
     "pyyaml>=6.0",
 ]
@@ -25,3 +26,4 @@ packages = ["asil_eval"]
 asil-core = { workspace = true }
 asil-memory = { workspace = true }
 asil-ingest = { workspace = true }
+asil-drift = { workspace = true }

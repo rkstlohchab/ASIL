@@ -377,6 +377,54 @@ uv run asil adapters k8s --kubeconfig ~/.kube/config --namespace prod --write
 
 `--write` MERGEs the result straight into Neo4j. Without it, dry-run only.
 
+### `scan` — SonarQube-style CI entry point
+
+```bash
+# Default: read the graph + saved baseline, print findings to the terminal, exit 0/1 based on the gate.
+uv run asil scan
+
+# Full CI invocation: PR comment + SARIF for code scanning + JSON for archival + strict gate.
+uv run asil scan \
+  --baseline asil-baseline.json \
+  --gate normal \
+  --sarif asil.sarif \
+  --pr-comment asil-pr-comment.md \
+  --json asil.json
+```
+
+What it does:
+
+1. Connects to the local Neo4j graph (no LLM call — scan is cheap).
+2. Runs the Phase-6 drift detector against the baseline JSON if one is provided (empty baseline → every observed dependency reads as new).
+3. Queries the Phase-4 causal links for incidents in the last `--incident-lookback-hours` (default 168h). Each incident's top causal chain is emitted as a `note` finding so the reviewer sees "the incident last Tuesday had a deploy of code in this PR as its top cause."
+4. Aggregates findings into a `ScanReport` with severity counts.
+5. Applies the quality gate: `strict` (fail on warning+), `normal` (fail on error+, default), `lenient` (fail on critical only), `none` (always pass).
+6. Emits whichever output formats you asked for. Exit code is `0` if the gate passed, `1` if it failed, `2` if ASIL itself crashed.
+
+Outputs:
+
+- **SARIF 2.1.0** (`--sarif`): the standard CI tools speak. GitHub code scanning, SonarQube, Semgrep — anything that consumes SARIF will surface ASIL's findings in the same UI as your other linters.
+- **GitHub-flavored markdown PR comment** (`--pr-comment`): a single comment with a pass/fail badge, severity counts, and one `<details>` block per tier listing the findings.
+- **JSON** (`--json`): the full `ScanReport` for archival or custom dashboards.
+- **Terminal table** (default): human-readable for local invocation.
+
+### CI templates
+
+**GitHub Actions** — drop [.github/workflows/asil-scan.yml](.github/workflows/asil-scan.yml) into any repo. It spins Neo4j + Qdrant + Postgres as service containers, ingests the PR's code, runs `asil scan`, posts the PR comment (edits the prior one in place on subsequent runs), uploads the SARIF to GitHub code scanning, and fails the workflow on a gate failure. No external ASIL server required.
+
+**pre-commit** — the repo ships [.pre-commit-hooks.yaml](.pre-commit-hooks.yaml) so any project using `pre-commit` can wire ASIL into its hook stack:
+
+```yaml
+# .pre-commit-config.yaml in your repo
+repos:
+  - repo: https://github.com/rkstlohchab/ASIL
+    rev: main
+    hooks:
+      - id: asil-scan          # gate normal, runs on pre-push
+      # or for warnings-and-above:
+      - id: asil-scan-strict
+```
+
 ### `fix` — constrained fix pipeline (Phase 8)
 
 ```bash

@@ -9,6 +9,7 @@ Future phases:
   - calibration: confidence calibration against ground truth — Phase 2
 """
 
+from asil_eval.pr_comment import to_pr_comment
 from asil_eval.recall import (
     EvalCase,
     EvalCorpus,
@@ -16,6 +17,8 @@ from asil_eval.recall import (
     load_corpus,
     run_recall,
 )
+from asil_eval.sarif import to_sarif
+from asil_eval.scan import ScanFinding, ScanReport, Severity, run_scan
 
 __version__ = "0.0.1"
 
@@ -23,6 +26,12 @@ __all__ = [
     "EvalCase",
     "EvalCorpus",
     "RecallResult",
+    "ScanFinding",
+    "ScanReport",
+    "Severity",
     "load_corpus",
     "run_recall",
+    "run_scan",
+    "to_pr_comment",
+    "to_sarif",
 ]

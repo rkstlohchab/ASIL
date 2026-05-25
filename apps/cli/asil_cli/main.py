@@ -2137,6 +2137,179 @@ def _write_runtime_events(events) -> None:
 
 
 # ---------------------------------------------------------------------------
+# scan command — SonarQube-style CI entry point
+# ---------------------------------------------------------------------------
+
+
+@app.command()
+def scan(
+    repo: Annotated[
+        str, typer.Option(help="Path to the repo to scan. Defaults to cwd.")
+    ] = ".",
+    repo_key: Annotated[
+        str, typer.Option(help="Graph repo key. Defaults to `local:<abspath>`.")
+    ] = "",
+    baseline: Annotated[
+        str,
+        typer.Option(
+            help="Path to a drift baseline JSON (use `asil drift baseline` first).",
+        ),
+    ] = "",
+    gate: Annotated[
+        str,
+        typer.Option(help="Quality gate: strict / normal / lenient / none."),
+    ] = "normal",
+    sarif: Annotated[
+        str,
+        typer.Option(help="Write SARIF 2.1.0 results to this path (for GitHub code scanning)."),
+    ] = "",
+    json_out: Annotated[
+        str,
+        typer.Option("--json", help="Write machine-readable JSON to this path."),
+    ] = "",
+    pr_comment_out: Annotated[
+        str,
+        typer.Option(
+            "--pr-comment",
+            help="Write a markdown PR comment to this path (or '-' for stdout).",
+        ),
+    ] = "",
+    no_incidents: Annotated[
+        bool,
+        typer.Option(help="Skip the recent-incident causal-link signal."),
+    ] = False,
+    incident_lookback_hours: Annotated[
+        int, typer.Option(help="How far back to look for recent incidents.")
+    ] = 168,
+    quiet: Annotated[
+        bool, typer.Option(help="Suppress the human-readable terminal table.")
+    ] = False,
+) -> None:
+    """Run every CI-grade check ASIL has on this repo. Emit results in
+    JSON / SARIF / PR-comment formats. Exit code reflects the quality gate.
+
+    Designed to be the single command CI runs on every PR — the
+    SonarQube-style entry point. Cheap on purpose: only reads from the
+    graph + saved baseline, never spins up the LLM.
+
+    Exit codes:
+      0  gate passed (or `--gate none`)
+      1  gate failed — at least one finding above the gate's threshold
+      2  ASIL itself crashed (graph unreachable, bad baseline file, ...)
+    """
+    import json as _json
+    from pathlib import Path as _Path
+
+    from asil_eval import run_scan, to_pr_comment, to_sarif
+
+    configure_logging()
+    rk = repo_key or f"local:{_Path(repo).resolve()}"
+
+    try:
+        report = run_scan(
+            repo_root=repo,
+            repo_key=rk,
+            baseline_path=baseline or None,
+            gate=gate,
+            include_recent_incidents=not no_incidents,
+            incident_lookback_hours=incident_lookback_hours,
+        )
+    except Exception as exc:
+        console.print(f"[red]scan crashed: {exc}[/red]")
+        raise typer.Exit(code=2) from None
+
+    if not quiet:
+        _render_scan_report(report)
+
+    if json_out:
+        _Path(json_out).write_text(
+            _json.dumps(_scan_to_jsonable(report), indent=2),
+            encoding="utf-8",
+        )
+        console.print(f"[dim]wrote JSON to {json_out}[/dim]")
+
+    if sarif:
+        _Path(sarif).write_text(
+            _json.dumps(to_sarif(report), indent=2),
+            encoding="utf-8",
+        )
+        console.print(f"[dim]wrote SARIF to {sarif}[/dim]")
+
+    if pr_comment_out:
+        md = to_pr_comment(report)
+        if pr_comment_out == "-":
+            console.print(md)
+        else:
+            _Path(pr_comment_out).write_text(md, encoding="utf-8")
+            console.print(f"[dim]wrote PR comment to {pr_comment_out}[/dim]")
+
+    if not report.passed_gate:
+        raise typer.Exit(code=1)
+
+
+def _render_scan_report(report) -> None:
+    counts = report.counts
+    status = "[green]passed[/green]" if report.passed_gate else "[red]failed[/red]"
+    console.print(
+        f"\n[bold]asil scan[/bold] · repo [cyan]{report.repo_key}[/cyan] · "
+        f"gate [bold]{report.gate}[/bold] · {status}"
+    )
+    console.print(
+        f"  critical={counts['critical']}  error={counts['error']}  "
+        f"warning={counts['warning']}  note={counts['note']}  "
+        f"({len(report.findings)} total, {report.duration_seconds:.2f}s)"
+    )
+
+    if not report.findings:
+        console.print("[dim]no findings — clean scan.[/dim]")
+        return
+
+    t = Table(title="findings", expand=True)
+    t.add_column("sev", no_wrap=True)
+    t.add_column("rule", no_wrap=True)
+    t.add_column("message", overflow="fold")
+    t.add_column("file", no_wrap=True)
+    color = {
+        "critical": "bold red",
+        "error": "red",
+        "warning": "yellow",
+        "note": "dim",
+    }
+    for f in report.findings:
+        t.add_row(
+            f"[{color[f.severity.value]}]{f.severity.value}[/{color[f.severity.value]}]",
+            f.rule_id,
+            f.message,
+            f.file_path or "—",
+        )
+    console.print(t)
+
+
+def _scan_to_jsonable(report) -> dict[str, object]:
+    return {
+        "repo_root": report.repo_root,
+        "repo_key": report.repo_key,
+        "started_at": report.started_at.isoformat(),
+        "duration_seconds": report.duration_seconds,
+        "gate": report.gate,
+        "passed_gate": report.passed_gate,
+        "counts": report.counts,
+        "findings": [
+            {
+                "rule_id": f.rule_id,
+                "severity": f.severity.value,
+                "message": f.message,
+                "file_path": f.file_path,
+                "line": f.line,
+                "derivation": f.derivation,
+                "extra": f.extra,
+            }
+            for f in report.findings
+        ],
+    }
+
+
+# ---------------------------------------------------------------------------
 # fix commands (Phase 8 — constrained autonomous fix pipeline)
 # ---------------------------------------------------------------------------
 

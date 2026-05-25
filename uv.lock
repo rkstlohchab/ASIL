@@ -297,6 +297,7 @@ version = "0.0.1"
 source = { editable = "packages/asil_eval" }
 dependencies = [
     { name = "asil-core" },
+    { name = "asil-drift" },
     { name = "asil-ingest" },
     { name = "asil-memory" },
     { name = "pydantic" },
@@ -306,6 +307,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "asil-core", editable = "packages/asil_core" },
+    { name = "asil-drift", editable = "packages/asil_drift" },
     { name = "asil-ingest", editable = "packages/asil_ingest" },
     { name = "asil-memory", editable = "packages/asil_memory" },
     { name = "pydantic", specifier = ">=2.9.0" },
