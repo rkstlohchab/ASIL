@@ -502,6 +502,67 @@ This phase is the project. Everything before it is enabling; everything after is
 
 **Demo:** introduce a boundary-violating import in a PR against the demo repo; `asil drift report` flags it with rationale ("auth service now depends on payment internals; this edge was absent in 8 of 8 prior weeks").
 
+### Phase 1.8b — Multi-language parser expansion ✅ DONE 2026-05-26
+
+Adds Tree-sitter parsers for Go, Ruby, Java, Rust, C, C++, PHP, Swift,
+Kotlin via a single configurable extractor (`_GENERIC_LANG_CONFIG` in
+[treesitter_parser.py](packages/asil_ingest/asil_ingest/treesitter_parser.py)).
+Python and the JS family keep their bespoke extractors; everything else
+uses the generic one. 11 new unit tests pin behaviour per language.
+Acknowledged gaps: no docstring / decorator extraction in the generic
+path, no nested-local-function recursion.
+
+### Phase 3 step 3 — Live infrastructure adapters ✅ DONE 2026-05-26
+
+The three Phase 3 stubs (Prometheus / Loki / K8s) are now real:
+
+- **PrometheusAdapter**: polls (service, metric, promql) probes against
+  any Prometheus endpoint; emits `MetricShift` whenever current / baseline
+  ratio crosses `shift_threshold` (default 1.5x). Health-probes
+  `/-/ready` so unreachable endpoints surface as `NotConfiguredError`.
+- **LokiAdapter**: queries `/loki/api/v1/query_range`, redacts UUIDs /
+  hex / numbers / ISO timestamps so the same root error message
+  clusters into one `LogSignature`, caps signature length at 200 chars.
+- **K8sAdapter**: walks `list_namespaced_service` + `list_namespaced_deployment`
+  via `kubernetes-asyncio`. Requires a kubeconfig; falls back to in-cluster
+  config when none is provided.
+
+CLI: `asil adapters {prometheus, loki, k8s}` with `--write` to MERGE
+results into Neo4j. 10 unit tests (HTTP mocked) + 2 integration tests
+that round-trip against the docker-compose stack.
+
+### Phase 7.5 — External-system adapters (PR / Slack / Tickets) ✅ DONE 2026-05-26
+
+Brings the systems engineers actually live in into ASIL's graph:
+
+- **GitHubAdapter**: zero-token by default — uses `gh` CLI when
+  authenticated, falls back to `git log --merges` so any local repo
+  works. Repo key inferred from origin remote.
+- **SlackAdapter**: polls `conversations.history`, extracts incident
+  IDs and service mentions from message text. Token-gated on
+  `SLACK_BOT_TOKEN`.
+- **JiraAdapter**: polls Jira REST v3 for updated tickets; flattens
+  ADF descriptions for incident-id extraction. Token-gated on
+  `JIRA_BASE_URL` / `JIRA_USER_EMAIL` / `JIRA_API_TOKEN`.
+- **LinearAdapter**: single GraphQL query per poll. Token-gated on
+  `LINEAR_API_KEY`.
+
+New graph types: `PullRequest`, `ChatMessage`, `Ticket`. Five new edges:
+`:AUTHORED_BY`, `:MERGES`, `:DISCUSSES`, `:MENTIONS`, `:LINKS_TO`,
+`:ASSIGNED_TO`. CLI: `asil external {github, slack, jira, linear}`. 12
+new unit tests.
+
+### Phase 7.6 — Postgres cost ledger + savings dashboard ✅ DONE 2026-05-26
+
+Replaces the in-memory cost ledger so spend history survives the
+lifetime of the data (not just one Python process). New
+`PostgresCostLedger` (`asil_costs` table), `from_settings_or_none()`
+helper that auto-wires from `ModelRouter.from_env()` with a transparent
+fall-back to in-memory when Postgres isn't reachable. New
+`savings_vs_no_memory(memory_count, fresh, cached)` method estimates
+total $ saved by episodic-memory recalls. CLI: `asil cost summary` +
+`asil cost daily`. API: `GET /dashboard/cost`. Dashboard page: `/cost`.
+
 ### Phase 7 — Minimal UI + MCP polish ✅ DONE 2026-05-25
 
 - [x] **7.1 Next.js dashboard** — `apps/web/` is a Next.js 15 + Tailwind 3 + ReactFlow app served on port 3001. Eight pages: Dashboard / Ask / Incidents / Incident replay (with ReactFlow causal graph) / Causality / Drift / Memory / MCP catalog / Health. Type-safe API client in `src/lib/api.ts`, shared components (`Card`, `StatTile`, `ConfidenceBar`, `Sidebar`, `CausalFlow`).
