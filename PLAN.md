@@ -572,13 +572,60 @@ total $ saved by episodic-memory recalls. CLI: `asil cost summary` +
 
 **Demo:** `make api-dev` + `make web-dev` → open `http://localhost:3001` → dashboard shows live counts from Neo4j + Qdrant + Postgres; `/ask` runs the full hybrid-retrieval + verifier pipeline; `/incidents/<id>` renders the timeline + ReactFlow causal chain + state diff; `/causality` lets you trigger `asil.find_causes` interactively; `/drift` runs `asil.drift_check` on any indexed repo.
 
-### Phase 8 (stretch) — Deterministic fix pipeline (post-launch)
+### Phase 8 — Deterministic fix pipeline ✅ DONE 2026-05-26
 
-PR-filing is intentionally pushed here. It's commodity work. If the moat is established, this is upside; if the moat isn't established, this is a distraction.
+The constrained autonomous coder. Not free-form code generation — the
+patch generator only runs when there is a Phase-5 causal chain to act
+on, and the LLM is given a narrow slice of context (incident summary +
+top causes + implicated files) and an explicit instruction to emit a
+minimal `git apply`-compatible unified diff.
 
-- Sandbox executor (ephemeral Docker, no network).
-- Patch generator constrained by the causal chain from Phase 5.
-- CI gating + audit trail.
+What ships in `packages/asil_fix/`:
+
+- **PatchGenerator** ([patch_generator.py](packages/asil_fix/asil_fix/patch_generator.py)):
+  loads a `ReplayResult` for the incident; gathers code context from the
+  cause props (`file_path`, `service_name -> Service.file_paths`);
+  prompts via `ModelRouter.call(tier="reasoning")`; parses the diff out
+  of either a fenced block or bare unified-diff text; computes an
+  aggregate confidence bounded by the *weakest* component (cause-vs-
+  symptom honesty — a strong replay built on a weak cause stays weak).
+- **LocalSandbox** ([sandbox.py](packages/asil_fix/asil_fix/sandbox.py)):
+  copies the repo to a `tempfile.TemporaryDirectory`, runs `git apply
+  --check` before the real apply, then executes a configurable test
+  command with a wall-clock timeout. Returns one of `not_run`,
+  `apply_failed`, `tests_passed`, `tests_failed`, `timeout`,
+  `sandbox_error`. Never raises — sandboxes are the boundary between
+  "LLM said something" and "we did something."
+- **NoOpSandbox**: returns `not_run` cleanly so `asil fix propose` can
+  still flow through the audit path.
+- **AuditLog** ([audit.py](packages/asil_fix/asil_fix/audit.py)):
+  Postgres-backed `asil_fix_audit` table — one wide row per proposal
+  with the diff, causal chain, sandbox stdout/stderr tail, model + cost,
+  and an aggregate `FixOutcome` (`proposed` / `accepted` / `rejected` /
+  `inconclusive`). Two-gate classifier: tests must pass *and* confidence
+  must be above the configured floor for `accepted`.
+
+CLI surface (`asil fix`):
+
+- `propose <incident_id>` — read-only; shows the diff + confidence
+  breakdown + derivation.
+- `run <incident_id>` — full propose → sandbox → audit pipeline.
+- `list [--incident-id ID]` — recent audit rows.
+
+MCP tool: `asil.propose_fix` (read-only by default; opt-in to record).
+
+17 new unit tests in [tests/unit/test_fix_pipeline.py](tests/unit/test_fix_pipeline.py)
+pin the diff extractor (fenced + bare formats), the confidence-min
+aggregation, the generator's "no replay" / "no causal chain" guard
+branches, an end-to-end happy path against a real `tmp_path` repo, the
+oversize-file truncation, the four SandboxOutcome branches against a
+real git repo + `git apply` round-trip, and the audit-log `FixOutcome`
+classifier truth table.
+
+Nothing in this phase pushes, merges, or notifies. The proposal + sandbox
+result is the artifact a human (or a future orchestrator) decides on.
+
+### Phase 7 — Minimal UI + MCP polish ✅ DONE 2026-05-25
 
 ---
 

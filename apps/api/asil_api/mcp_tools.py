@@ -297,6 +297,38 @@ TOOL_CATALOG: list[ToolSpec] = [
             "required": ["repo_key"],
         },
     ),
+    ToolSpec(
+        name="asil.propose_fix",
+        description=(
+            "Phase 8 — constrained fix proposer. Given an incident id and a "
+            "local repo root, generate a minimal unified diff that addresses "
+            "the TOP causal candidate ASIL's deterministic linker identified. "
+            "Read-only by default — does NOT apply the diff or run any tests. "
+            "Set `record: true` to persist the proposal to the audit log "
+            "(`asil_fix_audit` table). Use the CLI's `asil fix run` for the "
+            "full sandboxed pipeline."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "incident_id": {"type": "string"},
+                "repo_root": {
+                    "type": "string",
+                    "description": "Absolute path to the repo on disk.",
+                },
+                "repo_key": {
+                    "type": ["string", "null"],
+                    "description": "Optional graph repo key; defaults to local:<repo_root>.",
+                },
+                "record": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Persist the proposal to the audit log even without sandbox.",
+                },
+            },
+            "required": ["incident_id", "repo_root"],
+        },
+    ),
 ]
 
 
@@ -539,6 +571,61 @@ async def replay_incident(payload: dict[str, Any], *, graph_store: GraphStore) -
         "service_cascade": cascade,
         "state_diff": state_diff,
         "confidence": _confidence_dict(result.confidence),
+    }
+
+
+async def propose_fix(
+    payload: dict[str, Any],
+    *,
+    graph_store: GraphStore,
+    router: ModelRouter,
+) -> dict[str, Any]:
+    """Phase 8 — constrained fix proposer (read-only by default).
+
+    Wraps `PatchGenerator.propose()`. When `record=true`, writes a no-op
+    sandbox row to `asil_fix_audit` so the proposal is still tracked.
+    The full propose -> apply -> test pipeline lives in the CLI; agents
+    don't get a one-shot tool that runs untrusted patches.
+    """
+    from pathlib import Path as _Path
+
+    from asil_fix import NoOpSandbox, PatchGenerator
+    from asil_fix.audit import from_settings_or_none as _audit_or_none
+
+    incident_id = _required_str(payload, "incident_id")
+    repo_root = _required_str(payload, "repo_root")
+    repo_key = payload.get("repo_key") or f"local:{_Path(repo_root).resolve()}"
+    record = bool(payload.get("record", False))
+
+    generator = PatchGenerator(router=router, graph_store=graph_store)
+    try:
+        proposal = await generator.propose(
+            incident_id=incident_id,
+            repo_root=repo_root,
+            repo_key=repo_key,
+        )
+    except ValueError as exc:
+        return {"error": str(exc), "incident_id": incident_id}
+
+    audited_outcome: str | None = None
+    if record:
+        audit = _audit_or_none()
+        if audit is not None:
+            sandbox_result = NoOpSandbox().run(proposal, repo_root)
+            audited_outcome = audit.record(proposal, sandbox_result).value
+
+    return {
+        "incident_id": proposal.incident_id,
+        "summary": proposal.summary,
+        "diff": proposal.diff,
+        "affected_files": proposal.affected_files,
+        "causal_chain": _scrub_neo4j_props(proposal.causal_chain),
+        "confidence_score": proposal.confidence_score,
+        "derivation": proposal.derivation,
+        "model": proposal.model,
+        "cost_usd": round(proposal.cost_usd, 6),
+        "generated_at": proposal.generated_at.isoformat(),
+        "audited_outcome": audited_outcome,
     }
 
 
@@ -798,6 +885,13 @@ async def call_tool(
         return await replay_incident(payload, graph_store=graph_store)
     if name == "asil.drift_check":
         return await drift_check(payload, graph_store=graph_store)
+    if name == "asil.propose_fix":
+        _need(router, name=name)
+        return await propose_fix(
+            payload,
+            graph_store=graph_store,
+            router=router,  # type: ignore[arg-type]
+        )
     return {"error": f"handler missing for {name!r}"}
 
 

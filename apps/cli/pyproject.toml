@@ -7,6 +7,7 @@ dependencies = [
     "asil-core",
     "asil-drift",
     "asil-eval",
+    "asil-fix",
     "asil-infra",
     "asil-ingest",
     "asil-memory",
@@ -32,6 +33,7 @@ packages = ["asil_cli"]
 asil-core = { workspace = true }
 asil-drift = { workspace = true }
 asil-eval = { workspace = true }
+asil-fix = { workspace = true }
 asil-infra = { workspace = true }
 asil-ingest = { workspace = true }
 asil-memory = { workspace = true }

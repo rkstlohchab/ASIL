@@ -61,6 +61,8 @@ def test_tool_catalog_contains_all_shipped_tools() -> None:
         "asil.replay_incident",
         # Phase 6 (architecture drift)
         "asil.drift_check",
+        # Phase 8 (constrained fix proposer)
+        "asil.propose_fix",
     }
 
 

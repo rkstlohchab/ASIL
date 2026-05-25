@@ -41,7 +41,8 @@ Point it at any codebase (Python / JS / TS / TSX / Go / Ruby / Java / Rust / C /
 5. **Replay any incident** as a time-ordered timeline + service cascade + state diff (deployments-during, metric-before/after) + ranked causal chain.
 6. **Detect architecture drift** between your current dependency structure and a stored baseline — before the PR merges.
 7. **Pull live data** from Prometheus / Loki / Kubernetes (metrics, logs, deployments) and external systems (GitHub PRs, Slack messages, Jira / Linear tickets).
-8. **Expose all of the above as MCP tools** so Claude Code / Cursor / OpenHands / Aider / Cody can call ASIL programmatically.
+8. **Propose code fixes** constrained by the Phase-5 causal chain — read-only by default, optional sandbox apply + test run, every attempt audited to Postgres with the diff + sandbox output + outcome (`accepted` / `rejected` / `inconclusive` / `proposed`).
+9. **Expose all of the above as 13 MCP tools** so Claude Code / Cursor / OpenHands / Aider / Cody can call ASIL programmatically.
 
 ---
 
@@ -376,6 +377,36 @@ uv run asil adapters k8s --kubeconfig ~/.kube/config --namespace prod --write
 
 `--write` MERGEs the result straight into Neo4j. Without it, dry-run only.
 
+### `fix` — constrained fix pipeline (Phase 8)
+
+```bash
+# Read-only — generate a patch from the causal chain, show the diff, exit.
+uv run asil fix propose INC-2026-04-12-payments-cascade
+
+# Same, but also persist the proposal to the audit log even though no sandbox ran.
+uv run asil fix propose INC-... --record
+
+# Full pipeline: propose -> ephemeral sandbox -> git apply -> run tests -> audit.
+uv run asil fix run INC-2026-04-12-payments-cascade
+uv run asil fix run INC-... --test-command "uv run pytest tests/unit -q" --timeout 120
+uv run asil fix run INC-... --confidence-gate 0.7
+
+# Browse the audit log.
+uv run asil fix list                              # most recent across all incidents
+uv run asil fix list --incident-id INC-...        # one incident only
+```
+
+What happens:
+
+1. Load the Phase-5 `ReplayResult` for the incident. Refuse if there is no causal chain (the moat must run first).
+2. Gather code context from the top causes' `file_path` / `service_name -> Service.file_paths` props. Cap at 4 files × 2000 chars by default.
+3. LLM call via `ModelRouter.call(tier="reasoning")` with a constrained prompt — emit ONLY a minimal unified diff for the implicated files.
+4. Parse the diff (fenced or bare). Compute aggregate confidence = `min(top_cause_confidence, replay_confidence)`.
+5. For `run`: copy the repo to a temp dir, `git apply --check` then `git apply`, execute the test command with a wall-clock timeout, capture stdout/stderr tails.
+6. Persist to Postgres `asil_fix_audit`. Aggregate `FixOutcome` is `accepted` (tests passed + confidence ≥ gate), `rejected` (tests failed or apply failed), `inconclusive` (timeout or low confidence), or `proposed` (no sandbox).
+
+Nothing is pushed, nothing is merged. The proposal + sandbox result is the artifact you (or an orchestrator) decide on.
+
 ### `external` — PRs, Slack, Jira, Linear (Phase 7.5)
 
 ```bash
@@ -426,6 +457,7 @@ The full tool list (catalog at `GET /mcp/tools`):
 | `asil.find_causes` | Ranked causal candidates for an incident |
 | `asil.replay_incident` | Timeline + cascade + state diff + confidence |
 | `asil.drift_check` | New dependencies + boundary violations vs baseline |
+| `asil.propose_fix` | Generate a constrained patch from a Phase-5 causal chain (read-only by default) |
 
 ### Claude Code
 
@@ -476,7 +508,7 @@ The ledger schema (`asil_costs`) is one row per LLM call: `ts, provider, model, 
 
 ## Status
 
-**Phases 0 – 7 ✅ done. Phase 3 step 3 ✅ done. Multi-language ✅ done.** The engine + the dashboard + live infrastructure adapters + external-system adapters are all shipped. Phase 8 (deterministic fix pipeline) is the only remaining stretch item.
+**Phases 0 – 8 ✅ done.** The engine + the dashboard + live infrastructure adapters + external-system adapters + the constrained fix pipeline are all shipped. No remaining stretch items on the roadmap.
 
 See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the per-phase roadmap, [docs/medium-blog-post.md](docs/medium-blog-post.md) for the long-form positioning post, [docs/why-asil.md](docs/why-asil.md) for the reference explainer, [docs/asil-in-five-minutes.md](docs/asil-in-five-minutes.md) for the five-minute version, and [docs/phase-0-testing.md](docs/phase-0-testing.md) / [docs/phase-1-testing.md](docs/phase-1-testing.md) for local validation guides.
 
@@ -502,6 +534,7 @@ packages/
   asil_temporal/    Composite causal linker (proximity + lagged + explicit) — THE MOAT
   asil_replay/      Timeline + cascade + state diff (Phase 5)
   asil_drift/       Baseline snapshot + drift detector (Phase 6)
+  asil_fix/         Constrained patch generator + sandbox + audit log (Phase 8)
 
 infrastructure/  docker, k8s (later), terraform (later)
 research/        papers, design docs, 5 postmortems for eval corpus

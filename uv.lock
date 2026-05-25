@@ -15,6 +15,7 @@ members = [
     "asil-core",
     "asil-drift",
     "asil-eval",
+    "asil-fix",
     "asil-infra",
     "asil-ingest",
     "asil-memory",
@@ -177,6 +178,7 @@ source = { editable = "apps/api" }
 dependencies = [
     { name = "asil-core" },
     { name = "asil-drift" },
+    { name = "asil-fix" },
     { name = "asil-memory" },
     { name = "asil-reasoning" },
     { name = "asil-replay" },
@@ -194,6 +196,7 @@ mcp = [
 requires-dist = [
     { name = "asil-core", editable = "packages/asil_core" },
     { name = "asil-drift", editable = "packages/asil_drift" },
+    { name = "asil-fix", editable = "packages/asil_fix" },
     { name = "asil-memory", editable = "packages/asil_memory" },
     { name = "asil-reasoning", editable = "packages/asil_reasoning" },
     { name = "asil-replay", editable = "packages/asil_replay" },
@@ -212,6 +215,7 @@ dependencies = [
     { name = "asil-core" },
     { name = "asil-drift" },
     { name = "asil-eval" },
+    { name = "asil-fix" },
     { name = "asil-infra" },
     { name = "asil-ingest" },
     { name = "asil-memory" },
@@ -228,6 +232,7 @@ requires-dist = [
     { name = "asil-core", editable = "packages/asil_core" },
     { name = "asil-drift", editable = "packages/asil_drift" },
     { name = "asil-eval", editable = "packages/asil_eval" },
+    { name = "asil-fix", editable = "packages/asil_fix" },
     { name = "asil-infra", editable = "packages/asil_infra" },
     { name = "asil-ingest", editable = "packages/asil_ingest" },
     { name = "asil-memory", editable = "packages/asil_memory" },
@@ -305,6 +310,27 @@ requires-dist = [
     { name = "asil-memory", editable = "packages/asil_memory" },
     { name = "pydantic", specifier = ">=2.9.0" },
     { name = "pyyaml", specifier = ">=6.0" },
+]
+
+[[package]]
+name = "asil-fix"
+version = "0.0.1"
+source = { editable = "packages/asil_fix" }
+dependencies = [
+    { name = "asil-core" },
+    { name = "asil-memory" },
+    { name = "asil-reasoning" },
+    { name = "asil-replay" },
+    { name = "psycopg", extra = ["binary"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "asil-core", editable = "packages/asil_core" },
+    { name = "asil-memory", editable = "packages/asil_memory" },
+    { name = "asil-reasoning", editable = "packages/asil_reasoning" },
+    { name = "asil-replay", editable = "packages/asil_replay" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
 ]
 
 [[package]]

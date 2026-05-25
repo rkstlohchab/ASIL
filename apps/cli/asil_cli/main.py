@@ -2137,6 +2137,227 @@ def _write_runtime_events(events) -> None:
 
 
 # ---------------------------------------------------------------------------
+# fix commands (Phase 8 — constrained autonomous fix pipeline)
+# ---------------------------------------------------------------------------
+
+fix_app = typer.Typer(
+    help="Phase 8 — propose a patch from a causal chain; optionally run it in a sandbox.",
+    no_args_is_help=True,
+)
+app.add_typer(fix_app, name="fix")
+
+
+@fix_app.command("propose")
+def fix_propose(
+    incident_id: Annotated[str, typer.Argument(help="Incident ID (e.g. INC-2026-04-12-payments-cascade).")],
+    repo: Annotated[
+        str, typer.Option(help="Path to the repo. Defaults to cwd.")
+    ] = ".",
+    repo_key: Annotated[
+        str, typer.Option(help="Repo key for graph scoping. Inferred from path if omitted.")
+    ] = "",
+    record: Annotated[
+        bool,
+        typer.Option(help="Persist proposal to the audit log even though sandbox didn't run."),
+    ] = False,
+) -> None:
+    """Generate a fix proposal from an incident's causal chain. Read-only —
+    does NOT apply the diff or run any tests. Use `asil fix run` for that.
+
+    Output: the proposed unified diff plus a confidence breakdown."""
+    import asyncio as _asyncio
+    from pathlib import Path as _Path
+
+    from asil_core.llm import ModelRouter
+    from asil_fix import NoOpSandbox, PatchGenerator
+    from asil_fix.audit import from_settings_or_none as _audit_or_none
+
+    configure_logging()
+
+    rk = repo_key or f"local:{_Path(repo).resolve()}"
+    gstore = GraphStore()
+    try:
+        gstore.verify_connectivity()
+    except Exception as exc:
+        console.print(f"[red]graph unreachable: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    try:
+        router = ModelRouter.from_env()
+        generator = PatchGenerator(router=router, graph_store=gstore)
+        try:
+            proposal = _asyncio.run(
+                generator.propose(incident_id=incident_id, repo_root=repo, repo_key=rk)
+            )
+        except ValueError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise typer.Exit(code=1) from None
+
+        _render_proposal(proposal)
+
+        if record:
+            sandbox = NoOpSandbox()
+            sandbox_result = sandbox.run(proposal, repo)
+            audit = _audit_or_none()
+            if audit is None:
+                console.print("[yellow]audit log unavailable; skipping persistence[/yellow]")
+            else:
+                outcome = audit.record(proposal, sandbox_result)
+                console.print(f"[green]audited as {outcome.value}[/green]")
+    finally:
+        gstore.close()
+
+
+@fix_app.command("run")
+def fix_run(
+    incident_id: Annotated[str, typer.Argument()],
+    repo: Annotated[str, typer.Option(help="Path to the repo. Defaults to cwd.")] = ".",
+    repo_key: Annotated[str, typer.Option(help="Repo key for graph scoping.")] = "",
+    test_command: Annotated[
+        str, typer.Option(help="Shell command run inside the sandbox after applying the diff.")
+    ] = "make test",
+    timeout: Annotated[int, typer.Option(help="Sandbox wall-clock timeout (seconds).")] = 300,
+    confidence_gate: Annotated[
+        float,
+        typer.Option(help="Minimum proposal confidence to land outcome=accepted on tests-passed."),
+    ] = 0.6,
+) -> None:
+    """Full pipeline: propose -> sandbox apply -> run tests -> audit.
+
+    Never pushes, never merges. The diff + sandbox stdout/stderr land in
+    the audit log; a human (or the future Phase 8 dashboard) decides what
+    happens next.
+    """
+    import asyncio as _asyncio
+    from pathlib import Path as _Path
+
+    from asil_core.llm import ModelRouter
+    from asil_fix import LocalSandbox, PatchGenerator
+    from asil_fix.audit import from_settings_or_none as _audit_or_none
+
+    configure_logging()
+    rk = repo_key or f"local:{_Path(repo).resolve()}"
+
+    gstore = GraphStore()
+    try:
+        gstore.verify_connectivity()
+    except Exception as exc:
+        console.print(f"[red]graph unreachable: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    try:
+        router = ModelRouter.from_env()
+        generator = PatchGenerator(router=router, graph_store=gstore)
+        try:
+            proposal = _asyncio.run(
+                generator.propose(incident_id=incident_id, repo_root=repo, repo_key=rk)
+            )
+        except ValueError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise typer.Exit(code=1) from None
+
+        _render_proposal(proposal)
+
+        console.print()
+        console.print(f"[bold]Sandboxing[/bold] `{test_command}` (timeout {timeout}s) ...")
+        sandbox = LocalSandbox(test_command=test_command, timeout_seconds=timeout)
+        result = sandbox.run(proposal, repo)
+        _render_sandbox(result)
+
+        audit = _audit_or_none()
+        if audit is None:
+            console.print("[yellow]audit log unavailable; outcome not persisted[/yellow]")
+        else:
+            outcome = audit.record(proposal, result, confidence_gate=confidence_gate)
+            console.print(f"\n[bold]outcome:[/bold] {outcome.value}")
+    finally:
+        gstore.close()
+
+
+@fix_app.command("list")
+def fix_list(
+    incident_id: Annotated[
+        str, typer.Option(help="Restrict to one incident.")
+    ] = "",
+    limit: Annotated[int, typer.Option(help="Row cap.")] = 20,
+) -> None:
+    """Show recent fix proposals from the audit log."""
+    from asil_fix.audit import from_settings_or_none as _audit_or_none
+
+    audit = _audit_or_none()
+    if audit is None:
+        console.print("[red]audit log unavailable (postgres unreachable)[/red]")
+        raise typer.Exit(code=1)
+
+    entries = (
+        audit.list_for_incident(incident_id, limit=limit)
+        if incident_id
+        else audit.recent(limit=limit)
+    )
+    if not entries:
+        console.print("[dim]no fix proposals recorded yet[/dim]")
+        return
+
+    t = Table(title=f"fix audit ({len(entries)} row(s))")
+    t.add_column("ts", no_wrap=True)
+    t.add_column("incident")
+    t.add_column("outcome")
+    t.add_column("sandbox")
+    t.add_column("conf", justify="right")
+    t.add_column("files")
+    t.add_column("cost", justify="right")
+    for e in entries:
+        t.add_row(
+            e.ts.strftime("%Y-%m-%d %H:%M:%SZ"),
+            e.incident_id,
+            e.outcome.value,
+            e.sandbox_outcome or "—",
+            f"{e.confidence_score:.2f}",
+            ", ".join(e.affected_files[:2]) + ("..." if len(e.affected_files) > 2 else ""),
+            f"${e.cost_usd:.4f}",
+        )
+    console.print(t)
+
+
+def _render_proposal(proposal) -> None:
+    """Pretty-print a FixProposal to the console (CLI-only helper)."""
+    h = Table.grid(padding=(0, 1))
+    h.add_column(justify="right", style="bold")
+    h.add_column()
+    h.add_row("incident", proposal.incident_id)
+    h.add_row("summary", proposal.summary)
+    h.add_row("confidence", f"{proposal.confidence_score:.3f}")
+    h.add_row("affected files", ", ".join(proposal.affected_files) or "—")
+    h.add_row("model", proposal.model)
+    h.add_row("cost", f"${proposal.cost_usd:.6f}")
+    console.print(h)
+    console.print()
+    console.print("[bold]derivation[/bold]")
+    for line in proposal.derivation:
+        console.print(f"  • {line}")
+    console.print()
+    console.print("[bold]proposed diff[/bold]")
+    console.print(proposal.diff or "[red](no diff parsed from LLM response)[/red]")
+
+
+def _render_sandbox(result) -> None:
+    """Pretty-print a SandboxResult."""
+    color = "green" if result.passed else "red"
+    console.print(f"[bold {color}]sandbox: {result.outcome.value}[/bold {color}] "
+                  f"({result.duration_seconds:.2f}s)")
+    if result.test_command:
+        console.print(f"  cmd: [dim]{result.test_command}[/dim]")
+    if result.stdout_tail:
+        console.print("\n[bold]stdout tail[/bold]")
+        console.print(f"[dim]{result.stdout_tail}[/dim]")
+    if result.stderr_tail:
+        console.print("\n[bold]stderr tail[/bold]")
+        console.print(f"[dim]{result.stderr_tail}[/dim]")
+    for note in result.notes:
+        console.print(f"  ! {note}")
+
+
+# ---------------------------------------------------------------------------
 # external commands — GitHub PRs, Slack channels, Jira / Linear tickets
 # ---------------------------------------------------------------------------
 

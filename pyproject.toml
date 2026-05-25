@@ -11,6 +11,7 @@ members = [
     "packages/asil_core",
     "packages/asil_drift",
     "packages/asil_eval",
+    "packages/asil_fix",
     "packages/asil_infra",
     "packages/asil_ingest",
     "packages/asil_memory",
@@ -37,6 +38,8 @@ select = ["E", "F", "I", "B", "UP", "RUF", "ASYNC", "SIM"]
 ignore = [
     "E501",     # line length handled by formatter
     "ASYNC109", # `timeout` parameter is legitimate when forwarded to httpx
+    "ASYNC240", # sync pathlib in async fns: small, well-scoped IO; switching to
+                # anyio.Path everywhere is an unrelated migration we aren't doing now
 ]
 
 [tool.mypy]
