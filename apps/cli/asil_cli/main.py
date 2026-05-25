@@ -2137,6 +2137,227 @@ def _write_runtime_events(events) -> None:
 
 
 # ---------------------------------------------------------------------------
+# external commands — GitHub PRs, Slack channels, Jira / Linear tickets
+# ---------------------------------------------------------------------------
+
+external_app = typer.Typer(
+    help="External-system adapters: GitHub PRs, Slack messages, Jira / Linear tickets.",
+    no_args_is_help=True,
+)
+app.add_typer(external_app, name="external")
+
+
+@external_app.command("github")
+def external_github(
+    repo: Annotated[
+        str, typer.Argument(help="Path to a local git repo (defaults to cwd).")
+    ] = ".",
+    limit: Annotated[int, typer.Option(help="Max PRs to fetch.")] = 50,
+    since_days: Annotated[int, typer.Option(help="Look back this many days.")] = 30,
+    write: Annotated[bool, typer.Option(help="MERGE PRs into Neo4j.")] = False,
+) -> None:
+    """Ingest GitHub pull requests from a local repo. Uses `gh` CLI when
+    available; falls back to parsing merge commits from `git log`."""
+    import asyncio as _asyncio
+
+    from asil_infra.adapters import NotConfiguredError
+    from asil_infra.external import GitHubAdapter
+
+    configure_logging()
+    adapter = GitHubAdapter(repo, limit=limit, since_days=since_days)
+    try:
+        prs = _asyncio.run(adapter.poll())
+    except NotConfiguredError as exc:
+        console.print(f"[red]github skipped: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    if not prs:
+        console.print(f"[dim]no PRs found in last {since_days} days[/dim]")
+        return
+
+    t = Table(title=f"github -> {len(prs)} PR(s)", expand=True)
+    t.add_column("#", justify="right")
+    t.add_column("state", no_wrap=True)
+    t.add_column("title", overflow="fold")
+    t.add_column("author")
+    t.add_column("merged sha")
+    for pr in prs:
+        t.add_row(
+            str(pr.number),
+            pr.state,
+            pr.title,
+            pr.author or "—",
+            (pr.merge_commit_sha or "—")[:8],
+        )
+    console.print(t)
+
+    if write:
+        gstore = GraphStore()
+        try:
+            gstore.verify_connectivity()
+            for pr in prs:
+                gstore.merge_pull_request(pr.model_dump(mode="json"))
+        finally:
+            gstore.close()
+        console.print(f"[green]wrote {len(prs)} PR(s) to graph[/green]")
+
+
+@external_app.command("slack")
+def external_slack(
+    channel: Annotated[
+        list[str], typer.Option("--channel", help="Slack channel ID (repeatable).")
+    ],
+    lookback_hours: Annotated[int, typer.Option(help="Lookback window in hours.")] = 24,
+    service: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--service", help="Known service names to extract mentions of (repeatable)."
+        ),
+    ] = None,
+    write: Annotated[bool, typer.Option(help="MERGE messages into Neo4j.")] = False,
+) -> None:
+    """Ingest recent Slack messages. Requires SLACK_BOT_TOKEN env var."""
+    import asyncio as _asyncio
+
+    from asil_infra.adapters import NotConfiguredError
+    from asil_infra.external import SlackAdapter
+
+    configure_logging()
+    adapter = SlackAdapter(
+        channels=channel,
+        lookback_seconds=lookback_hours * 3600,
+        known_services=service or [],
+    )
+    try:
+        msgs = _asyncio.run(adapter.poll())
+    except NotConfiguredError as exc:
+        console.print(f"[red]slack skipped: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    if not msgs:
+        console.print(f"[dim]no messages in last {lookback_hours}h[/dim]")
+        return
+
+    t = Table(title=f"slack -> {len(msgs)} message(s)")
+    t.add_column("channel")
+    t.add_column("text", overflow="fold")
+    t.add_column("incidents")
+    t.add_column("services")
+    for m in msgs:
+        t.add_row(
+            m.channel,
+            m.text[:80],
+            ", ".join(m.incident_ids) or "—",
+            ", ".join(m.service_names) or "—",
+        )
+    console.print(t)
+
+    if write:
+        gstore = GraphStore()
+        try:
+            gstore.verify_connectivity()
+            for m in msgs:
+                gstore.merge_chat_message(m.model_dump(mode="json"))
+        finally:
+            gstore.close()
+        console.print(f"[green]wrote {len(msgs)} message(s) to graph[/green]")
+
+
+@external_app.command("jira")
+def external_jira(
+    project: Annotated[
+        list[str], typer.Option("--project", help="Jira project key (repeatable).")
+    ],
+    lookback_hours: Annotated[int, typer.Option(help="Lookback window in hours.")] = 24,
+    write: Annotated[bool, typer.Option(help="MERGE tickets into Neo4j.")] = False,
+) -> None:
+    """Ingest recently-updated Jira tickets. Requires JIRA_BASE_URL,
+    JIRA_USER_EMAIL, JIRA_API_TOKEN env vars."""
+    import asyncio as _asyncio
+
+    from asil_infra.adapters import NotConfiguredError
+    from asil_infra.external import JiraAdapter
+
+    configure_logging()
+    adapter = JiraAdapter(
+        projects=project, lookback_seconds=lookback_hours * 3600
+    )
+    try:
+        tickets = _asyncio.run(adapter.poll())
+    except NotConfiguredError as exc:
+        console.print(f"[red]jira skipped: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    _render_tickets(tickets, "jira")
+
+    if write and tickets:
+        gstore = GraphStore()
+        try:
+            gstore.verify_connectivity()
+            for t in tickets:
+                gstore.merge_ticket(t.model_dump(mode="json"))
+        finally:
+            gstore.close()
+        console.print(f"[green]wrote {len(tickets)} ticket(s) to graph[/green]")
+
+
+@external_app.command("linear")
+def external_linear(
+    team: Annotated[
+        list[str], typer.Option("--team", help="Linear team key (repeatable).")
+    ],
+    limit: Annotated[int, typer.Option(help="Max tickets to fetch.")] = 100,
+    write: Annotated[bool, typer.Option(help="MERGE tickets into Neo4j.")] = False,
+) -> None:
+    """Ingest recently-updated Linear tickets. Requires LINEAR_API_KEY env var."""
+    import asyncio as _asyncio
+
+    from asil_infra.adapters import NotConfiguredError
+    from asil_infra.external import LinearAdapter
+
+    configure_logging()
+    adapter = LinearAdapter(teams=team, limit=limit)
+    try:
+        tickets = _asyncio.run(adapter.poll())
+    except NotConfiguredError as exc:
+        console.print(f"[red]linear skipped: {exc}[/red]")
+        raise typer.Exit(code=1) from None
+
+    _render_tickets(tickets, "linear")
+
+    if write and tickets:
+        gstore = GraphStore()
+        try:
+            gstore.verify_connectivity()
+            for t in tickets:
+                gstore.merge_ticket(t.model_dump(mode="json"))
+        finally:
+            gstore.close()
+        console.print(f"[green]wrote {len(tickets)} ticket(s) to graph[/green]")
+
+
+def _render_tickets(tickets, provider: str) -> None:
+    if not tickets:
+        console.print(f"[dim]{provider}: no tickets[/dim]")
+        return
+    t = Table(title=f"{provider} -> {len(tickets)} ticket(s)")
+    t.add_column("key", no_wrap=True)
+    t.add_column("status")
+    t.add_column("title", overflow="fold")
+    t.add_column("assignee")
+    t.add_column("incidents")
+    for ticket in tickets:
+        t.add_row(
+            ticket.key,
+            ticket.status,
+            ticket.title[:80],
+            ticket.assignee or "—",
+            ", ".join(ticket.incident_ids) or "—",
+        )
+    console.print(t)
+
+
+# ---------------------------------------------------------------------------
 # cost commands (Phase 7 — LLM cost ledger + savings visualisation)
 # ---------------------------------------------------------------------------
 

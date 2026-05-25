@@ -386,6 +386,96 @@ class GraphStore:
                 props=props,
             ).consume()
 
+    # ------------------------------------------------------ external systems
+    # Pull requests, chat messages, and tickets each get one MERGE-by-key
+    # method. They live alongside the code namespace (PRs link to commits)
+    # and the runtime namespace (chat/tickets link to incidents) — neither
+    # gets a `repo_key` or `env_key` because Slack channels and Jira projects
+    # span both.
+
+    def merge_pull_request(self, props: dict[str, Any]) -> None:
+        """Identity = (repo_key, number). Links to Commit via merge_commit_sha."""
+        cypher = """
+        MERGE (pr:PullRequest {repo_key: $repo_key, number: $number})
+        SET pr += $props
+        WITH pr
+        FOREACH (_ IN CASE WHEN $author IS NULL THEN [] ELSE [1] END |
+            MERGE (a:Author {login: $author})
+            MERGE (pr)-[:AUTHORED_BY]->(a)
+        )
+        FOREACH (_ IN CASE WHEN $merge_sha IS NULL THEN [] ELSE [1] END |
+            MERGE (c:Commit {sha: $merge_sha})
+                ON CREATE SET c.repo_key = $repo_key
+            MERGE (pr)-[:MERGES]->(c)
+        )
+        """
+        with self._session() as s:
+            s.run(
+                cypher,
+                repo_key=props["repo_key"],
+                number=props["number"],
+                author=props.get("author"),
+                merge_sha=props.get("merge_commit_sha"),
+                props=props,
+            ).consume()
+
+    def merge_chat_message(self, props: dict[str, Any]) -> None:
+        """Identity = (channel, ts). Provisional :DISCUSSES edges per incident id
+        mentioned in the message body. Missing incidents are created on demand
+        so the chat record stays useful even when the incident hasn't been
+        ingested yet."""
+        cypher = """
+        MERGE (m:ChatMessage {channel: $channel, ts: $ts})
+        SET m += $props
+        WITH m
+        UNWIND $incident_ids AS inc_id
+          MERGE (i:Incident {id: inc_id})
+              ON CREATE SET i.source = 'auto-from-chat'
+          MERGE (m)-[:DISCUSSES]->(i)
+        WITH m
+        UNWIND $service_names AS svc_name
+          MERGE (svc:Service {name: svc_name})
+              ON CREATE SET svc.source = 'auto-from-chat'
+          MERGE (m)-[:MENTIONS]->(svc)
+        """
+        with self._session() as s:
+            s.run(
+                cypher,
+                channel=props["channel"],
+                ts=props["ts"],
+                incident_ids=props.get("incident_ids", []),
+                service_names=props.get("service_names", []),
+                props=props,
+            ).consume()
+
+    def merge_ticket(self, props: dict[str, Any]) -> None:
+        """Identity = (provider, key). Links to Incident nodes named in the body."""
+        cypher = """
+        MERGE (t:Ticket {provider: $provider, key: $key})
+        SET t += $props
+        WITH t
+        FOREACH (_ IN CASE WHEN $assignee IS NULL THEN [] ELSE [1] END |
+            MERGE (a:Author {login: $assignee})
+            MERGE (t)-[:ASSIGNED_TO]->(a)
+        )
+        WITH t
+        UNWIND $incident_ids AS inc_id
+          MERGE (i:Incident {id: inc_id})
+              ON CREATE SET i.source = 'auto-from-ticket'
+          MERGE (t)-[:LINKS_TO]->(i)
+        """
+        with self._session() as s:
+            s.run(
+                cypher,
+                provider=props["provider"],
+                key=props["key"],
+                assignee=props.get("assignee"),
+                incident_ids=props.get("incident_ids", []),
+                props=props,
+            ).consume()
+
+    # ------------------------------------------------------------- env clear
+
     def clear_env(self, env_key: str) -> int:
         """Detach-delete every runtime node carrying this env_key. Returns count.
 
