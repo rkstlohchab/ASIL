@@ -23,7 +23,7 @@ These are violations to surface in review, not preferences:
 1. **All LLM calls go through `ModelRouter.call(tier=...)`.** No hardcoded model names. See [.claude/skills/asil-llm-call.md](.claude/skills/asil-llm-call.md).
 2. **Every conclusion ships with a `Confidence` object.** Never strip it before returning to the user. See [.claude/skills/asil-confidence.md](.claude/skills/asil-confidence.md).
 3. **Deterministic pipelines over multi-agent debate.** LangGraph is for state machines and checkpointing, not for agents arguing. One critique pass max.
-4. **No frontend / Next.js work until Phase 7.** CLI (Typer) is the UX. Trying to build a dashboard now is the most common drift failure mode.
+4. **Frontend / Next.js lives in `apps/web/` (Phase 7 — shipped 2026-05-25).** Eight pages on port 3001, talks to FastAPI via REST + MCP. Don't touch unless the task is genuinely a dashboard change.
 5. **Phase gates are real.** Do not start Phase N+1 until Phase N has a demo video + design doc in `research/`. See [.claude/skills/asil-phase-gate.md](.claude/skills/asil-phase-gate.md).
 6. **Never read `os.environ` directly.** Go through `asil_core.get_settings()`.
 7. **Never `pip install` outside `uv`.** This is a `uv` workspace. Add deps with `uv add` against the right workspace member.
@@ -32,7 +32,7 @@ These are violations to surface in review, not preferences:
 
 ## Current phase
 
-**Phase 3 + 4 in parallel** (Phase 0 + 1 + 2 ✅ done; Phase 3 step 1 ✅; Phase 4 step 1 ✅ — **THE MOAT**). See PLAN.md for the full roadmap. Phase 4 step 1 shipped the `asil_temporal` package: temporal-proximity causal linker, `(:Cause)-[:PRECEDED]->(:Incident)` edges with confidence + delta + derivation + strategy, `asil temporal link/causes` CLI, `asil.find_causes` MCP tool. The bundled postmortem regression-tests it (auth deploy → top-3 cause). Step 2+ adds lagged-correlation + explicit-reference strategies (cause-vs-symptom honesty).
+**Phases 0 – 7 ✅ DONE 2026-05-25.** The engine *and* the dashboard are both shipped. Only Phase 8 (deterministic fix pipeline) remains as a stretch item. See [PLAN.md](PLAN.md) for the full roadmap and the per-phase deliverables. The Phase 4 moat is composite causal scoring across three observable strategies (temporal proximity + lagged correlation + explicit reference); the Phase 7 UI lives at `apps/web/` and ships with a Tailwind + ReactFlow dashboard on port 3001.
 
 To check status during a session, run `/phase`. To run the regression harness, run `/eval`.
 
@@ -41,23 +41,20 @@ To check status during a session, run `/phase`. To run the regression harness, r
 ## Layout
 
 ```
-apps/api/     FastAPI gateway + MCP HTTP server (Phase 1: tools live; stdio MCP is Phase 7)
-apps/cli/     Typer CLI — primary UX for Phases 1–5
+apps/api/     ✅ FastAPI gateway + MCP HTTP server + UI REST endpoints (Phases 1 + 7)
+apps/cli/     ✅ Typer CLI — primary UX for Phases 1–6
 apps/worker/  Arq worker for ingestion jobs (Phase 1.x polish)
-apps/web/     Next.js dashboard — DO NOT TOUCH UNTIL PHASE 7
+apps/web/     ✅ Next.js 15 + Tailwind + ReactFlow dashboard on port 3001 (Phase 7)
 
 packages/asil_core/        ✅ LLM router, Confidence, config, logging (Phase 0)
-packages/asil_ingest/      ✅ Tree-sitter parser, repo cloner, embedder, graph builder, call resolver (Phase 1)
-packages/asil_memory/      ✅ GraphStore (Neo4j) + VectorStore (Qdrant) + HybridRetriever (Phase 1); Mem0 episodic (Phase 2)
+packages/asil_ingest/      ✅ Tree-sitter parsers (Python/JS/TS/TSX), cloner, embedder, graph builder, call resolver (Phase 1)
+packages/asil_memory/      ✅ GraphStore + VectorStore + HybridRetriever + EpisodicStore (Phases 1+2)
 packages/asil_eval/        ✅ recall harness + Q&A corpus (`asil_self`) (Phase 1)
 packages/asil_reasoning/   ✅ verifier + canonical scorer (Phase 2)
-packages/asil_infra/       ◐ Phase 3 step 1: runtime-event models + postmortem ingestor.
-                              K8s / Prometheus / Loki adapters land next.
-packages/asil_temporal/    ◐ Phase 4 step 1 ✅ — THE MOAT: temporal-proximity causal linker,
-                              :PRECEDED edges with confidence + derivation. Lagged-correlation
-                              and explicit-reference strategies land next.
-packages/asil_replay/      incident timeline, cascade, state diff (Phase 5)
-packages/asil_drift/       architecture drift detector (Phase 6)
+packages/asil_infra/       ✅ runtime-event models + postmortem ingestor + InfraAdapter protocol + FileAdapter (Phase 3)
+packages/asil_temporal/    ✅ THE MOAT — composite causal linker: temporal proximity + lagged correlation + explicit reference (Phase 4)
+packages/asil_replay/      ✅ incident timeline + cascade + state diff (Phase 5)
+packages/asil_drift/       ✅ baseline snapshot + drift detector (Phase 6)
 
 infrastructure/  docker, k8s, terraform
 research/        papers, design docs, postmortem corpus

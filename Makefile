@@ -1,4 +1,4 @@
-.PHONY: help bootstrap up down restart logs status sync lint format typecheck test test-unit test-integration test-e2e reset-dbs seed clean
+.PHONY: help bootstrap up down restart logs status sync lint format typecheck test test-unit test-integration test-e2e reset-dbs seed clean web-install web-dev web-build api-dev
 
 SHELL := /bin/bash
 
@@ -24,6 +24,11 @@ help:
 	@echo "  reset-dbs      tear down + remove volumes (DESTRUCTIVE)"
 	@echo "  seed           seed demo repo + demo incident into the graph"
 	@echo "  clean          remove caches and build artifacts"
+	@echo ""
+	@echo "  api-dev        run FastAPI gateway on :8000 (reload)"
+	@echo "  web-install    pnpm install inside apps/web"
+	@echo "  web-dev        run Next.js dashboard on :3001 (requires api-dev)"
+	@echo "  web-build      production build of the dashboard"
 
 bootstrap:
 	@command -v uv >/dev/null 2>&1 || { echo "uv not installed. Install: curl -LsSf https://astral.sh/uv/install.sh | sh"; exit 1; }
@@ -88,3 +93,15 @@ seed:
 
 clean:
 	rm -rf .ruff_cache .mypy_cache .pytest_cache **/__pycache__ **/*.egg-info dist build
+
+api-dev:
+	uv run uvicorn asil_api.main:app --reload --port 8000
+
+web-install:
+	cd apps/web && pnpm install
+
+web-dev:
+	cd apps/web && pnpm dev
+
+web-build:
+	cd apps/web && pnpm build

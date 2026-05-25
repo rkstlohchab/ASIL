@@ -502,13 +502,14 @@ This phase is the project. Everything before it is enabling; everything after is
 
 **Demo:** introduce a boundary-violating import in a PR against the demo repo; `asil drift report` flags it with rationale ("auth service now depends on payment internals; this edge was absent in 8 of 8 prior weeks").
 
-### Phase 7 (stretch) — Minimal UI + MCP polish (Weeks 41–46)
+### Phase 7 — Minimal UI + MCP polish ✅ DONE 2026-05-25
 
-**Only after the engine demos cleanly.**
+- [x] **7.1 Next.js dashboard** — `apps/web/` is a Next.js 15 + Tailwind 3 + ReactFlow app served on port 3001. Eight pages: Dashboard / Ask / Incidents / Incident replay (with ReactFlow causal graph) / Causality / Drift / Memory / MCP catalog / Health. Type-safe API client in `src/lib/api.ts`, shared components (`Card`, `StatTile`, `ConfidenceBar`, `Sidebar`, `CausalFlow`).
+- [x] **7.2 CORS + UI-facing REST endpoints** — FastAPI now exposes `/dashboard/stats` (aggregated counts for code + runtime + repos + envs + memory + LLM profile) and `/incidents` (every Incident node, newest first, with affected services). CORS allows `http://localhost:3001`.
+- [x] **7.3 MCP catalog page** — `/mcp` page hits `GET /mcp/tools` and renders the 12 tools with collapsible JSON-schema previews and a Claude Code wiring snippet. Native stdio MCP transport still pending.
+- [ ] **7.4 Hosted public demo** — one polished postmortem replay at a public URL. Pending hosting decisions.
 
-- Next.js dashboard with ReactFlow for the causality + replay views.
-- MCP tool catalog published, with examples of Claude Code / Cursor / OpenHands calling ASIL.
-- Hosted demo at a public URL with a seeded postmortem.
+**Demo:** `make api-dev` + `make web-dev` → open `http://localhost:3001` → dashboard shows live counts from Neo4j + Qdrant + Postgres; `/ask` runs the full hybrid-retrieval + verifier pipeline; `/incidents/<id>` renders the timeline + ReactFlow causal chain + state diff; `/causality` lets you trigger `asil.find_causes` interactively; `/drift` runs `asil.drift_check` on any indexed repo.
 
 ### Phase 8 (stretch) — Deterministic fix pipeline (post-launch)
 

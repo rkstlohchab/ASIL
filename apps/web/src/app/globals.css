@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+  background: #0c1019;
+  color: #eceef1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.scroll-pane {
+  scrollbar-width: thin;
+  scrollbar-color: #3a4254 transparent;
+}
+
+.scroll-pane::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-pane::-webkit-scrollbar-thumb {
+  background: #3a4254;
+  border-radius: 8px;
+}
+
+/* ReactFlow dark theme tweaks */
+.react-flow {
+  background: #0c1019;
+}
+
+.react-flow__node {
+  font-family: ui-sans-serif, system-ui;
+  font-size: 12px;
+}
+
+.react-flow__handle {
+  background: #5b8cff;
+}
+
+.react-flow__edge-path {
+  stroke: #525c6f;
+}
+
+.react-flow__edge.animated path {
+  stroke: #5b8cff;
+}

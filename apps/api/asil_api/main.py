@@ -17,6 +17,7 @@ import httpx
 from asil_core import configure_logging, get_logger, get_settings
 from asil_core.llm import ModelRouter
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 log = get_logger(__name__)
@@ -65,6 +66,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ASIL API", version="0.0.1", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -159,6 +171,76 @@ async def mcp_tools() -> list[dict[str, Any]]:
 
 class _ToolCallRequest(BaseModel):
     arguments: dict[str, Any] = {}
+
+
+@app.get("/dashboard/stats")
+async def dashboard_stats() -> dict[str, Any]:
+    """Aggregated counts for the Phase 7 dashboard. One query per backing store."""
+    from asil_memory import EpisodicStore, GraphStore
+
+    code: dict[str, int] = {}
+    runtime: dict[str, int] = {}
+    repos: list[dict[str, Any]] = []
+    envs: list[str] = []
+    memory_count = 0
+
+    try:
+        with GraphStore() as g:
+            g.verify_connectivity()
+            code = g.stats()
+            runtime = g.runtime_stats()
+            repos = g.list_repos()
+            envs = [
+                row["env_key"]
+                for row in g.query(
+                    "MATCH (n) WHERE n.env_key IS NOT NULL "
+                    "RETURN DISTINCT n.env_key AS env_key ORDER BY env_key"
+                )
+            ]
+    except Exception as e:
+        log.warning("dashboard_graph_unavailable", error=str(e))
+
+    try:
+        with EpisodicStore() as e:
+            e.verify_connectivity()
+            e.apply_schema()
+            memory_count = e.count()
+    except Exception as exc:
+        log.warning("dashboard_episodic_unavailable", error=str(exc))
+
+    return {
+        "code": code,
+        "runtime": runtime,
+        "repos": repos,
+        "envs": envs,
+        "memory_count": memory_count,
+        "llm_profile": app.state.router.active_profile_name,
+    }
+
+
+@app.get("/incidents")
+async def list_incidents(env_key: str | None = None) -> dict[str, Any]:
+    """Every Incident node, newest first. Used by the UI's /incidents page."""
+    from asil_memory import GraphStore
+
+    where = "WHERE i.env_key = $env" if env_key else ""
+    cypher = (
+        f"MATCH (i:Incident) {where} "
+        "OPTIONAL MATCH (i)-[:AFFECTS]->(s:Service) "
+        "WITH i, collect(DISTINCT s.name) AS services "
+        "RETURN i.incident_id AS incident_id, i.detected_at AS detected_at, "
+        "i.severity AS severity, i.summary AS summary, i.env_key AS env_key, "
+        "services "
+        "ORDER BY i.detected_at DESC"
+    )
+    try:
+        with GraphStore() as g:
+            g.verify_connectivity()
+            params = {"env": env_key} if env_key else {}
+            rows = g.query(cypher, **params)
+    except Exception as e:
+        return {"incidents": [], "error": str(e)}
+    return {"incidents": rows, "count": len(rows)}
 
 
 @app.post("/mcp/call/{tool_name}")

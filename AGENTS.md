@@ -22,12 +22,12 @@ Whichever tool you're running in (Claude Code, Antigravity, Cursor, OpenHands, A
 1. All LLM calls go through `asil_core.llm.ModelRouter.call(tier=...)`. No hardcoded model names.
 2. Every conclusion ships with a `Confidence` object — never strip it.
 3. Deterministic pipelines over multi-agent debate. One critique pass max.
-4. No frontend / Next.js work until Phase 7.
+4. Frontend lives in `apps/web/` (Phase 7 — shipped). Don't touch unless the task is a real dashboard change.
 5. Phase gates: don't start Phase N+1 until N has a demo + design doc in `research/`.
 
 ## Current status
 
-**Phases 0–6 ✅ DONE (2026-05-25).** The engine work is complete: code intelligence, memory, infra bridge, temporal causality (THE MOAT), execution replay, and architecture drift detection. Next: Phase 7 (stretch) — Minimal UI + MCP polish. See [PLAN.md](PLAN.md) for the full roadmap.
+**Phases 0–7 ✅ DONE (2026-05-25).** Engine *and* dashboard are both live: code intelligence, memory, infra bridge, temporal causality (THE MOAT), execution replay, architecture drift detection, plus a Next.js 15 + Tailwind + ReactFlow dashboard in `apps/web/` on port 3001. Only Phase 8 (deterministic fix pipeline) remains as a stretch item. See [PLAN.md](PLAN.md) and [docs/why-asil.md](docs/why-asil.md).
 
 ## Devloop
 
@@ -38,7 +38,9 @@ make test               # unit tests
 make lint               # ruff check
 make format             # ruff format + ruff check --fix
 uv run asil status      # service health
-uv run uvicorn asil_api.main:app --reload   # API on :8000
+make api-dev            # FastAPI on :8000 (reload)
+make web-install        # one-time: pnpm install for the dashboard
+make web-dev            # Next.js dashboard on :3001
 ```
 
 ## When in doubt

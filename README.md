@@ -43,29 +43,34 @@ Endpoints after `make up`:
 ## Project layout
 
 ```
-apps/         # FastAPI gateway, Typer CLI, Arq worker, Next.js dashboard (deferred)
+apps/         # FastAPI gateway, Typer CLI, Arq worker, Next.js dashboard (Phase 7)
 packages/     # asil_core, asil_ingest, asil_memory, asil_temporal, asil_replay,
               # asil_drift, asil_reasoning, asil_infra, asil_eval
 infrastructure/  # docker, k8s (later), terraform (later)
-research/     # papers, design decisions, postmortem corpus
+research/     # papers, design decisions, postmortem corpus (5 incidents)
 scripts/      # bootstrap, seed, reset
 tests/        # unit, integration, e2e
 ```
 
 ## Status
 
-**Phase 0 + 1 + 2 ✅ done; Phase 3 step 1 ✅; Phase 4 step 1 ✅ — THE MOAT (2026-05-20 → 2026-05-24).** ASIL now ingests any repo, builds a queryable knowledge graph + semantic vector index, answers natural-language questions with file:line citations, verifies each claim against its citations, persists every conclusion as episodic memory that subsequent runs recall automatically, ingests postmortem timelines as runtime events (Service / Deployment / MetricShift / LogSignature / Incident), and **derives observable causal edges `(:Cause)-[:PRECEDED {confidence, delta_seconds, derivation, strategy}]->(:Incident)` from temporal proximity — no LLM hallucination, every claim auditable**.
+**Phases 0 – 7 ✅ done. The engine + the dashboard are both shipped.** Phase 8 (deterministic fix pipeline) is the only remaining stretch item.
+
+ASIL ingests any Python / JS / TS repo, builds a queryable knowledge graph + semantic vector index, answers natural-language questions with file:line citations and a confidence score (verified against the citations), persists every conclusion as episodic memory that subsequent sessions recall automatically (so the same question doesn't pay LLM cost twice), ingests postmortems as runtime events (Service / Deployment / MetricShift / LogSignature / Incident), **derives observable causal edges `(:Cause)-[:PRECEDED {confidence, delta_seconds, derivation, strategy}]->(:Incident)` across three composable strategies — temporal proximity, lagged correlation, explicit reference — with no LLM hallucination, every claim auditable**, replays incidents as a timeline + cascade + state diff, detects architecture drift against a stored baseline, exposes everything through 12 MCP tools that any agent can call, and ships a Next.js dashboard for visual exploration.
 
 Try it:
 
 ```bash
-make up
-uv run asil ingest . --embed             # parse + graph + embed the current repo
+make up                                            # docker stack
+make api-dev                                       # FastAPI on :8000
+make web-install && make web-dev                   # dashboard on :3001 (first time)
+
+uv run asil ingest . --embed                       # parse + graph + embed the current repo
 uv run asil ask "How does the LLM router pick a provider for a given tier?"
 # ↑ runs verifier; downgrades Confidence on any unsupported claim
 uv run asil ask "How does the LLM router pick a provider for a given tier?"
 # ↑ second run surfaces the prior conclusion from episodic memory
-uv run asil memory list
+uv run asil memory stats
 uv run asil eval recall asil_self --repo "local:$(pwd)"
 
 # Phase 3: ingest a postmortem and walk the runtime timeline
@@ -76,11 +81,18 @@ uv run asil events list --service payments --env prod
 uv run asil temporal link prod
 uv run asil temporal causes INC-2026-04-12-payments-cascade
 # ↑ ranked (:Cause)-[:PRECEDED]->(:Incident) with confidence + derivation
+
+# Phase 5: full incident replay
+uv run asil replay INC-2026-04-12-payments-cascade
+
+# Phase 6: architecture drift
+uv run asil drift baseline local:$(pwd) --output baseline.json
+uv run asil drift report   local:$(pwd) --baseline baseline.json
 ```
 
-Currently progressing through **Phase 3 + Phase 4 in parallel.** Phase 3 step 1 done (postmortem ingestor + runtime schema); Phase 4 step 1 done (**temporal-proximity causal linker — THE MOAT**: observable causal edges with confidence, delta, and derivation, no LLM hallucination). Next up: live K8s/Prom/Loki adapters (Phase 3 step 2+) and lagged-correlation / explicit-reference strategies that distinguish causes from symptoms (Phase 4 step 2+).
+Then open the dashboard at <http://localhost:3001> — Dashboard / Ask / Incidents / Causality / Drift / Memory / MCP tools / Health, all wired to the same FastAPI gateway.
 
-See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full roadmap, [docs/phase-0-testing.md](docs/phase-0-testing.md), and [docs/phase-1-testing.md](docs/phase-1-testing.md).
+See [PLAN.md](PLAN.md#phased-roadmap-solo-12-months) for the full roadmap, [docs/why-asil.md](docs/why-asil.md) for the long-form "what / why / how / what's unique" explainer, [docs/asil-in-five-minutes.md](docs/asil-in-five-minutes.md) for the five-minute layperson version, and [docs/phase-0-testing.md](docs/phase-0-testing.md) / [docs/phase-1-testing.md](docs/phase-1-testing.md) for local validation guides.
 
 ## For contributors (and AI coding agents)
 
