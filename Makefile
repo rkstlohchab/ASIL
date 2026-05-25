@@ -105,3 +105,9 @@ web-dev:
 
 web-build:
 	cd apps/web && pnpm build
+
+demo:
+	@./scripts/record_demo.sh
+
+demo-auto:
+	@./scripts/record_demo.sh --auto
