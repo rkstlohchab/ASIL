@@ -102,9 +102,9 @@ export default function DashboardPage() {
           </p>
         )}
         <ul className="divide-y divide-ink-700">
-          {stats?.repos.map((r) => (
+          {stats?.repos.map((r, ri) => (
             <li
-              key={r.key}
+              key={r.key ?? `repo-${ri}`}
               className="flex items-center justify-between py-3 text-sm"
             >
               <div className="flex items-center gap-3">

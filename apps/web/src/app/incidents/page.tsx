@@ -46,10 +46,10 @@ export default function IncidentsPage() {
           </p>
         )}
         <ul className="divide-y divide-ink-700">
-          {rows?.map((i) => (
-            <li key={i.incident_id}>
+          {rows?.map((i, idx) => (
+            <li key={i.incident_id ?? `row-${idx}`}>
               <Link
-                href={`/incidents/${encodeURIComponent(i.incident_id)}`}
+                href={`/incidents/${encodeURIComponent(i.incident_id ?? "")}`}
                 className="flex items-center gap-4 py-4 hover:bg-ink-800/40 -mx-2 px-2 rounded transition-colors"
               >
                 <AlertOctagon

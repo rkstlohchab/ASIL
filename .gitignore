@@ -35,6 +35,8 @@ build/
 # --- Node / Next.js (apps/web) ---
 node_modules/
 .next/
+package-lock.json
+yarn.lock
 
 # --- editor ---
 *.code-workspace

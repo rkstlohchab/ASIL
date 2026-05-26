@@ -9,6 +9,10 @@ The hero query that defines v1:
 > **"Why did this production incident happen?"**
 > → reconstructed timeline, probable root cause with confidence score, evidence list, causal chain, architecture-drift report.
 
+![ASIL demo — 90-second tour](docs/assets/asil-demo.gif)
+
+*90-second tour: ingest → ask (fresh + cached) → cost summary → incident replay → constrained fix → CI scan. Regenerate locally with `make demo-auto` piped through asciinema — see [How to record this demo](#how-to-record-this-demo) below.*
+
 For the long-form positioning + competitive landscape, see [docs/medium-blog-post.md](docs/medium-blog-post.md). For the layperson version, [docs/asil-in-five-minutes.md](docs/asil-in-five-minutes.md).
 
 ---
@@ -27,6 +31,7 @@ For the long-form positioning + competitive landscape, see [docs/medium-blog-pos
 - [Status](#status)
 - [Project layout](#project-layout)
 - [For contributors and AI coding agents](#for-contributors-and-ai-coding-agents)
+- [How to record this demo](#how-to-record-this-demo)
 
 ---
 
@@ -619,3 +624,41 @@ make web-build          # production build of the dashboard
 ```
 
 Status check during a Claude Code session: run `/phase` to see what's done and what's next. Run `/eval` to run the regression harness.
+
+---
+
+## How to record this demo
+
+The GIF at the top of this README is regenerated from `make demo-auto` piped through asciinema. Replace it any time you change the CLI surface — the recording is deterministic given the same backing data.
+
+**One-time install:**
+
+```bash
+brew install asciinema agg          # asciinema records; agg renders to GIF
+```
+
+**Record + render:**
+
+```bash
+asciinema rec docs/assets/asil-demo.cast
+# inside the recording shell:
+make demo-auto
+# wait for "Tour complete", then exit with Ctrl+D
+agg --speed 1.5 docs/assets/asil-demo.cast docs/assets/asil-demo.gif
+```
+
+`make demo-auto` is the same script that runs interactively as `make demo` — it just uses fixed pauses (2s short, 4s long) so the recording flows without you having to hit ENTER. Total length is ~90 seconds, GIF size lands around 2–4 MB, which embeds cleanly in Medium / GitHub.
+
+**Knobs:**
+
+```bash
+./scripts/record_demo.sh --auto --short 3 --long 6            # slower pacing
+./scripts/record_demo.sh --auto --incident INC-...            # different incident
+./scripts/record_demo.sh --auto --question "how does X work?" # different ask
+```
+
+**For the dashboard half (stills or video, not in the GIF):**
+
+- ReactFlow causal graph: navigate to `http://localhost:3001/incidents/INC-2026-04-12-payments-cascade`. Cmd+Shift+4 for a crop, or Cmd+Shift+5 → "Record Selected Portion" for a clip.
+- `/cost` page is the screenshot for budget-review / blog-post savings claims.
+- For a polished single-frame terminal still (front-of-deck quality): `brew install charmbracelet/tap/freeze`, then `freeze --output cost.png "uv run asil cost summary"`.

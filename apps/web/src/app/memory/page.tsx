@@ -97,8 +97,8 @@ export default function MemoryPage() {
             </p>
           )}
           <ul className="divide-y divide-ink-700">
-            {hits.map((m) => (
-              <li key={m.id} className="py-4 space-y-2">
+            {hits.map((m, mi) => (
+              <li key={m.id ?? `mem-${mi}`} className="py-4 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="text-sm font-medium text-ink-100">
                     {m.question}

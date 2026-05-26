@@ -269,12 +269,19 @@ async def list_incidents(env_key: str | None = None) -> dict[str, Any]:
     """Every Incident node, newest first. Used by the UI's /incidents page."""
     from asil_memory import GraphStore
 
+    # The canonical id property on :Incident nodes is `id` (set by the
+    # postmortem ingestor and merge_incident). External adapters that
+    # auto-create incidents from chat/ticket mentions also set `id`. We
+    # `coalesce` so the API stays robust even if older nodes ever land
+    # with an `incident_id` property instead — and so the UI never sees
+    # two rows sharing a `null` key (which is the React duplicate-key bug).
     where = "WHERE i.env_key = $env" if env_key else ""
     cypher = (
         f"MATCH (i:Incident) {where} "
         "OPTIONAL MATCH (i)-[:AFFECTS]->(s:Service) "
         "WITH i, collect(DISTINCT s.name) AS services "
-        "RETURN i.incident_id AS incident_id, i.detected_at AS detected_at, "
+        "RETURN coalesce(i.incident_id, i.id) AS incident_id, "
+        "i.detected_at AS detected_at, "
         "i.severity AS severity, i.summary AS summary, i.env_key AS env_key, "
         "services "
         "ORDER BY i.detected_at DESC"

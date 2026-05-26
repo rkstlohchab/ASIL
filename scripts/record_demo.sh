@@ -10,9 +10,13 @@
 #   ./scripts/record_demo.sh --auto    # autoplay — fixed pauses, ready to record
 #
 # Recording recipe:
-#   1. `asciinema rec asil-demo.cast` (or open Cmd+Shift+5 and select your terminal)
+#   1. `asciinema rec docs/assets/asil-demo.cast`
+#      (or open Cmd+Shift+5 and select your terminal for a .mov)
 #   2. Run `./scripts/record_demo.sh --auto` in the recorded terminal
-#   3. Ctrl+D when the script exits, then `agg asil-demo.cast asil-demo.gif`
+#   3. Ctrl+D when the script exits.
+#   4. `agg --speed 1.5 docs/assets/asil-demo.cast docs/assets/asil-demo.gif`
+#      The README already references this path; the moment the GIF lands
+#      it will render inline.
 #
 # Prereqs (the script checks these and exits early if missing):
 #   - `make up` has been run

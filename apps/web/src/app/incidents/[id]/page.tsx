@@ -208,9 +208,9 @@ export default function IncidentReplayPage({
                 <GitCompare size={12} /> Deployments during
               </div>
               <ul className="space-y-2">
-                {data.state_diff.deployments_during.map((d) => (
+                {data.state_diff.deployments_during.map((d, di) => (
                   <li
-                    key={d.deployment_id}
+                    key={d.deployment_id ?? `deploy-${di}`}
                     className="rounded border border-ink-700 p-2"
                   >
                     <div className="text-ink-100 font-mono text-xs">
