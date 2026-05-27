@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated
 
@@ -46,6 +47,7 @@ from asil_memory import (
     GraphStoreError,
     HybridRetriever,
     Memory,
+    MemoryHit,
     RetrievalResult,
     VectorStore,
     VectorStoreError,
@@ -681,12 +683,29 @@ def ask(
             help="Before answering, check episodic memory for similar prior questions and surface them.",
         ),
     ] = True,
+    cache_threshold: Annotated[
+        float,
+        typer.Option(
+            "--cache-threshold",
+            help=(
+                "If a recalled memory's cosine similarity is >= this threshold, return "
+                "the cached answer directly and skip reasoning + verifier. Set 1.01 to "
+                "disable the short-circuit (keep memories as prompt context only)."
+            ),
+        ),
+    ] = 0.92,
 ) -> None:
     """Ask ASIL a question about the indexed code.
 
     Pipeline (Phase 2): hybrid retrieve -> reasoning LLM -> verifier pass ->
     composed Confidence -> persist to episodic memory. Subsequent runs
     surface similar prior conclusions before producing a fresh answer.
+
+    Cache short-circuit: when --recall is on and the top memory hit's
+    similarity is >= --cache-threshold, the cached answer is returned and
+    the reasoning + verifier steps are skipped. The episodic store's
+    `recall_hits` counter on that memory is incremented so the savings
+    calculator can count real cache hits off the ledger.
     """
     configure_logging()
     try:
@@ -725,10 +744,17 @@ def ask(
     verifier = Verifier(router=router) if verify else None
 
     async def _run() -> tuple[
-        RetrievalResult, str, float, VerifierResult | None, list[Memory], str
+        RetrievalResult,
+        str,
+        float,
+        VerifierResult | None,
+        list[Memory],
+        str,
+        MemoryHit | None,
     ]:
         # Recall first so the LLM has prior context (cheap — one extra vector query).
         prior_memories: list[Memory] = []
+        hits: list[MemoryHit] = []
         question_vec_for_memory: list[float] | None = None
         if estore is not None and recall_prior:
             try:
@@ -744,6 +770,30 @@ def ask(
             except Exception as e:
                 console.print(f"[yellow]memory recall failed: {e}[/yellow]")
 
+        # Cache short-circuit: if the top recall is similar enough, return its
+        # answer immediately and skip the reasoning + verifier LLM calls. The
+        # embed call we just paid for is already in the ledger; nothing
+        # additional is billed for this ask.
+        if hits and hits[0].similarity >= cache_threshold and estore is not None:
+            top = hits[0]
+            try:
+                estore.bump_recall_hit(top.memory.id)
+            except Exception as e:
+                console.print(f"[yellow]bump_recall_hit failed: {e}[/yellow]")
+            return (
+                RetrievalResult(
+                    query=question,
+                    candidates=[],
+                    confidence=top.memory.confidence,
+                ),
+                top.memory.answer,
+                0.0,
+                None,
+                prior_memories,
+                router.active_profile_name,
+                top,
+            )
+
         result = await retriever.retrieve(question, repo_key=repo)
         if not result.candidates:
             return (
@@ -753,6 +803,7 @@ def ask(
                 None,
                 prior_memories,
                 "tight",
+                None,
             )
         prompt = _build_ask_prompt(question, result, prior_memories=prior_memories)
         resp = await router.call(
@@ -800,6 +851,7 @@ def ask(
                         verifier_result.unsupported_count if verifier_result else 0
                     ),
                     question_vector=question_vec_for_memory,
+                    origin_agent="cli",
                 )
             except Exception as e:
                 console.print(f"[yellow]memory write failed: {e}[/yellow]")
@@ -811,9 +863,40 @@ def ask(
             verifier_result,
             prior_memories,
             router.active_profile_name,
+            None,
         )
 
-    result, answer_text, cost, verifier_result, prior_memories, _profile_name = asyncio.run(_run())
+    (
+        result,
+        answer_text,
+        cost,
+        verifier_result,
+        prior_memories,
+        _profile_name,
+        cache_hit_memory_hit,
+    ) = asyncio.run(_run())
+
+    if cache_hit_memory_hit is not None:
+        top = cache_hit_memory_hit
+        when = (
+            top.memory.created_at.strftime("%Y-%m-%d %H:%M")
+            if top.memory.created_at
+            else "?"
+        )
+        console.print(
+            Panel(
+                (
+                    f"[bold]Answer recalled from cache[/bold]\n"
+                    f"similarity={top.similarity:.3f} (>= threshold {cache_threshold:.2f})\n"
+                    f"original question: {top.memory.question!r}\n"
+                    f"originally answered at {when} with confidence "
+                    f"{top.memory.confidence.score:.2f}\n"
+                    f"reasoning + verifier LLM calls were skipped"
+                ),
+                title="cache hit",
+                border_style="green",
+            )
+        )
 
     if verifier_result is not None and not verifier_result.skipped:
         # Replace the retriever's confidence with the verifier-aware composed one.
@@ -1131,8 +1214,26 @@ def _color_recall(v: float) -> str:
 
 
 @memory_app.command("stats")
-def memory_stats() -> None:
-    """Total + per-repo memory counts."""
+def memory_stats(
+    days: Annotated[int, typer.Option(help="Window for dedupe/agent/source aggregations.")] = 30,
+    by_source: Annotated[
+        bool,
+        typer.Option("--by-source", help="Group write events by metadata.source."),
+    ] = False,
+    by_agent: Annotated[
+        bool,
+        typer.Option("--by-agent", help="Group write events by origin_agent."),
+    ] = False,
+    dedupe_rate: Annotated[
+        bool,
+        typer.Option("--dedupe-rate", help="Show write-time dedupe ratios from asil_memory_writes."),
+    ] = False,
+    top_recalled: Annotated[
+        int,
+        typer.Option("--top-recalled", help="Show top-N memories by recall_hits (0 = off)."),
+    ] = 0,
+) -> None:
+    """Total + per-repo counts, plus optional dedupe / sources / top-recalled views."""
     configure_logging()
     estore = _open_episodic_or_exit()
     info = estore.stats()
@@ -1148,6 +1249,53 @@ def memory_stats() -> None:
         for rk, n in sorted(info["per_repo"].items(), key=lambda x: -x[1]):
             per.add_row(rk, f"{n:,}")
         console.print(per)
+
+    if dedupe_rate or by_agent or by_source:
+        try:
+            stats = estore.write_log_stats(days=days)
+        except Exception as e:
+            console.print(f"[yellow]write_log unavailable: {e}[/yellow]")
+            stats = None
+        if stats:
+            if dedupe_rate:
+                t = Table(title=f"write outcomes (last {days} days)")
+                t.add_column("metric")
+                t.add_column("value", justify="right")
+                t.add_row("total writes", f"{stats['total_writes']:,}")
+                t.add_row("inserted", f"{stats['inserted']:,}")
+                t.add_row("folded", f"{stats['folded']:,}")
+                t.add_row("dedupe rate", f"{stats['dedupe_rate_pct']:.2f}%")
+                console.print(t)
+            if by_agent and stats["by_agent"]:
+                t = Table(title=f"writes by agent (last {days} days)")
+                t.add_column("origin_agent")
+                t.add_column("count", justify="right")
+                for k, v in stats["by_agent"].items():
+                    t.add_row(k, f"{v:,}")
+                console.print(t)
+            if by_source and stats["by_source"]:
+                t = Table(title=f"writes by source (last {days} days)")
+                t.add_column("source")
+                t.add_column("count", justify="right")
+                for k, v in stats["by_source"].items():
+                    t.add_row(k, f"{v:,}")
+                console.print(t)
+
+    if top_recalled > 0:
+        try:
+            tops = estore.top_recalled(limit=top_recalled)
+        except Exception as e:
+            console.print(f"[yellow]top_recalled failed: {e}[/yellow]")
+            tops = []
+        if tops:
+            t = Table(title=f"top {len(tops)} recalled memories", expand=True)
+            t.add_column("hits", justify="right", no_wrap=True)
+            t.add_column("agent", no_wrap=True)
+            t.add_column("question", overflow="fold")
+            t.add_column("id", no_wrap=True)
+            for m in tops:
+                t.add_row(str(m.recall_hits), m.origin_agent, m.question, m.id[:8])
+            console.print(t)
     estore.close()
 
 
@@ -2814,16 +2962,22 @@ def cost_summary(
     finally:
         estore.close()
 
-    savings = ledger.savings_vs_no_memory(memory_count)
-    sv = Table(title="episodic memory savings", expand=False)
+    savings = ledger.savings_vs_no_memory(memory_count, days=days)
+    sv = Table(title=f"episodic memory savings (last {days} days)", expand=False)
     sv.add_column("metric", no_wrap=True)
     sv.add_column("value", no_wrap=True, justify="right")
     sv.add_row("memories stored", str(savings["memory_conclusions"]))
-    sv.add_row("fresh-only estimate", f"${savings['fresh_cost_estimate_usd']}")
-    sv.add_row("with-memory estimate", f"${savings['with_memory_cost_estimate_usd']}")
-    sv.add_row("saved", f"${savings['saved_usd']}")
-    sv.add_row("savings %", f"{savings['savings_pct']}%")
+    sv.add_row("cache hits", str(savings["cache_hits"]))
+    sv.add_row("avg fresh ask $", f"${savings['avg_fresh_usd']:.6f}")
+    sv.add_row("avg cached ask $", f"${savings['avg_cached_usd']:.6f}")
+    sv.add_row("saved", f"${savings['saved_usd']:.4f}")
+    if savings["savings_pct"] is not None:
+        sv.add_row("savings %", f"{savings['savings_pct']:.2f}%")
+    else:
+        sv.add_row("savings %", "(no hits yet)")
     console.print(sv)
+    if not savings["measured"]:
+        console.print(f"[dim]{savings['note']}[/dim]")
 
 
 @cost_app.command("daily")
@@ -2854,6 +3008,481 @@ def cost_daily(
         bars = int((cost / max_cost) * 30)
         t.add_row(day, f"${cost:.4f}", "█" * bars)
     console.print(t)
+
+
+# ---------------------------------------------------------------------------
+# teams (Phase 9.5 — multi-team auth)
+# ---------------------------------------------------------------------------
+
+team_app = typer.Typer(
+    help="Manage teams + API keys for multi-team memory sharing.",
+    no_args_is_help=True,
+)
+app.add_typer(team_app, name="team")
+
+
+def _open_teams_store():
+    from asil_memory import TeamsStore
+
+    settings = get_settings()
+    store = TeamsStore(settings.postgres_dsn)
+    try:
+        store.apply_schema()
+    except Exception as e:
+        console.print(f"[red]Postgres unreachable: {e}[/red]")
+        raise typer.Exit(code=2) from None
+    return store
+
+
+@team_app.command("create")
+def team_create(
+    team_id: Annotated[str, typer.Argument(help="Stable alphanumeric ID (e.g. 'startup-dev').")],
+    name: Annotated[str, typer.Option("--name", help="Human-readable team name.")] = "",
+) -> None:
+    """Create a new team + mint its first API key. The raw key is shown
+    once — store it in 1Password / your secret manager immediately."""
+    configure_logging()
+    store = _open_teams_store()
+    try:
+        result = store.create_team(team_id=team_id, name=name or team_id)
+    except Exception as e:
+        console.print(f"[red]create failed: {e}[/red]")
+        raise typer.Exit(code=1) from None
+    console.print(
+        Panel(
+            f"[bold]Team created:[/bold] {result.team.name} (id={result.team.id})\n\n"
+            f"[bold yellow]API key (shown once, store it now):[/bold yellow]\n"
+            f"  [cyan]{result.api_key}[/cyan]\n\n"
+            f"Configure clients with:\n"
+            f"  export ASIL_TEAM_API_KEY={result.api_key}\n"
+            f"  curl ... -H 'Authorization: Bearer {result.api_key}'",
+            title="store this key",
+            border_style="yellow",
+        )
+    )
+
+
+@team_app.command("list")
+def team_list() -> None:
+    """List all teams + their status."""
+    configure_logging()
+    store = _open_teams_store()
+    teams = store.list_teams()
+    if not teams:
+        console.print("[dim]No teams yet. Create one with `asil team create <id>`.[/dim]")
+        return
+    t = Table(title="teams", expand=False)
+    t.add_column("id", no_wrap=True)
+    t.add_column("name")
+    t.add_column("status", no_wrap=True)
+    t.add_column("created", no_wrap=True)
+    for team in teams:
+        status = "[red]revoked[/red]" if team.revoked_at else "[green]active[/green]"
+        t.add_row(team.id, team.name, status, team.created_at.strftime("%Y-%m-%d %H:%M"))
+    console.print(t)
+
+
+@team_app.command("rotate-key")
+def team_rotate_key(
+    team_id: Annotated[str, typer.Argument(help="Team ID to rotate.")],
+) -> None:
+    """Mint a new key; the old one stops working immediately."""
+    configure_logging()
+    store = _open_teams_store()
+    try:
+        result = store.rotate_key(team_id=team_id)
+    except KeyError:
+        console.print(f"[red]no such team: {team_id!r}[/red]")
+        raise typer.Exit(code=1) from None
+    console.print(
+        Panel(
+            f"[bold]Key rotated for {result.team.id}[/bold]\n\n"
+            f"[yellow]New API key (shown once):[/yellow]\n  [cyan]{result.api_key}[/cyan]",
+            title="rotated",
+            border_style="yellow",
+        )
+    )
+
+
+@team_app.command("revoke")
+def team_revoke(
+    team_id: Annotated[str, typer.Argument()],
+    yes: Annotated[bool, typer.Option("--yes/--no", "-y", help="Skip confirmation.")] = False,
+) -> None:
+    """Mark a team revoked. All requests with its key start returning 401."""
+    configure_logging()
+    if not yes and not typer.confirm(f"revoke team {team_id!r}? this disables its key."):
+        raise typer.Exit(code=1)
+    store = _open_teams_store()
+    removed = store.revoke(team_id=team_id)
+    if removed:
+        console.print(f"[green]revoked {team_id}[/green]")
+    else:
+        console.print("[yellow]nothing to revoke (team missing or already revoked)[/yellow]")
+
+
+# ---------------------------------------------------------------------------
+# transcript ingestion (Phase 9.3 — cross-agent memory)
+# ---------------------------------------------------------------------------
+
+ingest_transcripts_app = typer.Typer(
+    help="Ingest transcripts from local coding-agent sessions into episodic memory.",
+    no_args_is_help=True,
+)
+app.add_typer(ingest_transcripts_app, name="ingest-transcripts")
+
+
+@ingest_transcripts_app.command("claude-code")
+def ingest_claude_code(
+    since: Annotated[
+        str | None,
+        typer.Option(
+            "--since",
+            help="Only include sessions modified within this window (e.g. '1h', '2d', '15m'). Omit to include all.",
+        ),
+    ] = None,
+    project: Annotated[
+        str | None,
+        typer.Option(
+            "--project",
+            help="Substring filter against the decoded project path (e.g. '/ASIL').",
+        ),
+    ] = None,
+    session: Annotated[
+        str | None,
+        typer.Option("--session", help="One specific session UUID."),
+    ] = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Show what would be ingested without writing."),
+    ] = False,
+    repo_key: Annotated[
+        str | None,
+        typer.Option(
+            "--repo-key",
+            help="Override the repo_key used on the resulting memories (default: the session's cwd).",
+        ),
+    ] = None,
+    user_id: Annotated[
+        str | None,
+        typer.Option(
+            "--user-id",
+            help="Override the user_id stamped on the memories (default: asil_core.identity.get_user_id()).",
+        ),
+    ] = None,
+) -> None:
+    """Read Claude Code's local JSONL transcripts and ingest each user
+    question + assistant answer pair as an episodic memory.
+
+    Once ingested, the same questions asked via MCP from any other agent
+    (Cursor, OpenHands, Aider, ...) will short-circuit on the cache hit
+    and render an "answered via claude-code on YYYY-MM-DD" preamble."""
+    configure_logging()
+    from asil_ingest_agents import ClaudeCodeIngester
+
+    since_dt: datetime | None = None
+    if since:
+        since_dt = _parse_relative_window(since)
+        if since_dt is None:
+            console.print(f"[red]could not parse --since {since!r}; use e.g. '1h', '2d', '15m'.[/red]")
+            raise typer.Exit(code=2)
+
+    ingester = ClaudeCodeIngester()
+    plan = ingester.plan(since=since_dt, project=project, session=session)
+
+    console.print(
+        f"[bold]Claude Code transcripts:[/bold] "
+        f"{len(plan.sessions)} session(s) → {len(plan.qa_chunks)} Q/A chunks"
+    )
+    if not plan.qa_chunks:
+        console.print("[dim]Nothing to ingest. Try widening --since or omitting it.[/dim]")
+        return
+
+    preview = Table(title="first 5 chunks", expand=True)
+    preview.add_column("session", no_wrap=True)
+    preview.add_column("when", no_wrap=True)
+    preview.add_column("question", overflow="fold")
+    for c in plan.qa_chunks[:5]:
+        preview.add_row(
+            c.session_id[:8],
+            c.start_ts.strftime("%Y-%m-%d %H:%M") if c.start_ts else "?",
+            c.question[:140],
+        )
+    console.print(preview)
+
+    if dry_run:
+        console.print("[yellow]--dry-run: no memories written. Drop the flag to ingest.[/yellow]")
+        return
+
+    _write_plan_to_memory(
+        plan,
+        origin_agent="claude-code",
+        repo_key_override=repo_key,
+        user_id=user_id,
+    )
+
+
+def _write_plan_to_memory(
+    plan,
+    *,
+    origin_agent: str,
+    repo_key_override: str | None = None,
+    user_id: str | None = None,
+) -> tuple[int, int, list[str]]:
+    """Drain an `IngestPlan` into episodic memory. Returns (inserted,
+    folded, errors). Shared by every `asil ingest-transcripts <agent>`
+    command so the write semantics stay consistent across parsers."""
+    from asil_core import Confidence as _Confidence
+
+    estore = _open_episodic_or_exit()
+    estore.apply_schema()
+    router = ModelRouter.from_env()
+
+    async def _embed(text: str) -> list[float]:
+        vec_batch = await router.embed([text])
+        return vec_batch[0]
+
+    inserted = 0
+    folded = 0
+    errors: list[str] = []
+    for c in plan.qa_chunks:
+        try:
+            vec = asyncio.run(_embed(c.question))
+            mem_before = estore.write_log_stats(days=1)["folded"]
+            estore.remember(
+                repo_key=repo_key_override or f"local:{c.session_id}",
+                question=c.question,
+                answer=c.assistant_response,
+                confidence=_Confidence(
+                    score=0.6,
+                    evidence_count=0,
+                    retrieval_strength=0.0,
+                    causal_confidence=0.0,
+                    derivation=[f"ingested from {c.source}"],
+                ),
+                citations=[],
+                model="(transcript-ingest)",
+                provider="(transcript-ingest)",
+                cost_usd=0.0,
+                profile=router.active_profile_name,
+                metadata={
+                    "source": c.source,
+                    "original_session_id": c.session_id,
+                    "original_turn_ids": c.turn_ids,
+                    "ingested_at": datetime.utcnow().isoformat(),
+                },
+                question_vector=vec,
+                origin_agent=origin_agent,
+                origin_session_id=c.session_id,
+                user_id=user_id,
+            )
+            mem_after = estore.write_log_stats(days=1)["folded"]
+            if mem_after > mem_before:
+                folded += 1
+            else:
+                inserted += 1
+        except Exception as e:
+            errors.append(f"{c.session_id[:8]}: {e}")
+
+    summary = Table(title=f"{origin_agent} ingestion result", expand=False)
+    summary.add_column("metric")
+    summary.add_column("value", justify="right")
+    summary.add_row("chunks processed", str(len(plan.qa_chunks)))
+    summary.add_row("inserted", str(inserted))
+    summary.add_row("folded into existing", str(folded))
+    summary.add_row("errors", str(len(errors)))
+    console.print(summary)
+    if errors:
+        console.print("[yellow]first few errors:[/yellow]")
+        for e in errors[:5]:
+            console.print(f"  [yellow]{e}[/yellow]")
+    estore.close()
+    return inserted, folded, errors
+
+
+@ingest_transcripts_app.command("cursor")
+def ingest_cursor(
+    since: Annotated[str | None, typer.Option("--since")] = None,
+    workspace: Annotated[
+        str | None,
+        typer.Option("--workspace", help="Substring filter against Cursor's workspace-id."),
+    ] = None,
+    dry_run: Annotated[bool, typer.Option("--dry-run")] = False,
+    repo_key: Annotated[str | None, typer.Option("--repo-key")] = None,
+    user_id: Annotated[str | None, typer.Option("--user-id")] = None,
+) -> None:
+    """Ingest Cursor chat history from `workspaceStorage/*/state.vscdb`."""
+    configure_logging()
+    from asil_ingest_agents import CursorIngester
+
+    since_dt = _parse_relative_window(since) if since else None
+    if since and since_dt is None:
+        console.print(f"[red]could not parse --since {since!r}[/red]")
+        raise typer.Exit(code=2)
+
+    plan = CursorIngester().plan(since=since_dt, workspace=workspace)
+    console.print(
+        f"[bold]Cursor workspaces:[/bold] {len(plan.sessions)} → {len(plan.qa_chunks)} Q/A chunks"
+    )
+    if not plan.qa_chunks:
+        console.print(
+            "[dim]Nothing to ingest. Cursor may not be installed, "
+            "or its chat-data key may have changed across versions.[/dim]"
+        )
+        return
+    preview = Table(title="first 5 chunks", expand=True)
+    preview.add_column("workspace", no_wrap=True)
+    preview.add_column("question", overflow="fold")
+    for c in plan.qa_chunks[:5]:
+        preview.add_row(c.session_id[:10], c.question[:140])
+    console.print(preview)
+    if dry_run:
+        console.print("[yellow]--dry-run: no memories written.[/yellow]")
+        return
+    _write_plan_to_memory(plan, origin_agent="cursor", repo_key_override=repo_key, user_id=user_id)
+
+
+@ingest_transcripts_app.command("generic-jsonl")
+def ingest_generic_jsonl(
+    path: Annotated[list[Path], typer.Option("--path", help="JSONL file to ingest. Pass multiple times.")],
+    role_key: Annotated[str, typer.Option("--role-key", help="Field name for role/type.")] = "role",
+    text_key: Annotated[str, typer.Option("--text-key", help="Field name for message text.")] = "content",
+    ts_key: Annotated[str | None, typer.Option("--ts-key", help="Field name for timestamp (optional).")] = "timestamp",
+    user_label: Annotated[str, typer.Option("--user-label", help="Substring identifying user-role messages.")] = "user",
+    assistant_label: Annotated[
+        str,
+        typer.Option("--assistant-label", help="Substring identifying assistant-role messages."),
+    ] = "assistant",
+    source: Annotated[str, typer.Option("--source", help="metadata.source tag on the resulting memories.")] = "generic-jsonl-transcript",
+    origin_agent: Annotated[str, typer.Option("--origin-agent", help="origin_agent column value.")] = "generic-jsonl",
+    since: Annotated[str | None, typer.Option("--since")] = None,
+    dry_run: Annotated[bool, typer.Option("--dry-run")] = False,
+    repo_key: Annotated[str | None, typer.Option("--repo-key")] = None,
+    user_id: Annotated[str | None, typer.Option("--user-id")] = None,
+) -> None:
+    """Ingest any agent's JSONL transcript by mapping role + text columns.
+
+    Aider example:
+        asil ingest-transcripts generic-jsonl --path ~/.aider/chat.jsonl \\
+            --source aider-transcript --origin-agent aider"""
+    configure_logging()
+    from asil_ingest_agents import GenericJsonlIngester
+
+    since_dt = _parse_relative_window(since) if since else None
+    if since and since_dt is None:
+        console.print(f"[red]could not parse --since {since!r}[/red]")
+        raise typer.Exit(code=2)
+
+    ingester = GenericJsonlIngester(
+        paths=path,
+        role_key=role_key,
+        text_key=text_key,
+        ts_key=ts_key,
+        user_label=user_label,
+        assistant_label=assistant_label,
+        source=source,
+    )
+    plan = ingester.plan(since=since_dt)
+    console.print(
+        f"[bold]Generic JSONL:[/bold] {len(plan.sessions)} file(s) → {len(plan.qa_chunks)} Q/A chunks"
+    )
+    if not plan.qa_chunks:
+        console.print("[dim]Nothing to ingest. Check --role-key / --text-key / --user-label / --assistant-label.[/dim]")
+        return
+    if dry_run:
+        console.print("[yellow]--dry-run: no memories written.[/yellow]")
+        return
+    _write_plan_to_memory(plan, origin_agent=origin_agent, repo_key_override=repo_key, user_id=user_id)
+
+
+@app.command()
+def watch(
+    agents: Annotated[
+        str,
+        typer.Argument(help="Comma-separated agents to watch (claude-code,cursor)."),
+    ],
+    interval: Annotated[int, typer.Option("--interval", help="Seconds between polls.")] = 30,
+    overlap: Annotated[
+        int,
+        typer.Option("--overlap", help="Seconds of overlap between windows so stalls don't drop chunks."),
+    ] = 60,
+    iterations: Annotated[
+        int,
+        typer.Option("--iterations", help="Stop after N polls (0 = forever)."),
+    ] = 0,
+    repo_key: Annotated[str | None, typer.Option("--repo-key")] = None,
+) -> None:
+    """Long-running poller: every --interval seconds, run the per-agent
+    ingester with --since matching the window and write any new chunks
+    to episodic memory. Dedupe in EpisodicStore.remember() ensures
+    re-ingesting the same turns folds rather than duplicates."""
+    configure_logging()
+    from asil_ingest_agents import (
+        ClaudeCodeIngester,
+        CursorIngester,
+        WatchTick,
+        run_watch_loop,
+    )
+
+    agent_list = [a.strip() for a in agents.split(",") if a.strip()]
+    ingesters: dict[str, object] = {}
+    for a in agent_list:
+        if a == "claude-code":
+            ingesters[a] = ClaudeCodeIngester()
+        elif a == "cursor":
+            ingesters[a] = CursorIngester()
+        else:
+            console.print(f"[yellow]skipping unknown agent: {a!r}[/yellow]")
+    if not ingesters:
+        console.print("[red]no recognised agents to watch.[/red]")
+        raise typer.Exit(code=2)
+
+    console.print(
+        f"[bold]asil watch[/bold] — polling {list(ingesters)} every {interval}s "
+        f"(overlap={overlap}s). Ctrl-C to stop."
+    )
+
+    def on_tick(tick: WatchTick) -> None:
+        for name, ing in ingesters.items():
+            try:
+                plan = ing.plan(since=tick.since)  # type: ignore[attr-defined]
+            except Exception as e:
+                console.print(f"[yellow]{name} plan() failed: {e}[/yellow]")
+                continue
+            if not plan.qa_chunks:
+                continue
+            console.print(f"[dim]{tick.started_at:%H:%M:%S} {name}: {len(plan.qa_chunks)} new chunk(s)[/dim]")
+            _write_plan_to_memory(plan, origin_agent=name, repo_key_override=repo_key)
+
+    run_watch_loop(
+        interval_seconds=interval,
+        overlap_seconds=overlap,
+        on_tick=on_tick,
+        max_iterations=iterations if iterations > 0 else None,
+    )
+
+
+def _parse_relative_window(s: str) -> datetime | None:
+    """'1h' → datetime.utcnow() - 1h. Supports h/d/m/w suffixes."""
+    s = s.strip().lower()
+    if not s:
+        return None
+    try:
+        n = int(s[:-1])
+    except ValueError:
+        return None
+    unit = s[-1]
+    from datetime import timedelta
+
+    delta = {
+        "m": timedelta(minutes=n),
+        "h": timedelta(hours=n),
+        "d": timedelta(days=n),
+        "w": timedelta(weeks=n),
+    }.get(unit)
+    if delta is None:
+        return None
+    return datetime.utcnow() - delta
 
 
 if __name__ == "__main__":  # pragma: no cover

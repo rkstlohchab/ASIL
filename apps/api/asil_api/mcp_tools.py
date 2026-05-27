@@ -25,6 +25,7 @@ Design rules:
 
 from __future__ import annotations
 
+import contextlib
 import json
 from dataclasses import dataclass
 from typing import Any
@@ -165,6 +166,11 @@ TOOL_CATALOG: list[ToolSpec] = [
                     "description": "Optional list of {qualified_name, file_path, start_line, kind}.",
                     "default": [],
                 },
+                "client_id": {
+                    "type": ["string", "null"],
+                    "description": "Origin agent identifier (e.g. 'claude-code').",
+                },
+                "session_id": {"type": ["string", "null"]},
             },
             "required": ["repo_key", "question", "answer"],
         },
@@ -234,11 +240,13 @@ TOOL_CATALOG: list[ToolSpec] = [
     ToolSpec(
         name="asil.ask",
         description=(
-            "Highest-level tool. Embeds the question, runs the hybrid retriever, "
-            "passes the top candidates to the reasoning LLM with a strict cite-"
-            "everything system prompt, then runs a verifier pass that downgrades "
-            "Confidence if any claim isn't backed by a citation. Returns "
-            "{answer, confidence, citations, verifier}."
+            "Highest-level tool. Embeds the question and checks episodic memory "
+            "first — if a prior memory above `cache_threshold` exists, returns "
+            "the cached answer with a `provenance` preamble and skips the "
+            "reasoning + verifier LLM calls. Otherwise runs the hybrid "
+            "retriever, the reasoning LLM, the verifier, and writes the new "
+            "conclusion to memory tagged with the caller's identity. Returns "
+            "{answer, confidence, citations, verifier, provenance}."
         ),
         input_schema={
             "type": "object",
@@ -251,6 +259,51 @@ TOOL_CATALOG: list[ToolSpec] = [
                     "default": True,
                     "description": "Run the second-pass claim verifier (adds one LLM call).",
                 },
+                "client_id": {
+                    "type": ["string", "null"],
+                    "description": (
+                        "Identifier for the calling agent (e.g. 'claude-code', "
+                        "'cursor', 'aider'). Stored on the resulting memory's "
+                        "`origin_agent` column so cross-agent recalls can render "
+                        "'this was answered via X' provenance."
+                    ),
+                },
+                "session_id": {
+                    "type": ["string", "null"],
+                    "description": "Optional opaque session ID; stored as origin_session_id.",
+                },
+                "cache_threshold": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.01,
+                    "default": 0.92,
+                    "description": (
+                        "If a recalled memory's similarity is >= this, return "
+                        "the cached answer and skip the reasoning + verifier "
+                        "LLM calls. Set to 1.01 to disable the short-circuit."
+                    ),
+                },
+            },
+            "required": ["question"],
+        },
+    ),
+    ToolSpec(
+        name="asil.full_research",
+        description=(
+            "Explicit 'I saw the cache hit, do the work anyway' variant of "
+            "asil.ask. Identical args; forces `cache_threshold=1.01` so the "
+            "short-circuit never fires. Wire this to a 'Proceed with full "
+            "research' button in the calling agent's UI."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "question": {"type": "string"},
+                "repo_key": {"type": ["string", "null"]},
+                "limit": {"type": "integer", "minimum": 1, "maximum": 20, "default": 8},
+                "verify": {"type": "boolean", "default": True},
+                "client_id": {"type": ["string", "null"]},
+                "session_id": {"type": ["string", "null"]},
             },
             "required": ["question"],
         },
@@ -697,6 +750,12 @@ async def remember(
         cost_usd=0.0,
         profile=profile_name,
         question_vector=vec,
+        origin_agent=payload.get("client_id") or None,
+        origin_session_id=payload.get("session_id") or None,
+        # `asil.remember` is the explicit out-of-band-write tool; the caller
+        # asked us to record this fact, so we never fold it into a similar
+        # existing memory.
+        dedupe_threshold=None,
     )
     return {"id": mem.id, "created_at": mem.created_at.isoformat()}
 
@@ -719,9 +778,18 @@ async def recall(
         limit=limit,
         min_similarity=min_sim,
     )
+    hit_dicts = []
+    for h in hits:
+        d = _memory_hit_dict(h.memory, h.similarity)
+        # asil.recall has no inherent "cache threshold" — surface the per-hit
+        # provenance so callers can decide which hits to render as recalled.
+        d["provenance"] = _build_provenance(
+            h.memory, h.similarity, cache_threshold=min_sim, is_cached=True
+        )
+        hit_dicts.append(d)
     return {
         "query": query,
-        "hits": [_memory_hit_dict(h.memory, h.similarity) for h in hits],
+        "hits": hit_dicts,
         "count": len(hits),
     }
 
@@ -738,12 +806,66 @@ async def ask(
     graph_store: GraphStore,
     vector_store: VectorStore,
     router: ModelRouter,
+    episodic_store: EpisodicStore | None = None,
 ) -> dict[str, Any]:
+    """MCP `asil.ask` — mirror of the CLI's cache-short-circuit pipeline.
+
+    Flow:
+      1. Embed the question.
+      2. If `episodic_store` is available, recall the closest prior memory.
+         If similarity >= `cache_threshold`, bump its `recall_hits` and
+         return the cached answer + provenance preamble. No reasoning /
+         verifier LLM call.
+      3. Otherwise: full pipeline (retrieve → reasoning → verifier).
+      4. Write the new conclusion to memory tagged with the caller's
+         `client_id` / `session_id` so future cross-agent recalls have
+         provenance to render.
+    """
     question = _required_str(payload, "question")
     repo_key = payload.get("repo_key")
     limit = int(payload.get("limit", 8))
     run_verifier = bool(payload.get("verify", True))
+    client_id = payload.get("client_id") or None
+    session_id = payload.get("session_id") or None
+    cache_threshold = float(payload.get("cache_threshold", 0.92))
 
+    # --- step 1: embed once; reuse for recall AND for the memory write below
+    question_vec = (await router.embed([question]))[0]
+
+    # --- step 2: cache short-circuit (only if memory is reachable)
+    if episodic_store is not None and cache_threshold <= 1.0:
+        try:
+            episodic_store.apply_schema()
+            hits = episodic_store.recall_similar(
+                query_vector=question_vec,
+                repo_key=repo_key,
+                limit=1,
+                min_similarity=0.85,
+            )
+        except Exception:
+            hits = []
+        if hits and hits[0].similarity >= cache_threshold:
+            top = hits[0]
+            with contextlib.suppress(Exception):
+                episodic_store.bump_recall_hit(top.memory.id)
+            return {
+                "question": question,
+                "answer": top.memory.answer,
+                "citations": top.memory.citations,
+                "confidence": _confidence_dict(top.memory.confidence),
+                "verifier": None,
+                "cost_usd": 0.0,
+                "model": top.memory.model,
+                "provider": top.memory.provider,
+                "provenance": _build_provenance(
+                    top.memory,
+                    top.similarity,
+                    cache_threshold,
+                    is_cached=True,
+                ),
+            }
+
+    # --- step 3: full pipeline
     retriever = HybridRetriever(
         graph_store=graph_store,
         vector_store=vector_store,
@@ -759,6 +881,11 @@ async def ask(
             "confidence": _confidence_dict(result.confidence),
             "verifier": None,
             "cost_usd": 0.0,
+            "provenance": {
+                "is_cached": False,
+                "preamble": "No cache hit and no candidates retrieved.",
+                "cache_threshold": cache_threshold,
+            },
         }
 
     prompt = _build_ask_prompt(question, result)
@@ -804,6 +931,29 @@ async def ask(
         }
         for c in result.candidates
     ]
+
+    # --- step 4: persist with identity (best-effort).
+    # Memory write is best-effort; the answer still ships on failure.
+    if episodic_store is not None:
+        with contextlib.suppress(Exception):
+            episodic_store.remember(
+                repo_key=repo_key or "(unscoped)",
+                question=question,
+                answer=resp.text,
+                confidence=confidence,
+                citations=citations,
+                model=resp.model,
+                provider=resp.provider,
+                cost_usd=resp.cost_usd + verifier_cost,
+                profile=getattr(router, "active_profile_name", "unknown"),
+                verifier_unsupported=(
+                    verifier_payload["unsupported_count"] if verifier_payload else 0
+                ),
+                question_vector=question_vec,
+                origin_agent=client_id,
+                origin_session_id=session_id,
+            )
+
     return {
         "question": question,
         "answer": resp.text,
@@ -813,6 +963,13 @@ async def ask(
         "cost_usd": resp.cost_usd + verifier_cost,
         "model": resp.model,
         "provider": resp.provider,
+        "provenance": {
+            "is_cached": False,
+            "preamble": (
+                f"Fresh answer (no cache hit above similarity {cache_threshold:.2f})."
+            ),
+            "cache_threshold": cache_threshold,
+        },
     }
 
 
@@ -862,6 +1019,17 @@ async def call_tool(
             graph_store=graph_store,
             vector_store=vector_store,
             router=router,  # type: ignore[arg-type]
+            episodic_store=episodic_store,
+        )
+    if name == "asil.full_research":
+        _need(vector_store, router, name=name)
+        forced = {**payload, "cache_threshold": 1.01}
+        return await ask(
+            forced,
+            graph_store=graph_store,
+            vector_store=vector_store,
+            router=router,  # type: ignore[arg-type]
+            episodic_store=episodic_store,
         )
     if name == "asil.remember":
         _need(episodic_store, router, name=name)
@@ -931,6 +1099,50 @@ def _memory_hit_dict(m: Memory, similarity: float) -> dict[str, Any]:
         "created_at": m.created_at.isoformat() if m.created_at else None,
         "model": m.model,
         "provider": m.provider,
+        "user_id": m.user_id,
+        "machine_id": m.machine_id,
+        "origin_agent": m.origin_agent,
+        "origin_session_id": m.origin_session_id,
+        "recall_hits": m.recall_hits,
+    }
+
+
+def _build_provenance(
+    memory: Memory,
+    similarity: float,
+    cache_threshold: float,
+    *,
+    is_cached: bool,
+) -> dict[str, Any]:
+    """Per-Memory provenance block surfaced in `asil.ask` / `asil.recall`
+    responses. The `preamble` is a one-line string the calling agent can
+    render to the user before the cached answer."""
+    when = memory.created_at.isoformat() if memory.created_at else "unknown"
+    user = memory.user_id or "unknown"
+    agent = memory.origin_agent or "unknown"
+    machine = memory.machine_id or "unknown"
+    if is_cached:
+        preamble = (
+            f"Recalled from ASIL — originally answered on {when} by {user} via "
+            f"{agent} on {machine} (similarity {similarity:.3f}, threshold "
+            f"{cache_threshold:.2f}). Reasoning + verifier LLM calls were "
+            f"skipped. Proceed with full research?"
+        )
+    else:
+        preamble = (
+            f"Fresh answer (no cache hit above similarity {cache_threshold:.2f})."
+        )
+    return {
+        "is_cached": is_cached,
+        "preamble": preamble,
+        "memory_id": memory.id,
+        "similarity": round(similarity, 4),
+        "cache_threshold": cache_threshold,
+        "originated_at": when,
+        "originated_by_user": user,
+        "originated_via_agent": agent,
+        "originated_on_machine": machine,
+        "originated_session_id": memory.origin_session_id,
     }
 
 

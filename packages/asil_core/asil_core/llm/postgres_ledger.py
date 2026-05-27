@@ -180,25 +180,84 @@ class PostgresCostLedger:
         self,
         memory_count: int,
         *,
-        fresh_cost_estimate_usd: float = 0.01,
-        cached_cost_estimate_usd: float = 0.0001,
+        days: int = 30,
     ) -> dict[str, Any]:
-        """Estimate how much money episodic memory saved across the full
-        history. Assumes every memory hit replaces what would have been a
-        full pipeline run (the conservative case — actual savings are higher
-        when the same conclusion gets re-used many times)."""
-        fresh_total = memory_count * fresh_cost_estimate_usd
-        with_memory_total = memory_count * cached_cost_estimate_usd
-        saved = fresh_total - with_memory_total
-        pct = (saved / fresh_total * 100) if fresh_total > 0 else 0.0
+        """Real measured savings from the cache short-circuit in `asil ask`.
+
+        Reads three real values off the ledger / episodic store rather than
+        multiplying by hardcoded per-call estimates:
+
+        * `cache_hits` = `sum(recall_hits)` from `asil_memories` in the
+          window. Every increment came from an actual short-circuit fire.
+        * `avg_fresh_usd` = average `cost_usd` of the memories themselves
+          (i.e. the recorded cost of the fresh asks that produced them).
+        * `avg_cached_usd` = average cost of an embed-only ledger row
+          (the only thing billed on a cache hit).
+
+        `saved_usd = cache_hits * (avg_fresh_usd - avg_cached_usd)`.
+
+        If no cache hits have occurred yet, the response says so honestly
+        instead of returning a fabricated percentage."""
+        with self._connect() as conn, conn.cursor() as cur:
+            # Did the recall_hits column already get added? (Old schemas
+            # don't have it — fall back to zero hits.)
+            cur.execute(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name = 'asil_memories' AND column_name = 'recall_hits'"
+            )
+            has_recall_hits = cur.fetchone() is not None
+
+            cache_hits = 0
+            avg_fresh_usd = 0.0
+            if has_recall_hits:
+                cur.execute(
+                    "SELECT coalesce(sum(recall_hits), 0) AS hits, "
+                    "       coalesce(avg(cost_usd), 0) AS avg_fresh "
+                    "FROM asil_memories "
+                    "WHERE created_at >= now() - (%s || ' days')::interval",
+                    (days,),
+                )
+                row = cur.fetchone() or {"hits": 0, "avg_fresh": 0.0}
+                cache_hits = int(row["hits"])
+                avg_fresh_usd = float(row["avg_fresh"])
+
+            cur.execute(
+                "SELECT coalesce(avg(cost_usd), 0) AS avg_cached "
+                "FROM asil_costs "
+                "WHERE tier = 'embed' AND input_tokens < 100 "
+                "  AND ts >= now() - (%s || ' days')::interval",
+                (days,),
+            )
+            row = cur.fetchone() or {"avg_cached": 0.0}
+            avg_cached_usd = float(row["avg_cached"])
+
+        saved_per_hit = max(avg_fresh_usd - avg_cached_usd, 0.0)
+        saved_usd = cache_hits * saved_per_hit
+        # The denominator is what would have been spent without the cache:
+        # cache_hits * avg_fresh_usd. If zero hits, savings_pct is undefined.
+        if cache_hits > 0 and avg_fresh_usd > 0:
+            savings_pct: float | None = (saved_per_hit / avg_fresh_usd) * 100.0
+        else:
+            savings_pct = None
+
         return {
             "memory_conclusions": memory_count,
-            "fresh_cost_estimate_usd": round(fresh_total, 4),
-            "with_memory_cost_estimate_usd": round(with_memory_total, 4),
-            "saved_usd": round(saved, 4),
-            "savings_pct": round(pct, 2),
-            "fresh_per_call_usd": fresh_cost_estimate_usd,
-            "cached_per_call_usd": cached_cost_estimate_usd,
+            "cache_hits": cache_hits,
+            "window_days": days,
+            "avg_fresh_usd": round(avg_fresh_usd, 6),
+            "avg_cached_usd": round(avg_cached_usd, 6),
+            "saved_usd": round(saved_usd, 4),
+            "savings_pct": round(savings_pct, 2) if savings_pct is not None else None,
+            "measured": cache_hits > 0,
+            "note": (
+                f"Measured from {cache_hits} cache hit(s) in the last {days} days."
+                if cache_hits > 0
+                else (
+                    "No cache hits recorded yet — run `asil ask` on a question "
+                    "twice (similarity above the cache threshold) to populate, "
+                    "or see docs/measuring-savings.md for the full A/B protocol."
+                )
+            ),
         }
 
 

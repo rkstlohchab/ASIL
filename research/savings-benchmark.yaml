@@ -1,0 +1,37 @@
+# Savings A/B benchmark corpus — 20 hand-curated questions about ASIL itself.
+#
+# Used by docs/measuring-savings.md to run a cold-vs-warm comparison against
+# the cost ledger. Each entry is a real developer question, the kind you'd
+# expect to be asked multiple times across sessions.
+#
+# To run against a different codebase, copy this file and replace the
+# questions with ones that mirror what your team actually asks.
+
+name: asil_self_savings
+description: |
+  Twenty repeatable developer questions about ASIL's own internals. Chosen to
+  cover all four pillars (code graph, episodic memory, runtime/causal, drift)
+  plus the LLM router, so the cold/warm comparison exercises the same code
+  paths that production traffic would.
+
+questions:
+  - question: "How does the LLM router pick a provider for a given tier?"
+  - question: "Where do we connect to Neo4j and validate the connection works?"
+  - question: "What ensures every conclusion ships with a confidence score?"
+  - question: "Where is the daily budget enforced before an LLM call goes out?"
+  - question: "How do we shallow-clone a GitHub repo into the local cache?"
+  - question: "What chunks an AST into pieces we can embed?"
+  - question: "How does the hybrid retriever combine vector and graph results?"
+  - question: "Where do we write a new conclusion into episodic memory?"
+  - question: "What is the schema of the asil_costs table?"
+  - question: "How does the verifier flag unsupported claims?"
+  - question: "How does the temporal linker compute the proximity score?"
+  - question: "Where are PRECEDED edges actually written to Neo4j?"
+  - question: "What does the replay pipeline produce for a single incident?"
+  - question: "How does drift detection compare current state against baseline?"
+  - question: "Where does the MCP server expose the asil.ask tool?"
+  - question: "What does the constrained fix pipeline do when tests fail?"
+  - question: "How is the cost ledger queried for daily-spend aggregates?"
+  - question: "Where does the postmortem ingestor parse the YAML schema?"
+  - question: "How does the scan command emit SARIF output?"
+  - question: "What gates the FastAPI gateway from starting if Postgres is down?"

@@ -14,6 +14,7 @@ members = [
     "packages/asil_fix",
     "packages/asil_infra",
     "packages/asil_ingest",
+    "packages/asil_ingest_agents",
     "packages/asil_memory",
     "packages/asil_reasoning",
     "packages/asil_replay",

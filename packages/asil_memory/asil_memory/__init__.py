@@ -22,6 +22,7 @@ from asil_memory.hybrid_retriever import (
     RetrievalCandidate,
     RetrievalResult,
 )
+from asil_memory.teams import Team, TeamsStore, TeamWithKey
 from asil_memory.vector_store import (
     DEFAULT_COLLECTION,
     SearchHit,
@@ -46,6 +47,9 @@ __all__ = [
     "RetrievalCandidate",
     "RetrievalResult",
     "SearchHit",
+    "Team",
+    "TeamWithKey",
+    "TeamsStore",
     "VectorPoint",
     "VectorStore",
     "VectorStoreError",

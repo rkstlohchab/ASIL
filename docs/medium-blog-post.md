@@ -1,6 +1,6 @@
 # Why I built the layer **underneath** every AI coding agent
 
-*(and how it ends up saving the same teams roughly 90% of their Claude / GPT bill)*
+*(and what its persistent memory layer actually does to the LLM bill — measured, not estimated)*
 
 ---
 
@@ -8,7 +8,7 @@ I have nothing against the AI coding agent space. Cursor, Claude Code, OpenHands
 
 Six months ago I started a project that deliberately runs in the opposite direction. It's called **ASIL** — Engineering Intelligence Infrastructure — and it's the layer those agents *should be sitting on top of*. The persistent, temporal, causal model of how a software system evolves, behaves, and fails.
 
-This post is a tour of what it does, why no one else has built this exact composition, how it ends up saving a meaningful fraction of your LLM bill almost by accident, and what it looks like when you point it at your own codebase. The code is open source at [github.com/rkstlohchab/ASIL](https://github.com/rkstlohchab/ASIL).
+This post is a tour of what it does, why no one else has built this exact composition, what its persistent memory layer actually does to your LLM bill once you measure it (the honest version, not the headline-friendly one), and what it looks like when you point it at your own codebase. The code is open source at [github.com/rkstlohchab/ASIL](https://github.com/rkstlohchab/ASIL).
 
 ---
 
@@ -78,7 +78,7 @@ Behind the scenes: hybrid vector + graph retrieval, LLM synthesis, verifier pass
 
 The output isn't an essay. It's a structured answer plus file:line citations plus a per-claim ✓/✗ verifier report plus a Confidence card.
 
-Ask the same question again 30 seconds later and ASIL recognises it from episodic memory. The second answer costs roughly $0.0001 instead of roughly $0.01. That's the **money-saving fact** I'm coming back to in a minute.
+Ask the same question again 30 seconds later and ASIL recognises it from episodic memory. The second answer comes back from local storage without re-running the reasoning + verifier pipeline — only an embedding call is billed. How much that actually saves on a real codebase depends on how often near-duplicate questions get asked, and I'm coming back to the measurement protocol for that in a minute.
 
 ### Ingest incidents → derive observable causal chains
 
@@ -249,57 +249,39 @@ If your security review needs "no data leaves the host except the LLM call," you
 
 ---
 
-## The cost story — how it saves around 90% on a per-question basis
+## The cost story — what the persistence layer actually does
 
-Here's the part I want to be honest about. ASIL doesn't make individual LLM calls cheaper. It makes the second, third, and fourth time you ask the same question essentially free.
+Here's the part I want to be honest about, because there's a tempting version of this story that overpromises and I'm not interested in shipping that version.
+
+ASIL doesn't make individual LLM calls cheaper. What it does is *avoid* the LLM call entirely when it already has the answer.
 
 ### How the persistence works
 
-Every conclusion ASIL ever produces is written to a Postgres row in `asil_memories`. Question, answer, citations, confidence, model, cost, timestamp. The question's vector goes into a Qdrant collection. The next time *anyone* asks a similar-enough question (cosine similarity above threshold), ASIL returns the cached answer instead of running the full pipeline.
+Every conclusion ASIL ever produces is written to a Postgres row in `asil_memories` — question, answer, citations, confidence, model, recorded `cost_usd`, timestamp. The question's vector goes into a Qdrant collection. On the next `asil ask`, ASIL embeds the new question (one cheap embedding call) and looks for a semantically similar prior conclusion. If the top hit's similarity is above the cache threshold (configurable per call), ASIL returns the stored answer and skips the rest of the pipeline — no reasoning LLM, no verifier, no new memory write. Below the threshold, ASIL still runs the full pipeline but injects the prior conclusions into the prompt as extra context, which tends to make the new answer better-grounded.
 
-The fresh cost is roughly $0.005 to $0.02 per ask on the cheap tier with verification. The cached cost is roughly $0.0001 (one embedding to do the lookup). That's a roughly 99% saving per repeat ask.
+That short-circuit is the entire savings mechanism. There's no magic. The question is just: on your codebase, how often does the short-circuit fire, and what does a fresh call actually cost on your profile?
 
-### The savings math
+### How to get a real number for your repo
 
-```
-saved_usd ≈ memory_hits × (fresh_cost - cached_cost)
-         ≈ memory_hits × ($0.01 - $0.0001)
-         ≈ memory_hits × $0.0099
-```
+I'm deliberately not putting a savings percentage here because the honest answer depends on your repo, your team, your similarity threshold, and your LLM profile. What I can give you is the protocol that turns "depends" into a real number you can quote:
 
-The `asil cost summary` command computes this against your real ledger and prints something like:
+1. Pick a fixed list of representative questions you'd actually ask. Twenty is enough.
+2. Take a timestamp marker on `asil_costs`.
+3. Run every question with `--no-recall --no-remember`. Sum the `cost_usd` rows since the marker — that's your **cold cost**.
+4. Run every question again with full recall enabled. Sum since the next marker — that's your **warm cost**.
+5. The saving for your codebase is `(cold − warm) / cold`. The token saving is the same with `input_tokens + output_tokens`.
 
-```
-       LLM spend, last 30 days
-       total spent       $0.0827
-       # of LLM calls    127
-       avg / call        $0.000651
+The full protocol — including how to seed the corpus, how to control for profile, and what edge cases to watch out for — lives at [docs/measuring-savings.md](measuring-savings.md) in the repo.
 
-       by provider
-         openai          $0.0780
-         anthropic       $0.0047
+Once I've run it on a real production codebase rather than my self-dogfooding one, I'll come back and update this section with the actual percentages. I'd rather have a number that holds up than a number that's headline-friendly.
 
-       by tier
-         reasoning       $0.0791
-         verify          $0.0036
-
-       episodic memory savings
-         memories stored        41
-         fresh-only estimate    $0.41
-         with-memory estimate   $0.0041
-         saved                  $0.4059
-         savings %              99.0%
-```
-
-On my laptop, after a week of dogfooding ASIL against itself: $0.08 spent, roughly $0.41 worth of repeated queries deflected by memory. That ratio scales linearly with team size — three engineers all asking "how does X work?" pay 3× without memory, 1× with it.
-
-The `/cost` page in the dashboard renders the same numbers visually (daily-spend bars, per-provider breakdown, per-tier breakdown, savings card). This is what you'd put in a blog post or a budget review.
+The `asil cost summary` command and the `/cost` dashboard page read straight from the ledger (`asil_costs`) and the episodic store's `recall_hits` counter, so the numbers on screen are whatever your machine actually produced. No defaults baked in.
 
 ### The architecture choice that makes this work
 
-The cost ledger lives in Postgres, not in process memory, on purpose. When you restart the API for any reason, the ledger persists. When you `make down && make up`, the ledger persists. When you re-clone the repo on a new laptop, the schema is re-created but past entries are gone (because they were on the old machine). For a real deployment you point the same DSN at a managed Postgres and the history follows you forever.
+The cost ledger lives in Postgres, not in process memory, on purpose. Restart the API, the ledger persists. `make down && make up`, the ledger persists. Re-clone the repo on a new laptop and you get a fresh schema (the past entries lived on the old machine); point the same DSN at a managed Postgres in a real deployment and the history follows you.
 
-The schema is one row per LLM call: timestamp, provider, model, tier, profile, input_tokens, output_tokens, cost_usd. Aggregations happen in SQL, not in application code — so the dashboard's "daily spend" view is one query, not a fold over an in-memory list.
+The schema is one row per LLM call: timestamp, provider, model, tier, profile, input_tokens, output_tokens, cost_usd. Aggregations happen in SQL, not in application code — so the dashboard's daily-spend view is one query, not a fold over an in-memory list.
 
 ---
 

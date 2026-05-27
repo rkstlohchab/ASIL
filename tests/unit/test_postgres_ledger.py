@@ -67,28 +67,102 @@ def test_record_inserts_one_row():
     conn.commit.assert_called_once()
 
 
-def test_savings_math_is_correct():
+def _mock_savings_cursor(
+    *,
+    has_recall_hits: bool,
+    cache_hits: int,
+    avg_fresh: float,
+    avg_cached: float,
+):
+    """Build a mocked psycopg cursor whose fetchone() yields the rows that
+    `savings_vs_no_memory` expects in order: column-exists probe, then the
+    aggregates over asil_memories, then the aggregate over asil_costs."""
+    cur = MagicMock()
+    cur.__enter__ = MagicMock(return_value=cur)
+    cur.__exit__ = MagicMock(return_value=False)
+    responses: list = [
+        {"column_name": "recall_hits"} if has_recall_hits else None,
+    ]
+    if has_recall_hits:
+        responses.append({"hits": cache_hits, "avg_fresh": avg_fresh})
+    responses.append({"avg_cached": avg_cached})
+    cur.fetchone.side_effect = responses
+    return cur
+
+
+def _mock_connection(cur: MagicMock) -> MagicMock:
+    conn = MagicMock()
+    conn.__enter__ = MagicMock(return_value=conn)
+    conn.__exit__ = MagicMock(return_value=False)
+    conn.cursor.return_value = cur
+    return conn
+
+
+def test_savings_math_measured_from_real_ledger():
+    """With recall_hits column present and cache hits recorded, savings are
+    computed from the real average costs — not hardcoded estimates."""
     ledger = PostgresCostLedger("postgresql://u@h/db")
-    out = ledger.savings_vs_no_memory(100)
-    assert out["memory_conclusions"] == 100
-    assert out["fresh_cost_estimate_usd"] == pytest.approx(1.0)
-    assert out["with_memory_cost_estimate_usd"] == pytest.approx(0.01)
-    assert out["saved_usd"] == pytest.approx(0.99)
-    assert out["savings_pct"] == pytest.approx(99.0)
-
-
-def test_savings_math_zero_memory_is_zero_savings():
-    ledger = PostgresCostLedger("postgresql://u@h/db")
-    out = ledger.savings_vs_no_memory(0)
-    assert out["saved_usd"] == 0.0
-    assert out["savings_pct"] == 0.0
-
-
-def test_savings_math_respects_custom_per_call_cost():
-    ledger = PostgresCostLedger("postgresql://u@h/db")
-    out = ledger.savings_vs_no_memory(
-        50, fresh_cost_estimate_usd=0.05, cached_cost_estimate_usd=0.0005
+    cur = _mock_savings_cursor(
+        has_recall_hits=True,
+        cache_hits=10,
+        avg_fresh=0.005,
+        avg_cached=0.00005,
     )
-    assert out["fresh_per_call_usd"] == 0.05
-    assert out["cached_per_call_usd"] == 0.0005
-    assert out["saved_usd"] == pytest.approx(50 * (0.05 - 0.0005))
+    conn = _mock_connection(cur)
+    with patch(
+        "asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn
+    ):
+        out = ledger.savings_vs_no_memory(100, days=30)
+
+    assert out["memory_conclusions"] == 100
+    assert out["cache_hits"] == 10
+    assert out["avg_fresh_usd"] == pytest.approx(0.005, rel=1e-3)
+    assert out["avg_cached_usd"] == pytest.approx(0.00005, rel=1e-3)
+    assert out["saved_usd"] == pytest.approx(10 * (0.005 - 0.00005), rel=1e-3)
+    assert out["savings_pct"] == pytest.approx(
+        (0.005 - 0.00005) / 0.005 * 100.0, rel=1e-2
+    )
+    assert out["measured"] is True
+
+
+def test_savings_math_no_cache_hits_returns_null_pct():
+    """When no cache hits have fired yet, the function refuses to fabricate a
+    percentage and surfaces a 'measured = False' marker."""
+    ledger = PostgresCostLedger("postgresql://u@h/db")
+    cur = _mock_savings_cursor(
+        has_recall_hits=True,
+        cache_hits=0,
+        avg_fresh=0.0,
+        avg_cached=0.0,
+    )
+    conn = _mock_connection(cur)
+    with patch(
+        "asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn
+    ):
+        out = ledger.savings_vs_no_memory(0)
+
+    assert out["cache_hits"] == 0
+    assert out["saved_usd"] == 0.0
+    assert out["savings_pct"] is None
+    assert out["measured"] is False
+    assert "No cache hits" in out["note"]
+
+
+def test_savings_math_old_schema_without_recall_hits_column():
+    """Backward compat: if the recall_hits column hasn't been added yet,
+    savings still returns zeros rather than raising."""
+    ledger = PostgresCostLedger("postgresql://u@h/db")
+    cur = _mock_savings_cursor(
+        has_recall_hits=False,
+        cache_hits=0,
+        avg_fresh=0.0,
+        avg_cached=0.0,
+    )
+    conn = _mock_connection(cur)
+    with patch(
+        "asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn
+    ):
+        out = ledger.savings_vs_no_memory(5)
+
+    assert out["cache_hits"] == 0
+    assert out["measured"] is False

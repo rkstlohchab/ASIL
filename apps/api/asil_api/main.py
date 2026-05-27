@@ -10,14 +10,16 @@ OTEL_EXPORTER_OTLP_ENDPOINT being set + reachable.
 from __future__ import annotations
 
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from typing import Any, Literal
 
 import httpx
 from asil_core import configure_logging, get_logger, get_settings
 from asil_core.llm import ModelRouter
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 log = get_logger(__name__)
@@ -77,6 +79,51 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Phase 9.5 — per-team API-key auth on /mcp/* and /dashboard/*.
+# `ASIL_AUTH_DISABLE=true` bypasses auth entirely and stamps every request
+# with `team_id='default'`. That's the dev-friendly mode used by `make
+# api-dev`. In a real multi-team deployment, unset that env var and
+# create teams via `asil team create`.
+_PROTECTED_PREFIXES = ("/mcp/", "/dashboard/")
+_PUBLIC_PATHS = {"/health", "/llm/profile", "/llm/ping", "/mcp/tools"}
+
+
+@app.middleware("http")
+async def team_auth_middleware(request: Request, call_next):
+    """Attach `request.state.team_id` to every request. Returns 401 on
+    a protected path with a missing / invalid / revoked key."""
+    if os.environ.get("ASIL_AUTH_DISABLE", "false").lower() in ("1", "true", "yes"):
+        request.state.team_id = "default"
+        return await call_next(request)
+
+    path = request.url.path
+    if path in _PUBLIC_PATHS or not path.startswith(_PROTECTED_PREFIXES):
+        request.state.team_id = "default"
+        return await call_next(request)
+
+    header = request.headers.get("authorization", "")
+    if not header.lower().startswith("bearer "):
+        return JSONResponse(
+            {"error": "missing Authorization: Bearer <team-api-key> header"},
+            status_code=401,
+        )
+    api_key = header[7:].strip()
+
+    from asil_memory import TeamsStore
+
+    settings = get_settings()
+    teams = TeamsStore(settings.postgres_dsn)
+    try:
+        team_id = teams.verify_key(api_key)
+    except Exception as e:
+        log.warning("team_auth_lookup_failed", err=str(e))
+        return JSONResponse({"error": "auth backend unreachable"}, status_code=503)
+    if team_id is None:
+        return JSONResponse({"error": "invalid or revoked api key"}, status_code=401)
+    request.state.team_id = team_id
+    return await call_next(request)
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -259,8 +306,56 @@ async def dashboard_cost(days: int = 30) -> dict[str, Any]:
         log.warning("dashboard_cost_episodic_unavailable", error=str(exc))
 
     if ledger is not None:
-        out["savings"] = ledger.savings_vs_no_memory(out["memory_count"])
+        out["savings"] = ledger.savings_vs_no_memory(out["memory_count"], days=days)
 
+    return out
+
+
+@app.get("/dashboard/memory")
+async def dashboard_memory(days: int = 30, top_n: int = 10) -> dict[str, Any]:
+    """Phase 9.6 — observability for episodic memory.
+
+    Surfaces dedupe rate, source distribution (which agents populated
+    memory), per-agent write counts, and the top-recalled memories. The
+    /memory page in the web dashboard reads from here."""
+    from asil_memory import EpisodicStore
+
+    out: dict[str, Any] = {
+        "days": days,
+        "memory_count": 0,
+        "write_log_stats": None,
+        "top_recalled": [],
+    }
+    try:
+        with EpisodicStore() as e:
+            e.verify_connectivity()
+            e.apply_schema()
+            out["memory_count"] = e.count()
+            try:
+                out["write_log_stats"] = e.write_log_stats(days=days)
+            except Exception as exc:
+                log.warning("write_log_stats_failed", error=str(exc))
+            try:
+                tops = e.top_recalled(limit=top_n)
+                out["top_recalled"] = [
+                    {
+                        "id": m.id,
+                        "question": m.question,
+                        "answer_excerpt": m.answer[:200],
+                        "recall_hits": m.recall_hits,
+                        "origin_agent": m.origin_agent,
+                        "user_id": m.user_id,
+                        "team_id": m.team_id,
+                        "repo_key": m.repo_key,
+                        "created_at": m.created_at.isoformat() if m.created_at else None,
+                        "source": m.metadata.get("source") if isinstance(m.metadata, dict) else None,
+                    }
+                    for m in tops
+                ]
+            except Exception as exc:
+                log.warning("top_recalled_failed", error=str(exc))
+    except Exception as exc:
+        log.warning("dashboard_memory_unavailable", error=str(exc))
     return out
 
 

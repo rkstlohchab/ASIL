@@ -41,7 +41,7 @@ Point it at any codebase (Python / JS / TS / TSX / Go / Ruby / Java / Rust / C /
 
 1. **Build a knowledge graph** of files, functions, classes, imports, call edges (Neo4j) + a semantic vector index of function bodies (Qdrant).
 2. **Answer natural-language questions** about the code, with file:line citations and a confidence score. Every claim is verified against its cited evidence.
-3. **Remember every conclusion** in an episodic store (Postgres) so the next session — yours or anyone else's — recalls the cached answer at ~$0.0001 instead of paying the full ~$0.01 again.
+3. **Remember every conclusion** in an episodic store (Postgres) so the next session — yours or anyone else's — recalls the cached answer instead of re-running the full pipeline. Whether this actually saves money on your codebase depends on how often you ask the same questions; see [docs/measuring-savings.md](docs/measuring-savings.md) for the A/B protocol that turns "depends" into a real number.
 4. **Ingest production incidents** as postmortems → derive `(:Cause)-[:PRECEDED {confidence, delta_seconds, derivation, strategy}]->(:Incident)` edges across three observable strategies (no LLM hallucination, every edge auditable).
 5. **Replay any incident** as a time-ordered timeline + service cascade + state diff (deployments-during, metric-before/after) + ranked causal chain.
 6. **Detect architecture drift** between your current dependency structure and a stored baseline — before the PR merges.
@@ -152,7 +152,7 @@ The most-used page. Type a question, optionally scope it to one repo, click Ask.
 - LLM synthesis on the retrieved evidence.
 - Verifier pass — second LLM call that checks every claim against the cited code.
 - Confidence object assembled from retrieval strength, evidence count, verifier flags.
-- Episodic-memory write (so the next session recalls this for ~$0.0001).
+- Episodic-memory write (so the next session can recall this without re-running the full pipeline).
 
 The right-hand pane shows the Confidence card and any memory hits from prior runs.
 
@@ -203,9 +203,9 @@ Pulled straight from the Postgres ledger (`asil_costs`):
 - Daily-spend bars (relative height = relative cost).
 - Per-provider split (openai / anthropic / deepseek / ...).
 - Per-tier split (reasoning / classify / summarize / verify / embed).
-- **Memory savings card** with the math: `fresh_cost - cached_cost` × memory_count = total $ saved, plus the percentage. This is the screenshot you'd put in a blog post.
+- **Memory savings card** — counts cache-hits (questions answered from prior conclusions) and compares the average measured fresh-ask cost against the average recall-hit cost on your ledger. Numbers are whatever your codebase actually produced, not estimates. See [docs/measuring-savings.md](docs/measuring-savings.md) for the A/B protocol that makes the number defensible.
 
-**Use it for:** budget reviews, blog posts, justifying the persistence layer to your boss.
+**Use it for:** seeing your actual spend, deciding whether the cache threshold is set sensibly, sharing real numbers in writing.
 
 ### 9. `/mcp` — MCP tool catalog
 
@@ -311,7 +311,7 @@ uv run asil cost daily                           # daily-spend bar chart in the 
 uv run asil cost daily --days 30
 ```
 
-The savings card estimates `memory_count × (fresh_cost - cached_cost)`. Defaults: $0.01 per fresh ask, $0.0001 per recall.
+The savings card reads real numbers off the ledger: it counts cache-hits (questions where the recall path returned a stored answer), averages the actual recorded cost of fresh asks vs recall-hit asks, and multiplies. If you've never run a cache hit yet, the card will tell you so — no fabricated savings %. For a defensible end-to-end measurement, run the A/B protocol in [docs/measuring-savings.md](docs/measuring-savings.md).
 
 ### `postmortem` — ingest incident YAMLs (Phase 3)
 
@@ -537,25 +537,27 @@ Use the same HTTP base URL. Any MCP client can speak to `/mcp/tools` (list) and 
 
 ## How memory saves you API calls
 
-Every conclusion ASIL produces goes into Postgres (`asil_memories`) plus a Qdrant point keyed by the question vector. The next `asil ask` (yours or any agent's) first embeds the new question and searches memory — a hit returns the cached answer instead of re-running the full pipeline.
+Every conclusion ASIL produces goes into Postgres (`asil_memories`) plus a Qdrant point keyed by the question vector. The next `asil ask` (yours or any agent's via MCP) first embeds the new question and searches memory. If the top hit's similarity is above the cache threshold, ASIL returns the stored answer directly and skips the reasoning + verifier steps. The only cost on a hit is the embedding call used to do the lookup. Below the threshold, ASIL still runs the full pipeline but injects the prior conclusions into the prompt as context.
 
-```text
-fresh ask  : ~$0.005 – $0.02   (retrieval + LLM + verifier)
-cached ask : ~$0.0001          (one embedding lookup)
-saved per cached ask : ~99%
-```
+Whether this saves money on **your** codebase is an empirical question, not a marketing one. It depends on:
 
-Three engineers asking the same question across three sessions pays 3× without memory, 1× with it. On a real codebase with 100+ recurring questions, that's the difference between a $50/month and a $5/month bill.
+- How often you ask the same (or near-duplicate) questions.
+- The cache-similarity threshold you choose — higher = fewer hits, but more confident hits.
+- Your LLM profile — a `tight` profile has cheaper fresh asks, so the absolute saving per hit is smaller.
 
-Track it live:
+The answer for your repo is whatever your cost ledger says it is. Get a defensible number with the A/B protocol:
 
 ```bash
+# Inspect your spend so far.
 uv run asil cost summary
+
+# Run a fixed Q&A list cold (no recall) vs warm (recall enabled) and diff the ledger.
+# Full protocol: docs/measuring-savings.md
 ```
 
-Or visit `/cost` in the dashboard for the same numbers as bar charts.
+The ledger schema (`asil_costs`) is one row per LLM call: `ts, provider, model, tier, profile, input_tokens, output_tokens, cost_usd`. Cache-hits show up as a single `tier=embed` row instead of the usual reasoning + verify + embed triplet. Aggregations happen in SQL (`asil_core.llm.PostgresCostLedger.aggregates`).
 
-The ledger schema (`asil_costs`) is one row per LLM call: `ts, provider, model, tier, profile, input_tokens, output_tokens, cost_usd`. Aggregations happen in SQL (`asil_core.llm.PostgresCostLedger.aggregates`).
+See also [docs/inspecting-the-graph.md](docs/inspecting-the-graph.md) if you want to open Neo4j / Qdrant / Postgres directly and look at what's stored.
 
 ---
 

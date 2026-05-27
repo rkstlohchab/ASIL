@@ -36,6 +36,7 @@ from datetime import datetime
 from typing import Any
 
 from asil_core import Confidence, get_settings
+from asil_core.identity import get_machine_id, get_origin_agent, get_user_id
 from asil_core.logging import get_logger
 
 from asil_memory.vector_store import DEFAULT_COLLECTION, VectorPoint, VectorStore
@@ -72,6 +73,12 @@ class Memory:
     profile: str
     created_at: datetime
     metadata: dict[str, Any] = field(default_factory=dict)
+    recall_hits: int = 0
+    user_id: str = "unknown"
+    machine_id: str = "unknown"
+    origin_agent: str = "cli"
+    origin_session_id: str | None = None
+    team_id: str = "default"
 
 
 @dataclass(slots=True)
@@ -106,10 +113,49 @@ CREATE TABLE IF NOT EXISTS asil_memories (
     cost_usd                        DOUBLE PRECISION NOT NULL,
     profile                         TEXT NOT NULL,
     created_at                      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    metadata                        JSONB NOT NULL DEFAULT '{}'::jsonb
+    metadata                        JSONB NOT NULL DEFAULT '{}'::jsonb,
+    recall_hits                     INTEGER NOT NULL DEFAULT 0,
+    user_id                         TEXT NOT NULL DEFAULT 'unknown',
+    machine_id                      TEXT NOT NULL DEFAULT 'unknown',
+    origin_agent                    TEXT NOT NULL DEFAULT 'cli',
+    origin_session_id               TEXT
 );
+ALTER TABLE asil_memories ADD COLUMN IF NOT EXISTS recall_hits INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE asil_memories ADD COLUMN IF NOT EXISTS user_id TEXT NOT NULL DEFAULT 'unknown';
+ALTER TABLE asil_memories ADD COLUMN IF NOT EXISTS machine_id TEXT NOT NULL DEFAULT 'unknown';
+ALTER TABLE asil_memories ADD COLUMN IF NOT EXISTS origin_agent TEXT NOT NULL DEFAULT 'cli';
+ALTER TABLE asil_memories ADD COLUMN IF NOT EXISTS origin_session_id TEXT;
+ALTER TABLE asil_memories ADD COLUMN IF NOT EXISTS team_id TEXT NOT NULL DEFAULT 'default';
 CREATE INDEX IF NOT EXISTS asil_memories_repo_created
     ON asil_memories (repo_key, created_at DESC);
+CREATE INDEX IF NOT EXISTS asil_memories_origin_agent
+    ON asil_memories (origin_agent, created_at DESC);
+CREATE INDEX IF NOT EXISTS asil_memories_team_repo
+    ON asil_memories (team_id, repo_key, created_at DESC);
+
+-- Phase 9.2 — every remember() call lands one row here, whether it inserted
+-- a new memory or folded into an existing one. Lets us answer "what's our
+-- dedupe rate?" and "which agents produce the most folds?" from real data.
+CREATE TABLE IF NOT EXISTS asil_memory_writes (
+    id                    BIGSERIAL PRIMARY KEY,
+    ts                    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    repo_key              TEXT NOT NULL,
+    user_id               TEXT NOT NULL DEFAULT 'unknown',
+    origin_agent          TEXT NOT NULL DEFAULT 'cli',
+    source                TEXT,
+    question_text         TEXT NOT NULL,
+    nearest_existing_id   UUID,
+    nearest_similarity    DOUBLE PRECISION,
+    outcome               TEXT NOT NULL,
+    resulting_memory_id   UUID NOT NULL,
+    team_id               TEXT NOT NULL DEFAULT 'default'
+);
+ALTER TABLE asil_memory_writes ADD COLUMN IF NOT EXISTS team_id TEXT NOT NULL DEFAULT 'default';
+CREATE INDEX IF NOT EXISTS asil_memory_writes_ts ON asil_memory_writes (ts DESC);
+CREATE INDEX IF NOT EXISTS asil_memory_writes_outcome_ts
+    ON asil_memory_writes (outcome, ts DESC);
+CREATE INDEX IF NOT EXISTS asil_memory_writes_repo_ts
+    ON asil_memory_writes (repo_key, ts DESC);
 """
 
 
@@ -186,10 +232,86 @@ class EpisodicStore:
         verifier_unsupported: int = 0,
         metadata: dict[str, Any] | None = None,
         question_vector: list[float] | None = None,
+        user_id: str | None = None,
+        machine_id: str | None = None,
+        origin_agent: str | None = None,
+        origin_session_id: str | None = None,
+        team_id: str = "default",
+        dedupe_threshold: float | None = 0.95,
     ) -> Memory:
-        """Insert one memory row + (best-effort) Qdrant point. Returns the row."""
-        mem_id = str(uuid.uuid4())
+        """Insert one memory row + (best-effort) Qdrant point. Returns the row.
+
+        Identity fields (`user_id` / `machine_id` / `origin_agent` /
+        `origin_session_id`) default to the local environment via
+        `asil_core.identity`. MCP callers pass explicit values from the
+        client; the CLI lets the defaults kick in.
+
+        Write-time dedupe (Phase 9.2): if `dedupe_threshold` is set and a
+        prior memory in the same repo has cosine similarity >= threshold
+        on its question vector, we **fold** instead of INSERT:
+        `recall_hits` on the existing row is bumped, the new source is
+        appended to `metadata.sources`, and the existing `Memory` is
+        returned. The event lands in `asil_memory_writes` with
+        `outcome='folded'`. Pass `dedupe_threshold=None` to force a fresh
+        INSERT regardless of similarity (e.g. for the out-of-band
+        `asil.remember` MCP tool).
+        """
         meta = metadata or {}
+        resolved_user_id = user_id if user_id is not None else get_user_id()
+        resolved_machine_id = machine_id if machine_id is not None else get_machine_id()
+        resolved_origin_agent = get_origin_agent(origin_agent)
+        source = meta.get("source") if isinstance(meta, dict) else None
+
+        # ----------------------------- write-time dedupe (Phase 9.2)
+        nearest_id: str | None = None
+        nearest_sim: float | None = None
+        if (
+            dedupe_threshold is not None
+            and self._vector is not None
+            and question_vector is not None
+        ):
+            try:
+                hits = self.recall_similar(
+                    query_vector=question_vector,
+                    repo_key=repo_key,
+                    limit=1,
+                    min_similarity=0.0,
+                )
+            except Exception as e:
+                log.warning("dedupe_recall_failed", err=str(e))
+                hits = []
+            if hits:
+                nearest_id = hits[0].memory.id
+                nearest_sim = hits[0].similarity
+                if hits[0].similarity >= dedupe_threshold:
+                    folded = self._fold_into_existing(
+                        existing_id=hits[0].memory.id,
+                        source=source,
+                        origin_agent=resolved_origin_agent,
+                        user_id=resolved_user_id,
+                    )
+                    self._log_memory_write(
+                        repo_key=repo_key,
+                        user_id=resolved_user_id,
+                        origin_agent=resolved_origin_agent,
+                        source=source,
+                        question_text=question,
+                        nearest_existing_id=hits[0].memory.id,
+                        nearest_similarity=hits[0].similarity,
+                        outcome="folded",
+                        resulting_memory_id=hits[0].memory.id,
+                        team_id=team_id,
+                    )
+                    log.info(
+                        "memory_folded",
+                        existing_id=hits[0].memory.id,
+                        similarity=round(hits[0].similarity, 3),
+                        source=source,
+                    )
+                    return folded
+
+        # ----------------------------- INSERT (no dedupe hit, or dedupe off)
+        mem_id = str(uuid.uuid4())
         with self._conn.cursor() as cur:
             cur.execute(
                 """
@@ -199,12 +321,16 @@ class EpisodicStore:
                     confidence_retrieval_strength, confidence_causal_confidence,
                     confidence_derivation, citations,
                     verifier_unsupported, model, provider, cost_usd, profile,
-                    metadata
+                    metadata,
+                    user_id, machine_id, origin_agent, origin_session_id,
+                    team_id
                 ) VALUES (
                     %s, %s, %s, %s,
                     %s, %s, %s, %s,
                     %s, %s,
                     %s, %s, %s, %s, %s,
+                    %s,
+                    %s, %s, %s, %s,
                     %s
                 ) RETURNING created_at
                 """,
@@ -225,6 +351,11 @@ class EpisodicStore:
                     cost_usd,
                     profile,
                     json.dumps(meta),
+                    resolved_user_id,
+                    resolved_machine_id,
+                    resolved_origin_agent,
+                    origin_session_id,
+                    team_id,
                 ),
             )
             row = cur.fetchone()
@@ -259,6 +390,18 @@ class EpisodicStore:
             repo_key=repo_key,
             confidence_score=round(confidence.score, 3),
         )
+        self._log_memory_write(
+            repo_key=repo_key,
+            user_id=resolved_user_id,
+            origin_agent=resolved_origin_agent,
+            source=source,
+            question_text=question,
+            nearest_existing_id=nearest_id,
+            nearest_similarity=nearest_sim,
+            outcome="inserted",
+            resulting_memory_id=mem_id,
+            team_id=team_id,
+        )
         return Memory(
             id=mem_id,
             repo_key=repo_key,
@@ -273,7 +416,162 @@ class EpisodicStore:
             profile=profile,
             created_at=created_at,
             metadata=meta,
+            user_id=resolved_user_id,
+            machine_id=resolved_machine_id,
+            origin_agent=resolved_origin_agent,
+            origin_session_id=origin_session_id,
+            team_id=team_id,
         )
+
+    # ------------------------------------------------------------------ helpers
+
+    def _fold_into_existing(
+        self,
+        *,
+        existing_id: str,
+        source: str | None,
+        origin_agent: str,
+        user_id: str,
+    ) -> Memory:
+        """Bump recall_hits + append the new source to metadata.sources on
+        the existing row, then return the rehydrated memory. Used by the
+        write-time dedupe path."""
+        source_marker = source or f"direct:{origin_agent}:{user_id}"
+        with self._conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE asil_memories
+                SET recall_hits = recall_hits + 1,
+                    metadata = jsonb_set(
+                        metadata,
+                        '{sources}',
+                        coalesce(metadata->'sources', '[]'::jsonb) || to_jsonb(%s::text),
+                        true
+                    )
+                WHERE id = %s
+                """,
+                (source_marker, existing_id),
+            )
+        mem = self.get(existing_id)
+        if mem is None:
+            raise EpisodicStoreError(
+                f"fold target {existing_id!r} vanished mid-UPDATE — db consistency bug"
+            )
+        return mem
+
+    def _log_memory_write(
+        self,
+        *,
+        repo_key: str,
+        user_id: str,
+        origin_agent: str,
+        source: str | None,
+        question_text: str,
+        nearest_existing_id: str | None,
+        nearest_similarity: float | None,
+        outcome: str,
+        resulting_memory_id: str,
+        team_id: str = "default",
+    ) -> None:
+        """One row per remember() call. Outcome is 'inserted' or 'folded'.
+        Best-effort — never raises into the caller (a logging failure must
+        not block the memory write)."""
+        try:
+            with self._conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO asil_memory_writes (
+                        repo_key, user_id, origin_agent, source, question_text,
+                        nearest_existing_id, nearest_similarity, outcome,
+                        resulting_memory_id, team_id
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        repo_key,
+                        user_id,
+                        origin_agent,
+                        source,
+                        question_text,
+                        nearest_existing_id,
+                        nearest_similarity,
+                        outcome,
+                        resulting_memory_id,
+                        team_id,
+                    ),
+                )
+        except Exception as e:
+            log.warning("memory_write_log_failed", err=str(e))
+
+    def write_log_stats(self, *, days: int = 30) -> dict[str, Any]:
+        """Aggregate dedupe stats from asil_memory_writes. Used by
+        `asil memory stats --dedupe-rate` and the /memory dashboard."""
+        with self._conn.cursor() as cur:
+            cur.execute(
+                "SELECT outcome, count(*) FROM asil_memory_writes "
+                "WHERE ts >= now() - (%s || ' days')::interval "
+                "GROUP BY outcome",
+                (days,),
+            )
+            counts = {r[0]: int(r[1]) for r in cur.fetchall()}
+            cur.execute(
+                "SELECT origin_agent, count(*) FROM asil_memory_writes "
+                "WHERE ts >= now() - (%s || ' days')::interval "
+                "GROUP BY origin_agent ORDER BY 2 DESC",
+                (days,),
+            )
+            by_agent = {r[0]: int(r[1]) for r in cur.fetchall()}
+            cur.execute(
+                "SELECT coalesce(source, '(direct)'), count(*) "
+                "FROM asil_memory_writes "
+                "WHERE ts >= now() - (%s || ' days')::interval "
+                "GROUP BY 1 ORDER BY 2 DESC",
+                (days,),
+            )
+            by_source = {r[0]: int(r[1]) for r in cur.fetchall()}
+        inserted = counts.get("inserted", 0)
+        folded = counts.get("folded", 0)
+        total = inserted + folded
+        return {
+            "window_days": days,
+            "total_writes": total,
+            "inserted": inserted,
+            "folded": folded,
+            "dedupe_rate_pct": round((folded / total) * 100, 2) if total else 0.0,
+            "by_agent": by_agent,
+            "by_source": by_source,
+        }
+
+    def top_recalled(self, *, repo_key: str | None = None, limit: int = 20) -> list[Memory]:
+        """Memories with the highest recall_hits. The 'who knows this?' tool."""
+        with self._conn.cursor() as cur:
+            if repo_key is not None:
+                cur.execute(
+                    _SELECT_ALL_COLUMNS
+                    + " WHERE repo_key = %s ORDER BY recall_hits DESC, created_at DESC LIMIT %s",
+                    (repo_key, limit),
+                )
+            else:
+                cur.execute(
+                    _SELECT_ALL_COLUMNS
+                    + " ORDER BY recall_hits DESC, created_at DESC LIMIT %s",
+                    (limit,),
+                )
+            rows = cur.fetchall()
+        return [_row_to_memory(r) for r in rows]
+
+    def bump_recall_hit(self, memory_id: str) -> int:
+        """Increment `recall_hits` for one memory. Returns the new count, or 0
+        if the row didn't exist. Called by the `asil ask` cache short-circuit
+        path so the savings calculator can count real cache hits off the
+        ledger instead of estimating."""
+        with self._conn.cursor() as cur:
+            cur.execute(
+                "UPDATE asil_memories SET recall_hits = recall_hits + 1 "
+                "WHERE id = %s RETURNING recall_hits",
+                (memory_id,),
+            )
+            row = cur.fetchone()
+        return int(row[0]) if row else 0
 
     def forget(self, memory_id: str) -> bool:
         """Hard-delete a memory + its Qdrant point. Returns True if removed."""
@@ -409,7 +707,9 @@ SELECT id, repo_key, question, answer,
        confidence_retrieval_strength, confidence_causal_confidence,
        confidence_derivation, citations,
        verifier_unsupported, model, provider, cost_usd, profile,
-       created_at, metadata
+       created_at, metadata, recall_hits,
+       user_id, machine_id, origin_agent, origin_session_id,
+       team_id
 FROM asil_memories
 """
 
@@ -433,6 +733,12 @@ def _row_to_memory(row: tuple) -> Memory:
         profile,
         created_at,
         metadata_json,
+        recall_hits,
+        user_id,
+        machine_id,
+        origin_agent,
+        origin_session_id,
+        team_id,
     ) = row
     return Memory(
         id=str(mid),
@@ -454,6 +760,12 @@ def _row_to_memory(row: tuple) -> Memory:
         profile=profile,
         created_at=created_at,
         metadata=_loads_dict(metadata_json),
+        recall_hits=int(recall_hits or 0),
+        user_id=user_id or "unknown",
+        machine_id=machine_id or "unknown",
+        origin_agent=origin_agent or "cli",
+        origin_session_id=origin_session_id,
+        team_id=team_id or "default",
     )
 
 

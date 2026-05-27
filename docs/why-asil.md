@@ -90,7 +90,7 @@ uv run asil ingest .                  # parse the current repo
 uv run asil ask "How does the LLM router pick a provider for a given tier?"
 ```
 
-Returns: an answer, a candidate list (file:line citations), a verifier report (each claim ✓ supported / ✗ unsupported), and a confidence breakdown. The second time you ask, the same answer is recalled from episodic memory at ~1/100th the cost.
+Returns: an answer, a candidate list (file:line citations), a verifier report (each claim ✓ supported / ✗ unsupported), and a confidence breakdown. The second time you ask a near-duplicate question (similarity above your configured cache threshold), the answer is recalled from episodic memory and the expensive reasoning + verifier steps are skipped — only the embedding lookup runs. How much that actually saves on your codebase is a question your `asil_costs` ledger answers; [docs/measuring-savings.md](measuring-savings.md) walks through the A/B benchmark that turns the answer into a real number.
 
 ### Incident causality, derived from observable evidence
 
@@ -145,15 +145,17 @@ POST http://localhost:8000/mcp/call/<tool_name>
 
 `asil.search_code`, `asil.get_callers`, `asil.get_dependencies`, `asil.who_owns`, `asil.commit_history`, `asil.ask`, `asil.remember`, `asil.recall`, `asil.forget`, `asil.find_causes`, `asil.replay_incident`, `asil.drift_check`.
 
-### Persistent memory across sessions (the API-call saver)
+### Persistent memory across sessions
 
-Every conclusion ASIL ever reaches is persisted to Postgres with full provenance (question, answer, citations, model, cost, confidence). The corresponding question vector goes into Qdrant. The next `asil ask` first embeds the new question (~$0.0001) and searches memory — a hit returns the cached answer instead of re-running the full pipeline (~$0.01). Across a team or across many sessions on the same codebase, the savings compound.
+Every conclusion ASIL ever reaches is persisted to Postgres with full provenance (question, answer, citations, model, cost, confidence). The corresponding question vector goes into Qdrant. The next `asil ask` first embeds the new question and searches memory. On a high-similarity hit, ASIL returns the stored answer immediately and skips the rest of the pipeline — only the embedding call is billed. Below the similarity threshold, ASIL still runs the full pipeline but injects the prior conclusions into the prompt as extra context.
 
-| Scenario | Without ASIL memory | With ASIL memory |
-|---|---|---|
-| Same question asked 5× across sessions | 5 × $0.01 = **$0.05** | 1 × $0.01 + 4 × $0.0001 = **$0.0104** |
-| 100 questions asked twice each | 200 × $0.01 = **$2.00** | 100 × $0.01 + 100 × $0.0001 = **$1.01** |
-| Team of 3 on the same codebase | 3× everything | Shared memory store — 1× cost |
+Whether this saves money on your codebase is an empirical question with an empirical answer:
+
+- The ledger (`asil_costs` in Postgres) records `input_tokens`, `output_tokens`, and `cost_usd` for every LLM call. Real numbers, not estimates.
+- The episodic store (`asil_memories`) records every conclusion with its measured cost and a `recall_hits` counter that increments on each cache hit.
+- The A/B harness in [docs/measuring-savings.md](measuring-savings.md) runs a fixed question list cold (no recall) and warm (recall enabled), then diffs the ledger to give you a defensible percentage.
+
+The qualitative claim is straightforward: ASIL pays the full LLM cost for a question once. The second time anyone on the same store asks a near-duplicate, the answer comes back from local storage. How often that condition is met on your codebase is what determines the actual savings.
 
 ---
 

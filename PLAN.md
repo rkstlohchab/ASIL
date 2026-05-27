@@ -627,6 +627,42 @@ result is the artifact a human (or a future orchestrator) decides on.
 
 ### Phase 7 — Minimal UI + MCP polish ✅ DONE 2026-05-25
 
+### Phase 9 — Cross-agent transcript ingester (filed, not started)
+
+The motivating use case: a developer ends a long Claude Code session in
+VSCode, opens Antigravity (or Cursor, or Aider), and asks the new agent to
+pick up where the prior one left off. Today the new agent has no idea what
+was just discussed and re-reads the codebase from scratch. ASIL's
+persistent memory is the obvious place to bridge the gap, but no piece of
+ASIL currently *captures* agent conversation transcripts — `asil_memories`
+only gets populated when something explicitly calls `asil ask` or
+`asil.remember`.
+
+Phase 9 closes that loop with a transcript-ingester per agent format:
+
+- **`asil ingest-transcripts claude-code`** — read
+  `~/.claude/projects/<encoded-path>/conversations/<uuid>.jsonl`, group
+  turns into question/conclusion pairs, summarise via
+  `ModelRouter.call(tier="summarize")`, write into `asil_memories`
+  with `metadata.source = "claude-code-transcript"`.
+- **`asil ingest-transcripts cursor`** — equivalent against Cursor's
+  workspace storage.
+- **`asil ingest-transcripts antigravity / aider / openhands`** — one
+  parser per format. Same target table, same MCP-readable surface.
+
+Once any of these run, every other MCP-speaking agent gets the prior
+context for free via `asil.recall` — without us touching the agents'
+own code. This is the version that makes the cross-agent-memory pitch
+in the Medium post literally true.
+
+Scope deferred because the cache short-circuit (in
+[packages/asil_memory](packages/asil_memory/) + the Phase 7.6 ledger)
+needs to land first — otherwise the recall path has no fast return for
+ingested transcript hits.
+
+Not started; not on the immediate critical path. Reopen when the cache
+short-circuit is shipped and a real user is asking for it.
+
 ---
 
 ## Research reading list (parallel with phases)

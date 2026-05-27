@@ -16,12 +16,14 @@ type CostData = {
   memory_count: number;
   savings: null | {
     memory_conclusions: number;
-    fresh_cost_estimate_usd: number;
-    with_memory_cost_estimate_usd: number;
+    cache_hits: number;
+    window_days: number;
+    avg_fresh_usd: number;
+    avg_cached_usd: number;
     saved_usd: number;
-    savings_pct: number;
-    fresh_per_call_usd: number;
-    cached_per_call_usd: number;
+    savings_pct: number | null;
+    measured: boolean;
+    note: string;
   };
 };
 
@@ -47,8 +49,8 @@ export default function CostPage() {
             LLM cost + memory savings
           </h1>
           <p className="text-ink-300 mt-1">
-            Persistent ledger of every LLM call, plus an estimate of how much
-            episodic memory saved by recalling cached conclusions.
+            Persistent ledger of every LLM call. Savings are measured from real
+            cache-hits on episodic memory, not estimates.
           </p>
         </div>
         <select
@@ -97,9 +99,13 @@ export default function CostPage() {
           hint="cached conclusions"
         />
         <StatTile
-          label="Estimated saved"
+          label="Saved (measured)"
           value={`$${(d?.savings?.saved_usd ?? 0).toFixed(4)}`}
-          hint={`${(d?.savings?.savings_pct ?? 0).toFixed(0)}% of fresh-only cost`}
+          hint={
+            d?.savings?.savings_pct != null
+              ? `${d.savings.savings_pct.toFixed(0)}% per cache hit`
+              : "no cache hits yet"
+          }
         />
         <StatTile
           label="Avg / call"
@@ -177,35 +183,46 @@ export default function CostPage() {
 
       {d?.savings && (
         <Card
-          title="Memory savings (estimated)"
-          subtitle={`Assumes ~$${d.savings.fresh_per_call_usd} per fresh ask, ~$${d.savings.cached_per_call_usd} per recall`}
+          title="Memory savings (measured)"
+          subtitle={
+            d.savings.measured
+              ? `Measured from ${d.savings.cache_hits} cache hit(s) in the last ${d.savings.window_days} days`
+              : "No cache hits yet — see docs/measuring-savings.md to run the A/B benchmark"
+          }
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <Bucket
               icon={<DollarSign size={14} />}
-              label="without memory"
-              value={`$${d.savings.fresh_cost_estimate_usd}`}
+              label="avg fresh ask"
+              value={`$${d.savings.avg_fresh_usd.toFixed(6)}`}
               tone="danger"
             />
             <Bucket
               icon={<DollarSign size={14} />}
-              label="with memory"
-              value={`$${d.savings.with_memory_cost_estimate_usd}`}
+              label="avg cached ask"
+              value={`$${d.savings.avg_cached_usd.toFixed(6)}`}
               tone="ok"
             />
             <Bucket
               icon={<PiggyBank size={14} />}
               label="saved"
-              value={`$${d.savings.saved_usd}`}
+              value={`$${d.savings.saved_usd.toFixed(4)}`}
               tone="ok"
             />
             <Bucket
               icon={<TrendingUp size={14} />}
               label="savings %"
-              value={`${d.savings.savings_pct}%`}
-              tone="ok"
+              value={
+                d.savings.savings_pct != null
+                  ? `${d.savings.savings_pct.toFixed(2)}%`
+                  : "—"
+              }
+              tone={d.savings.measured ? "ok" : "neutral"}
             />
           </div>
+          {!d.savings.measured && (
+            <p className="text-xs text-ink-400 mt-3">{d.savings.note}</p>
+          )}
         </Card>
       )}
     </div>
