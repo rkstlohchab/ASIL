@@ -1447,6 +1447,66 @@ def memory_clear(
     estore.close()
 
 
+@memory_app.command("forget-session")
+def memory_forget_session(
+    session_id: Annotated[
+        str,
+        typer.Argument(help="Session id (e.g. Claude Code .jsonl filename without extension)."),
+    ],
+    yes: Annotated[bool, typer.Option("--yes", help="Skip confirmation.")] = False,
+) -> None:
+    """Delete every memory that came from one ingested session.
+
+    Matches both `origin_session_id` (memories written *via* that session)
+    and `metadata.original_session_id` (memories ingested *from* that
+    session's transcript). Use this to undo an `asil context export` or
+    `ingest-transcripts` run that included something sensitive."""
+    configure_logging()
+    estore = _open_episodic_or_exit()
+    if not yes and not typer.confirm(
+        f"delete ALL memories from session {session_id!r}?", default=False
+    ):
+        console.print("aborted")
+        estore.close()
+        raise typer.Exit(code=1)
+    n = estore.forget_session(session_id)
+    console.print(
+        f"[green]forgot {n} memories from session {session_id[:12]}[/green]"
+        if n
+        else f"[yellow]no memories matched session {session_id[:12]}[/yellow]"
+    )
+    estore.close()
+
+
+@memory_app.command("clear-all")
+def memory_clear_all(
+    yes: Annotated[bool, typer.Option("--yes", help="Skip confirmation.")] = False,
+) -> None:
+    """Nuke EVERY memory across every repo and every session. No undo.
+
+    Use this for a clean reset before benchmarking, or to scrub the store
+    after testing. Postgres `asil_memories` + Qdrant `asil_memories`
+    collection both get wiped."""
+    configure_logging()
+    estore = _open_episodic_or_exit()
+    info = estore.stats()
+    total = info["total"]
+    if total == 0:
+        console.print("[dim]Nothing to clear.[/dim]")
+        estore.close()
+        return
+    if not yes and not typer.confirm(
+        f"delete ALL {total} memories across ALL repos? this cannot be undone.",
+        default=False,
+    ):
+        console.print("aborted")
+        estore.close()
+        raise typer.Exit(code=1)
+    n = estore.clear_all()
+    console.print(f"[green]nuked {n} memories[/green]")
+    estore.close()
+
+
 def _open_episodic_or_exit() -> EpisodicStore:
     try:
         vstore = VectorStore()
@@ -3008,6 +3068,262 @@ def cost_daily(
         bars = int((cost / max_cost) * 30)
         t.add_row(day, f"${cost:.4f}", "█" * bars)
     console.print(t)
+
+
+# ---------------------------------------------------------------------------
+# context export/import (Phase 9.7 — two-command cross-IDE handoff)
+# ---------------------------------------------------------------------------
+
+context_app = typer.Typer(
+    help="Export this Claude Code session into ASIL, or print import wiring for the next IDE.",
+    no_args_is_help=True,
+)
+app.add_typer(context_app, name="context")
+
+
+def _encoded_cwd_dirname(cwd: Path) -> str:
+    """Mirror Claude Code's path-encoding so we can find the project
+    directory under ~/.claude/projects/ from any cwd."""
+    return "-" + str(cwd).replace("/", "-").lstrip("-")
+
+
+@context_app.command("export")
+def context_export(
+    since: Annotated[
+        str,
+        typer.Option(
+            "--since",
+            help="Time window for transcripts (e.g. '2h', '1d'). Larger = more context, slower.",
+        ),
+    ] = "2h",
+    cwd: Annotated[
+        Path | None,
+        typer.Option(
+            "--cwd",
+            help="Project directory to look up (default: current working dir).",
+        ),
+    ] = None,
+    file: Annotated[
+        Path | None,
+        typer.Option(
+            "--file",
+            help="ALSO write a portable markdown bundle here (optional; for offline handoff).",
+        ),
+    ] = None,
+    user_id: Annotated[str | None, typer.Option("--user-id")] = None,
+) -> None:
+    """One-command export of the current Claude Code session into ASIL's
+    episodic memory. Auto-detects the current cwd, finds the matching
+    transcript under `~/.claude/projects/`, ingests every Q/A pair (with
+    tool calls + final task lists). Dedupe handles re-runs.
+
+    Optional `--file` also writes a portable markdown bundle you can paste
+    into agents that don't speak MCP."""
+    configure_logging()
+    from asil_ingest_agents import ClaudeCodeIngester
+    from asil_ingest_agents.claude_code import CLAUDE_PROJECTS_DIR
+
+    target_cwd = (cwd or Path.cwd()).resolve()
+    encoded = _encoded_cwd_dirname(target_cwd)
+    proj_dir = CLAUDE_PROJECTS_DIR / encoded
+    if not proj_dir.exists():
+        console.print(
+            f"[red]No Claude Code transcripts found for {target_cwd}.[/red]\n"
+            f"[dim]Looked at: {proj_dir}[/dim]"
+        )
+        raise typer.Exit(code=1)
+
+    since_dt = _parse_relative_window(since)
+    if since_dt is None:
+        console.print(f"[red]Could not parse --since {since!r}[/red]")
+        raise typer.Exit(code=2)
+
+    ingester = ClaudeCodeIngester()
+    plan = ingester.plan(since=since_dt, project=str(target_cwd))
+    if not plan.qa_chunks:
+        console.print(
+            f"[yellow]No new Q/A pairs in the last {since} for {target_cwd}.[/yellow]"
+        )
+        return
+
+    console.print(
+        f"[bold]Exporting {len(plan.qa_chunks)} Q/A pair(s) from "
+        f"{len(plan.sessions)} session(s) into ASIL...[/bold]"
+    )
+    _write_plan_to_memory(
+        plan,
+        origin_agent="claude-code",
+        repo_key_override=f"local:{target_cwd}",
+        user_id=user_id,
+    )
+
+    if file is not None:
+        _write_portable_bundle(plan, file, cwd=target_cwd)
+        console.print(f"[green]Portable bundle: {file}[/green]")
+
+    console.print(
+        "\n[bold]Next:[/bold] In another IDE/agent, run "
+        "[cyan]asil context import <target>[/cyan] to wire it up."
+    )
+
+
+@context_app.command("import")
+def context_import(
+    target: Annotated[
+        str,
+        typer.Argument(
+            help="Where to import: 'claude-code', 'cursor', 'aider', 'mcp' (any client), or 'prompt'.",
+        ),
+    ],
+    about: Annotated[
+        str | None,
+        typer.Option(
+            "--about",
+            help="(prompt only) Topic to scope the recall query. Default: most-recalled memories.",
+        ),
+    ] = None,
+    limit: Annotated[int, typer.Option("--limit", help="(prompt) max prior conclusions to surface.")] = 10,
+) -> None:
+    """Emit the import wiring for the chosen target.
+
+    For MCP-aware clients (claude-code, cursor, aider, mcp): prints the
+    config snippet you paste into their settings.
+
+    For 'prompt': queries ASIL's memory and prints a paste-able markdown
+    system prompt summarising prior conclusions — works with any agent
+    on any LLM provider, even ones that don't speak MCP."""
+    configure_logging()
+    target_low = target.lower()
+    if target_low in ("mcp", "claude-code", "cursor", "aider", "openhands"):
+        _print_mcp_wiring(target_low)
+        return
+    if target_low == "prompt":
+        _print_prompt_bundle(about=about, limit=limit)
+        return
+    console.print(f"[red]Unknown target: {target!r}. Try one of: mcp, claude-code, cursor, aider, openhands, prompt.[/red]")
+    raise typer.Exit(code=2)
+
+
+def _print_mcp_wiring(target: str) -> None:
+    mcp_url = "http://localhost:8000/mcp"
+    snippets = {
+        "claude-code": (
+            "Add to [bold]~/.claude/settings.json[/bold]:\n\n"
+            "[cyan]"
+            '{\n'
+            '  "mcpServers": {\n'
+            '    "asil": {\n'
+            '      "type": "http",\n'
+            f'      "url": "{mcp_url}"\n'
+            '    }\n'
+            '  }\n'
+            '}\n'
+            "[/cyan]"
+            "\nRestart Claude Code. Tools appear as [cyan]mcp__asil__*[/cyan]."
+        ),
+        "cursor": (
+            "Add to [bold]~/.cursor/mcp.json[/bold] (create if missing):\n\n"
+            "[cyan]"
+            '{\n'
+            '  "mcpServers": {\n'
+            '    "asil": {\n'
+            f'      "url": "{mcp_url}",\n'
+            '      "transport": "http"\n'
+            '    }\n'
+            '  }\n'
+            '}\n'
+            "[/cyan]"
+            "\nReload Cursor. Open the MCP panel to confirm 'asil' shows as connected."
+        ),
+        "aider": (
+            "Aider's MCP support is via the OpenAI-style tool surface. Easiest path:\n"
+            "set [bold]ASIL_MCP_URL[/bold] in env and use the asil-mcp-client wrapper "
+            "(or, until Aider ships native MCP, use [cyan]asil context import prompt[/cyan] "
+            "to get a paste-able context block)."
+        ),
+        "openhands": (
+            "OpenHands reads MCP config from [bold]config.toml[/bold]:\n\n"
+            "[cyan][mcp_servers.asil]\n"
+            f'type = "http"\nurl = "{mcp_url}"[/cyan]\n\n'
+            "Restart OpenHands."
+        ),
+        "mcp": (
+            f"Any MCP HTTP client: point at [cyan]{mcp_url}[/cyan]\n"
+            "Tools list: [cyan]GET /mcp/tools[/cyan]\n"
+            "Call a tool: [cyan]POST /mcp/call/<tool> {\"arguments\": {...}}[/cyan]"
+        ),
+    }
+    console.print(Panel(snippets[target], title=f"Import context into {target}", border_style="cyan"))
+    console.print(
+        "\n[dim]Authorization: if ASIL_AUTH_DISABLE is unset on the server, "
+        "the client also needs:\n  Authorization: Bearer <team-api-key>\n"
+        "Create a key with `asil team create <id>`.[/dim]"
+    )
+
+
+def _print_prompt_bundle(*, about: str | None, limit: int) -> None:
+    """For non-MCP agents: query ASIL and emit a paste-able context block."""
+    estore = _open_episodic_or_exit()
+    try:
+        if about:
+            router = ModelRouter.from_env()
+
+            async def _embed() -> list[float]:
+                return (await router.embed([about]))[0]
+
+            vec = asyncio.run(_embed())
+            hits = estore.recall_similar(query_vector=vec, limit=limit, min_similarity=0.3)
+            memories = [h.memory for h in hits]
+            header = f"prior conclusions related to: {about!r}"
+        else:
+            memories = estore.top_recalled(limit=limit)
+            header = "top recalled prior conclusions"
+    finally:
+        estore.close()
+
+    if not memories:
+        console.print("[yellow]No memories to import. Run `asil context export` first.[/yellow]")
+        return
+
+    out = ["# Context recalled from ASIL", "", f"_{header}_", ""]
+    for i, m in enumerate(memories, 1):
+        when = m.created_at.strftime("%Y-%m-%d %H:%M") if m.created_at else "?"
+        out.append(f"## {i}. {m.question}")
+        out.append("")
+        out.append(f"_Originally answered {when} via {m.origin_agent} (recall_hits={m.recall_hits})_")
+        out.append("")
+        excerpt = m.answer if len(m.answer) <= 1500 else m.answer[:1500] + "\n…[truncated]"
+        out.append(excerpt)
+        out.append("")
+        out.append("---")
+        out.append("")
+    blob = "\n".join(out)
+    # Print to stdout so the user can pipe to pbcopy / a file.
+    print(blob)
+
+
+def _write_portable_bundle(plan, file: Path, *, cwd: Path) -> None:
+    """Write the IngestPlan as a self-contained markdown bundle. Useful
+    for offline handoff (email, gist, paste into a non-MCP agent)."""
+    lines = [
+        f"# ASIL context bundle — {cwd}",
+        "",
+        f"Exported {datetime.now().isoformat(timespec='seconds')} from Claude Code transcripts.",
+        f"Sessions: {len(plan.sessions)}, Q/A pairs: {len(plan.qa_chunks)}",
+        "",
+    ]
+    for i, c in enumerate(plan.qa_chunks, 1):
+        when = c.start_ts.strftime("%Y-%m-%d %H:%M") if c.start_ts else "?"
+        lines.append(f"## {i}. {c.question}")
+        lines.append("")
+        lines.append(f"_{when} — session {c.session_id[:8]}_")
+        lines.append("")
+        lines.append(c.assistant_response)
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+    file.parent.mkdir(parents=True, exist_ok=True)
+    file.write_text("\n".join(lines))
 
 
 # ---------------------------------------------------------------------------

@@ -423,6 +423,56 @@ class EpisodicStore:
             team_id=team_id,
         )
 
+    def forget_session(self, session_id: str) -> int:
+        """Delete every memory whose `origin_session_id` matches OR whose
+        `metadata.original_session_id` matches. Returns the number of rows
+        removed. Used by `asil memory forget-session <id>` so the user can
+        roll back a transcript ingest in one command."""
+        with self._conn.cursor() as cur:
+            cur.execute(
+                "SELECT id FROM asil_memories WHERE origin_session_id = %s "
+                "OR metadata->>'original_session_id' = %s",
+                (session_id, session_id),
+            )
+            ids = [str(r[0]) for r in cur.fetchall()]
+            if not ids:
+                return 0
+            cur.execute(
+                "DELETE FROM asil_memories WHERE id = ANY(%s::uuid[])",
+                (ids,),
+            )
+            removed = cur.rowcount
+        if self._vector is not None:
+            import contextlib
+
+            with contextlib.suppress(Exception):
+                self._vector._client.delete(  # type: ignore[attr-defined]
+                    collection_name=EPISODIC_COLLECTION,
+                    points_selector=ids,
+                    wait=False,
+                )
+        return removed
+
+    def clear_all(self) -> int:
+        """Nuke every memory. Returns the count. Use with extreme
+        prejudice — there is no undo. Wired behind a CLI confirmation
+        prompt."""
+        with self._conn.cursor() as cur:
+            cur.execute("DELETE FROM asil_memories")
+            removed = cur.rowcount
+        if self._vector is not None:
+            import contextlib
+
+            with contextlib.suppress(Exception):
+                from qdrant_client.http import models as qm
+
+                self._vector._client.delete(  # type: ignore[attr-defined]
+                    collection_name=EPISODIC_COLLECTION,
+                    points_selector=qm.FilterSelector(filter=qm.Filter(must=[])),
+                    wait=True,
+                )
+        return removed
+
     # ------------------------------------------------------------------ helpers
 
     def _fold_into_existing(

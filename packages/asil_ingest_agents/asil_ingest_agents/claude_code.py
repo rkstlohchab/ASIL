@@ -130,7 +130,13 @@ def _is_real_user_turn(record: dict[str, Any]) -> bool:
 
 
 def parse_session(path: Path) -> list[Turn]:
-    """Read a single JSONL transcript into a normalised `Turn` list."""
+    """Read a single JSONL transcript into a normalised `Turn` list.
+
+    Assistant turns carry their `tool_use` blocks in `extra["tool_uses"]`
+    so the chunker can later distil the *actions taken* (files edited,
+    commands run, todos) — not just the prose explanation. That's the
+    difference between a memory that says 'Claude explained X' and one
+    that says 'Claude explained X and edited a.py, b.py, ran tests'."""
     turns: list[Turn] = []
     with path.open() as f:
         for raw in f:
@@ -158,20 +164,43 @@ def parse_session(path: Path) -> list[Turn]:
                     )
                 )
             elif t == "assistant":
-                text = _extract_text_blocks((rec.get("message") or {}).get("content"))
-                if text is None:
+                content = (rec.get("message") or {}).get("content")
+                text = _extract_text_blocks(content)
+                tool_uses = _extract_tool_uses(content)
+                if text is None and not tool_uses:
                     continue
                 turns.append(
                     Turn(
                         role="assistant",
-                        text=text,
+                        text=text or "",
                         ts=_parse_ts(rec.get("timestamp")),
                         message_id=rec.get("uuid"),
-                        extra={"sessionId": rec.get("sessionId")},
+                        extra={
+                            "sessionId": rec.get("sessionId"),
+                            "tool_uses": tool_uses,
+                        },
                     )
                 )
             # Other types (file-history-snapshot, attachment, etc.) are skipped.
     return turns
+
+
+def _extract_tool_uses(content: Any) -> list[dict[str, Any]]:
+    """Pull every `tool_use` block out of an assistant message body and
+    normalise into `{name, input}` dicts. Skips `text` / `thinking` /
+    everything else."""
+    if not isinstance(content, list):
+        return []
+    out: list[dict[str, Any]] = []
+    for block in content:
+        if isinstance(block, dict) and block.get("type") == "tool_use":
+            out.append(
+                {
+                    "name": block.get("name") or "",
+                    "input": block.get("input") or {},
+                }
+            )
+    return out
 
 
 def _parse_ts(s: str | None) -> datetime | None:
@@ -214,11 +243,29 @@ def _close_chunk(
     session_id: str,
     max_chars: int,
 ) -> QAChunk:
-    resp = "\n\n".join(r.text for r in responses if r.text).strip()
-    if not resp:
-        resp = "(no assistant response captured)"
-    if len(resp) > max_chars:
-        resp = resp[:max_chars] + "\n…[truncated]"
+    """Build a QAChunk where `assistant_response` is the prose +
+    a structured 'Actions taken' summary + (if present) the final
+    TodoWrite checklist. This is what gets stored — and what other
+    agents see when they recall the conclusion."""
+    prose = "\n\n".join(r.text for r in responses if r.text).strip()
+    if len(prose) > max_chars:
+        prose = prose[:max_chars] + "\n…[prose truncated]"
+
+    tool_uses: list[dict[str, Any]] = []
+    for r in responses:
+        tool_uses.extend(r.extra.get("tool_uses", []))
+    actions_md = _summarise_actions(tool_uses)
+    todos_md = _summarise_final_todos(tool_uses)
+
+    parts: list[str] = []
+    if prose:
+        parts.append(prose)
+    if actions_md:
+        parts.append(actions_md)
+    if todos_md:
+        parts.append(todos_md)
+    resp = "\n\n".join(parts) or "(no assistant response captured)"
+
     return QAChunk(
         question=q.text,
         assistant_response=resp,
@@ -228,6 +275,122 @@ def _close_chunk(
         end_ts=responses[-1].ts if responses else q.ts,
         turn_ids=[t.message_id for t in [q, *responses] if t.message_id],
     )
+
+
+def _summarise_actions(tool_uses: list[dict[str, Any]]) -> str:
+    """Bucket the tool_use calls by what they tell us about the work:
+    files touched, commands run, sub-agents spawned. Returns a markdown
+    block or empty string."""
+    if not tool_uses:
+        return ""
+    files_read: list[str] = []
+    files_edited: list[str] = []
+    files_written: list[str] = []
+    bash_cmds: list[tuple[str, str]] = []
+    agents_spawned: list[tuple[str, str]] = []
+    other_tools: dict[str, int] = {}
+
+    for tu in tool_uses:
+        name = tu.get("name") or ""
+        inp = tu.get("input") or {}
+        if name == "Read":
+            fp = inp.get("file_path")
+            if fp:
+                files_read.append(_relpath(fp))
+        elif name in ("Edit", "NotebookEdit"):
+            fp = inp.get("file_path")
+            if fp:
+                files_edited.append(_relpath(fp))
+        elif name == "Write":
+            fp = inp.get("file_path")
+            if fp:
+                files_written.append(_relpath(fp))
+        elif name == "Bash":
+            cmd = (inp.get("command") or "")[:200]
+            desc = (inp.get("description") or "")[:120]
+            if cmd:
+                bash_cmds.append((cmd, desc))
+        elif name in ("Agent", "Task"):
+            desc = (inp.get("description") or "")[:120]
+            sub = inp.get("subagent_type") or ""
+            agents_spawned.append((sub, desc))
+        elif name == "TodoWrite":
+            pass  # handled separately by _summarise_final_todos
+        else:
+            other_tools[name] = other_tools.get(name, 0) + 1
+
+    lines: list[str] = []
+    if files_edited:
+        lines.append(f"- **Edited:** {', '.join(_dedupe_preserve(files_edited))}")
+    if files_written:
+        lines.append(f"- **Wrote:** {', '.join(_dedupe_preserve(files_written))}")
+    if files_read:
+        files_read_uniq = _dedupe_preserve(files_read)[:10]
+        more = "" if len(files_read) <= 10 else f" (+{len(files_read) - 10} more)"
+        lines.append(f"- **Read:** {', '.join(files_read_uniq)}{more}")
+    if bash_cmds:
+        bash_lines = []
+        for cmd, desc in bash_cmds[:8]:
+            bash_lines.append(f"  - `{cmd}`" + (f"  — {desc}" if desc else ""))
+        if len(bash_cmds) > 8:
+            bash_lines.append(f"  - …(+{len(bash_cmds) - 8} more commands)")
+        lines.append("- **Ran:**\n" + "\n".join(bash_lines))
+    if agents_spawned:
+        ag_lines = [f"  - {sub or 'general'}: {desc}" for sub, desc in agents_spawned[:5]]
+        lines.append("- **Sub-agents:**\n" + "\n".join(ag_lines))
+    if other_tools:
+        other_summary = ", ".join(f"{n}({c})" for n, c in sorted(other_tools.items()))
+        lines.append(f"- **Other tool calls:** {other_summary}")
+
+    if not lines:
+        return ""
+    return "**Actions taken in this turn:**\n" + "\n".join(lines)
+
+
+def _summarise_final_todos(tool_uses: list[dict[str, Any]]) -> str:
+    """The last TodoWrite call in the turn is the final state of the task
+    list — that's the one worth remembering. Render with status icons so
+    a future agent sees what got completed vs what's still pending."""
+    todo_calls = [tu for tu in tool_uses if tu.get("name") == "TodoWrite"]
+    if not todo_calls:
+        return ""
+    todos = (todo_calls[-1].get("input") or {}).get("todos") or []
+    if not isinstance(todos, list) or not todos:
+        return ""
+    lines = ["**Final task list:**"]
+    icon = {"completed": "✅", "in_progress": "⏳", "pending": "⬜"}
+    for t in todos:
+        if not isinstance(t, dict):
+            continue
+        status = t.get("status", "pending")
+        content = t.get("content", "")
+        lines.append(f"- {icon.get(status, '•')} {content}")
+    return "\n".join(lines)
+
+
+def _relpath(p: str) -> str:
+    """Strip the user's home + a long repo prefix so file lists stay
+    readable. `/Users/me/Documents/GitHub/ASIL/foo.py` → `foo.py`."""
+    if not p:
+        return ""
+    for marker in ("/GitHub/", "/github.com/", "/src/"):
+        idx = p.find(marker)
+        if idx > 0:
+            sub = p[idx + len(marker):]
+            if "/" in sub:
+                _, rest = sub.split("/", 1)
+                return rest
+    return p.split("/")[-1] if "/" in p else p
+
+
+def _dedupe_preserve(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for x in items:
+        if x not in seen:
+            seen.add(x)
+            out.append(x)
+    return out
 
 
 @dataclass(slots=True)

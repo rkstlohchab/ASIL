@@ -174,7 +174,7 @@ def test_chunk_response_truncation():
     chunks = chunk_into_qa([user, long_resp], session_id="s", max_response_chars=100)
     assert len(chunks) == 1
     assert chunks[0].assistant_response.startswith("x" * 100)
-    assert chunks[0].assistant_response.endswith("[truncated]")
+    assert chunks[0].assistant_response.endswith("[prose truncated]")
 
 
 def test_find_claude_code_sessions_respects_project_filter(tmp_path):
