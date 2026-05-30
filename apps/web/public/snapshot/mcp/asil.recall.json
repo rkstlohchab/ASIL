@@ -1,33 +1,4 @@
 {
-  "hits": [
-    {
-      "id": "mem-001",
-      "question": "Where is the LLM router defined and how does it pick a provider per tier?",
-      "answer": "ModelRouter.call(tier=...) in packages/asil_core/asil_core/llm/router.py. Tier → provider map lives in get_settings().llm_tiers; default profile is `tight` which routes reasoning → claude-haiku, embedding → text-embedding-3-small, cheap → groq-llama. Hard rule: never call providers directly — always go through ModelRouter.",
-      "similarity": 0.913,
-      "repo_key": "rkstlohchab/ASIL@main",
-      "created_at": "2026-04-22T14:08:11Z",
-      "cost_usd": 0.0182,
-      "model": "claude-haiku-4-5",
-      "confidence": { "score": 0.91 },
-      "origin_agent": "claude-code",
-      "user_id": "rkstlohchab@gmail.com",
-      "team_id": "asil-core"
-    },
-    {
-      "id": "mem-014",
-      "question": "How are LLM costs tracked per call?",
-      "answer": "PostgresLedger records {provider, tier, model, prompt_tokens, completion_tokens, cost_usd, latency_ms, session_id} per call. Aggregated by /dashboard/cost endpoint. Budget enforcement lives in ModelRouter.call() guard.",
-      "similarity": 0.847,
-      "repo_key": "rkstlohchab/ASIL@main",
-      "created_at": "2026-05-11T10:51:43Z",
-      "cost_usd": 0.0156,
-      "model": "claude-haiku-4-5",
-      "confidence": { "score": 0.85 },
-      "origin_agent": "cursor",
-      "user_id": "rkstlohchab@gmail.com",
-      "team_id": "asil-core"
-    }
-  ],
-  "count": 2
+  "hits": [],
+  "count": 0
 }

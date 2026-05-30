@@ -1,29 +1,31 @@
 {
   "code": {
     "Repo": 1,
-    "File": 213,
-    "Function": 1487,
-    "Class": 142,
-    "Module": 38
+    "File": 111,
+    "Function": 984,
+    "Class": 152,
+    "Symbol": 405
   },
   "runtime": {
-    "Service": 12,
-    "Deployment": 47,
-    "Incident": 6,
-    "Alert": 23,
-    "MetricSeries": 84
+    "Service": 11,
+    "Deployment": 12,
+    "MetricShift": 23,
+    "LogSignature": 12,
+    "Incident": 5
   },
   "repos": [
     {
-      "key": "rkstlohchab/ASIL@main",
-      "spec": "https://github.com/rkstlohchab/ASIL",
-      "commit_sha": "27677af1c850bb260e4fbad3164e0454cc27a884",
-      "is_local": false,
-      "indexed_at": "2026-05-30T04:17:00Z",
-      "files": 213
+      "key": "local:/home/runner/work/ASIL/ASIL",
+      "spec": ".",
+      "commit_sha": null,
+      "is_local": true,
+      "indexed_at": "2026-05-30T17:16:00.995243+00:00",
+      "files": 111
     }
   ],
-  "envs": ["prod", "staging"],
-  "memory_count": 184,
+  "envs": [
+    "prod"
+  ],
+  "memory_count": 0,
   "llm_profile": "tight"
 }

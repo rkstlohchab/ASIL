@@ -1,57 +1,19 @@
 {
-  "question": "How does the LLM router pick a provider for a given tier?",
-  "answer": "ModelRouter.call(tier=...) looks up the active profile from get_settings().llm_profile (default 'tight'), then resolves tier → provider via the profile's tier-map. Each call is wrapped in budget enforcement (ASIL_DAILY_BUDGET_USD) and cost-logged to the Postgres ledger before returning. Providers are constructed via the factory in packages/asil_core/asil_core/llm/providers/__init__.py — never instantiated directly elsewhere.",
-  "candidates": [
-    {
-      "qualified_name": "asil_core.llm.router.ModelRouter.call",
-      "file_path": "packages/asil_core/asil_core/llm/router.py",
-      "line": 48,
-      "kind": "Function",
-      "similarity": 0.93,
-      "derivation": "vector hit (0.93) + graph proximity to settings.llm_profile"
-    },
-    {
-      "qualified_name": "asil_core.config.Settings.llm_profile",
-      "file_path": "packages/asil_core/asil_core/config.py",
-      "line": 27,
-      "kind": "Field",
-      "similarity": 0.81,
-      "derivation": "vector hit (0.81), 1-hop from ModelRouter.call"
-    },
-    {
-      "qualified_name": "asil_core.llm.providers.make_provider",
-      "file_path": "packages/asil_core/asil_core/llm/providers/__init__.py",
-      "line": 14,
-      "kind": "Function",
-      "similarity": 0.77,
-      "derivation": "graph: imported by ModelRouter.__init__"
-    }
-  ],
+  "question": "How does the LLM router pick a provider per tier?",
+  "answer": null,
+  "candidates": [],
   "confidence": {
-    "score": 0.88,
-    "evidence_count": 3,
-    "retrieval_strength": 0.91,
-    "causal_confidence": 0.84,
+    "score": 0.0,
+    "evidence_count": 0,
+    "retrieval_strength": 0.0,
+    "causal_confidence": 0.0,
     "derivation": [
-      "3 supporting code locations with similarity ≥ 0.77",
-      "All claims verified against graph",
-      "Tier-mapping behaviour cross-checked in tests/unit/test_router.py"
+      "asil.ask is disabled in this deployment (no LLM credentials)"
     ]
   },
-  "memory_hits": [
-    {
-      "id": "mem-001",
-      "question": "Where is the LLM router defined and how does it pick a provider per tier?",
-      "similarity": 0.94
-    }
-  ],
   "verifier": {
-    "claims": [
-      { "text": "ModelRouter.call accepts a tier argument", "supported": true },
-      { "text": "Profile is read from get_settings().llm_profile", "supported": true },
-      { "text": "Calls are cost-logged to Postgres", "supported": true },
-      { "text": "Budget enforcement runs before the provider call", "supported": true }
-    ],
+    "claims": [],
     "unsupported_count": 0
-  }
+  },
+  "memory_hits": []
 }

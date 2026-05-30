@@ -1,0 +1,323 @@
+{
+  "incident_id": "INC-2025-11-22-config-oom",
+  "incident": {
+    "id": "INC-2025-11-22-config-oom",
+    "env_key": "prod",
+    "detected_at": "2025-11-22T16:30:00+00:00",
+    "resolved_at": "2025-11-22T18:45:00+00:00",
+    "title": "Feature-flag config push triggers OOM on recommendation service",
+    "severity": "P2",
+    "summary": "A feature-flag configuration push enabled a new recommendation algorithm variant for all users. The new variant loaded the full product catalog into memory (instead of sampling) on every request. Memory usage on the recommendation pods climbed from 2GB to 14GB over 20 minutes, triggering OOM kills. The search service degraded because it depended on recommendation for \"related items.\" Disabling the flag restored normal memory usage within 5 minutes.\n",
+    "affected_services": [
+      "feature-flags",
+      "recommendations",
+      "search"
+    ]
+  },
+  "summary_lines": [
+    "Incident: INC-2025-11-22-config-oom",
+    "Title: Feature-flag config push triggers OOM on recommendation service",
+    "Env: prod",
+    "Severity: P2",
+    "Detected: 2025-11-22T16:30:00+00:00",
+    "Resolved: 2025-11-22T18:45:00+00:00",
+    "Affected: feature-flags, recommendations, search"
+  ],
+  "timeline": [
+    {
+      "at": "2025-11-22T16:10:00+00:00",
+      "kind": "deployment",
+      "service": "feature-flags",
+      "description": "Deployment deploy-ff-config-2025-11-22 - Feature flag config push \u2014 enable full-catalog reco variant for 100% traffic",
+      "marker": "\u2197 cause"
+    },
+    {
+      "at": "2025-11-22T16:15:00+00:00",
+      "kind": "metric_shift",
+      "service": "recommendations",
+      "description": "Memory usage climbed from 2GB to 14GB",
+      "marker": "\u2197 cause"
+    },
+    {
+      "at": "2025-11-22T16:25:00+00:00",
+      "kind": "metric_shift",
+      "service": "recommendations",
+      "description": "p99_latency: 85.0ms -> 12000.0ms",
+      "marker": "\u2197 cause"
+    },
+    {
+      "at": "2025-11-22T16:30:00+00:00",
+      "kind": "incident",
+      "service": "feature-flags",
+      "description": "Feature-flag config push triggers OOM on recommendation service",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2025-11-22T16:30:00+00:00",
+      "kind": "log_signature",
+      "service": "recommendations",
+      "description": "Log: \"OOMKilled: container exceeded memory limit\" (count=12)",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2025-11-22T16:30:00+00:00",
+      "kind": "incident",
+      "service": "recommendations",
+      "description": "Feature-flag config push triggers OOM on recommendation service",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2025-11-22T16:30:00+00:00",
+      "kind": "incident",
+      "service": "search",
+      "description": "Feature-flag config push triggers OOM on recommendation service",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2025-11-22T16:31:00+00:00",
+      "kind": "log_signature",
+      "service": "search",
+      "description": "Log: \"recommendations service unavailable: connection refused\" (count=4500)",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2025-11-22T16:32:00+00:00",
+      "kind": "metric_shift",
+      "service": "search",
+      "description": "related_items_availability: 0.999ratio -> 0.12ratio",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2025-11-22T18:40:00+00:00",
+      "kind": "deployment",
+      "service": "feature-flags",
+      "description": "Deployment deploy-ff-disable-reco-variant - Disable full-catalog recommendation variant",
+      "marker": "\u2193 response"
+    }
+  ],
+  "top_causes": [
+    {
+      "cause_kind": "Deployment",
+      "confidence": 0.6625,
+      "delta_seconds": 1200.0,
+      "derivation": "temporal_proximity: Deployment deploy-ff-config-2025-11-22 on feature-flags occurred 20.0min before the incident \u2192 confidence 0.062 (half-life 5min); lagged_correlation: deploy is on affected service 'feature-flags'; promoted from symptom-tier to cause-tier with +0.6 bonus (0.062 \u2192 0.662)",
+      "strategy": "temporal_proximity+lagged_correlation",
+      "cause_props": {
+        "at": "2025-11-22T16:10:00+00:00",
+        "service_name": "feature-flags",
+        "confidence": 1.0,
+        "description": "Feature flag config push \u2014 enable full-catalog reco variant for 100% traffic",
+        "source": "postmortem:2025-11-22-config-oom.yaml",
+        "deployment_id": "deploy-ff-config-2025-11-22",
+        "env_key": "prod"
+      }
+    },
+    {
+      "cause_kind": "MetricShift",
+      "confidence": 0.5,
+      "delta_seconds": 300.0,
+      "derivation": "temporal_proximity: MetricShift recommendations.p99_latency (85.0ms \u2192 12000.0ms) started 5.0min before the incident \u2192 confidence 0.500 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "unit": "ms",
+        "metric": "p99_latency",
+        "before": 85.0,
+        "service_name": "recommendations",
+        "confidence": 1.0,
+        "started_at": "2025-11-22T16:25:00+00:00",
+        "source": "postmortem:2025-11-22-config-oom.yaml",
+        "after": 12000.0,
+        "env_key": "prod"
+      }
+    },
+    {
+      "cause_kind": "MetricShift",
+      "confidence": 0.125,
+      "delta_seconds": 900.0,
+      "derivation": "temporal_proximity: MetricShift recommendations.memory_usage_bytes (2147483648.0bytes \u2192 15032385536.0bytes) started 15.0min before the incident \u2192 confidence 0.125 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "unit": "bytes",
+        "metric": "memory_usage_bytes",
+        "before": 2147483648.0,
+        "service_name": "recommendations",
+        "confidence": 1.0,
+        "started_at": "2025-11-22T16:15:00+00:00",
+        "description": "Memory usage climbed from 2GB to 14GB",
+        "after": 15032385536.0,
+        "env_key": "prod",
+        "source": "postmortem:2025-11-22-config-oom.yaml"
+      }
+    }
+  ],
+  "service_cascade": [
+    {
+      "service": "feature-flags",
+      "first_event_at": "2025-11-22T16:10:00+00:00",
+      "first_event_kind": "deployment",
+      "first_event_description": "Deployment deploy-ff-config-2025-11-22 - Feature flag config push \u2014 enable full-catalog reco variant for 100% traffic"
+    },
+    {
+      "service": "recommendations",
+      "first_event_at": "2025-11-22T16:15:00+00:00",
+      "first_event_kind": "metric_shift",
+      "first_event_description": "Memory usage climbed from 2GB to 14GB"
+    },
+    {
+      "service": "search",
+      "first_event_at": "2025-11-22T16:30:00+00:00",
+      "first_event_kind": "incident",
+      "first_event_description": "Feature-flag config push triggers OOM on recommendation service"
+    }
+  ],
+  "state_diff": {
+    "services_involved": [
+      "feature-flags",
+      "recommendations",
+      "search"
+    ],
+    "deployments_during": [
+      {
+        "deployment_id": "deploy-ff-config-2025-11-22",
+        "service": "feature-flags",
+        "description": "Feature flag config push \u2014 enable full-catalog reco variant for 100% traffic",
+        "commit_sha": "",
+        "at": "2025-11-22T16:10:00+00:00"
+      },
+      {
+        "deployment_id": "deploy-ff-disable-reco-variant",
+        "service": "feature-flags",
+        "description": "Disable full-catalog recommendation variant",
+        "commit_sha": "",
+        "at": "2025-11-22T18:40:00+00:00"
+      }
+    ],
+    "metric_deltas": [
+      {
+        "service": "recommendations",
+        "metric": "memory_usage_bytes",
+        "before": 2147483648.0,
+        "after": 15032385536.0,
+        "unit": "bytes"
+      },
+      {
+        "service": "recommendations",
+        "metric": "p99_latency",
+        "before": 85.0,
+        "after": 12000.0,
+        "unit": "ms"
+      },
+      {
+        "service": "search",
+        "metric": "related_items_availability",
+        "before": 0.999,
+        "after": 0.12,
+        "unit": "ratio"
+      }
+    ]
+  },
+  "confidence": {
+    "score": 0.4292,
+    "evidence_count": 3,
+    "retrieval_strength": 0.0,
+    "causal_confidence": 0.0,
+    "derivation": [
+      "a",
+      "v",
+      "e",
+      "r",
+      "a",
+      "g",
+      "e",
+      " ",
+      "o",
+      "f",
+      " ",
+      "3",
+      " ",
+      "c",
+      "a",
+      "u",
+      "s",
+      "a",
+      "l",
+      " ",
+      "e",
+      "d",
+      "g",
+      "e",
+      "s",
+      ";",
+      " ",
+      "s",
+      "t",
+      "r",
+      "a",
+      "t",
+      "e",
+      "g",
+      "i",
+      "e",
+      "s",
+      ":",
+      " ",
+      "t",
+      "e",
+      "m",
+      "p",
+      "o",
+      "r",
+      "a",
+      "l",
+      "_",
+      "p",
+      "r",
+      "o",
+      "x",
+      "i",
+      "m",
+      "i",
+      "t",
+      "y",
+      ",",
+      " ",
+      "t",
+      "e",
+      "m",
+      "p",
+      "o",
+      "r",
+      "a",
+      "l",
+      "_",
+      "p",
+      "r",
+      "o",
+      "x",
+      "i",
+      "m",
+      "i",
+      "t",
+      "y",
+      "+",
+      "l",
+      "a",
+      "g",
+      "g",
+      "e",
+      "d",
+      "_",
+      "c",
+      "o",
+      "r",
+      "r",
+      "e",
+      "l",
+      "a",
+      "t",
+      "i",
+      "o",
+      "n"
+    ]
+  }
+}

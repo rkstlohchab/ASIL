@@ -1,29 +1,45 @@
 {
   "incidents": [
     {
-      "incident_id": "incident-demo-001",
-      "detected_at": "2026-04-12T22:04:11Z",
-      "severity": "critical",
-      "summary": "payments service 5xx burst → cascade into orders + notifications",
+      "incident_id": "INC-2026-04-12-payments-cascade",
+      "detected_at": "2026-04-12T14:24:00+00:00",
+      "severity": "high",
+      "summary": "Auth service deployment 8f2c1d4 changed the Redis connection pool semantics from per-request to long-lived. The shared session-token helper used by payments inherited the new behavior; under p99 traffic, half-open connections accumulated and the pool exhausted at 14:24. Payments p99 latency spiked from 120ms \u2192 4.2s. Cart's checkout flow failed because its timeout for payments was 3s. Rollback at 15:41 restored normal latency within 6 minutes.\n",
       "env_key": "prod",
-      "services": ["payments", "orders", "notifications"]
+      "services": []
     },
     {
-      "incident_id": "INC-2026-03-28-search-latency",
-      "detected_at": "2026-03-28T17:32:00Z",
-      "severity": "warning",
-      "summary": "search p99 latency 4× baseline after qdrant rebalance",
+      "incident_id": "INC-2026-03-19-dns-misconfig-checkout",
+      "detected_at": "2026-03-19T13:42:00+00:00",
+      "severity": "high",
+      "summary": "Platform team rolled out ConfigMap cm-2026-03-19-1 which renamed the internal DNS search suffix from `svc.cluster.local` to `prod.svc.cluster.local`. The payments service's synchronous receipt step calls `email.internal`, which only resolved under the old suffix. Within 2 minutes of the rollout, payments started returning 502 for checkout requests; gateway propagated those as 5xx to clients. Reverting the ConfigMap at 13:58 restored resolution within 4 minutes; full recovery once payments' retry queue drained at 14:05.\n",
       "env_key": "prod",
-      "services": ["search"]
+      "services": []
     },
     {
-      "incident_id": "INC-2026-05-09-auth-token-expiry",
-      "detected_at": "2026-05-09T09:14:22Z",
-      "severity": "error",
-      "summary": "auth token refresh failures spiked after JWKS key rotation",
+      "incident_id": "INC-2026-02-08-db-pool-exhaustion",
+      "detected_at": "2026-02-08T09:57:00+00:00",
+      "severity": "high",
+      "summary": "Orders service deployment d1a7f3c shipped a query change that added a JOIN to the order-line lookup, doubling per-request DB time. Connections held longer; the shared Postgres pool (max=120 across orders, inventory, notifications) saturated at 09:54. Inventory and notifications were the first to surface the symptom because their connection-acquire timeout was 2s vs orders' 8s. Checkout success rate fell from 99% to 61% over three minutes. Rollback to the prior query at 10:42 restored normal pool utilization within 2 minutes.\n",
       "env_key": "prod",
-      "services": ["auth", "api-gateway"]
+      "services": []
+    },
+    {
+      "incident_id": "INC-2026-01-15-tls-gateway-outage",
+      "detected_at": "2026-01-15T09:42:00+00:00",
+      "severity": "P1",
+      "summary": "The scheduled TLS cert rotation deployment deploy-tls-renew-v2 on the gateway service used a staging CA root that was accidentally included in the production bundle. All downstream services (orders, inventory) rejected the untrusted cert, causing 503s. The rollback deploy deploy-tls-rollback restored the previous cert chain at 11:12.\n",
+      "env_key": "prod",
+      "services": []
+    },
+    {
+      "incident_id": "INC-2025-11-22-config-oom",
+      "detected_at": "2025-11-22T16:30:00+00:00",
+      "severity": "P2",
+      "summary": "A feature-flag configuration push enabled a new recommendation algorithm variant for all users. The new variant loaded the full product catalog into memory (instead of sampling) on every request. Memory usage on the recommendation pods climbed from 2GB to 14GB over 20 minutes, triggering OOM kills. The search service degraded because it depended on recommendation for \"related items.\" Disabling the flag restored normal memory usage within 5 minutes.\n",
+      "env_key": "prod",
+      "services": []
     }
   ],
-  "count": 3
+  "count": 5
 }

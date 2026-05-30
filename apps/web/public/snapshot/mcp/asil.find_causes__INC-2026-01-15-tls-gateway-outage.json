@@ -1,0 +1,23 @@
+{
+  "incident_id": "INC-2026-01-15-tls-gateway-outage",
+  "causes": [
+    {
+      "cause_kind": "Deployment",
+      "confidence": 1.0,
+      "delta_seconds": 420.0,
+      "derivation": "temporal_proximity: Deployment deploy-tls-renew-v2 on gateway occurred 7.0min before the incident \u2192 confidence 0.379 (half-life 5min); lagged_correlation: deploy is on affected service 'gateway'; promoted from symptom-tier to cause-tier with +0.6 bonus (0.379 \u2192 0.979); explicit_reference: deployment_id 'deploy-tls-renew-v2' found in incident summary; +0.8 bonus (0.979 \u2192 1.000)",
+      "strategy": "temporal_proximity+lagged_correlation+explicit_reference",
+      "cause_props": {
+        "commit_sha": "f4a9c12",
+        "at": "2026-01-15T09:35:00+00:00",
+        "service_name": "gateway",
+        "confidence": 1.0,
+        "description": "Scheduled TLS cert rotation \u2014 new Let's Encrypt root",
+        "deployment_id": "deploy-tls-renew-v2",
+        "source": "postmortem:2026-01-15-tls-gateway-outage.yaml",
+        "env_key": "prod"
+      }
+    }
+  ],
+  "count": 1
+}

@@ -1,0 +1,97 @@
+{
+  "incident_id": "INC-2026-02-08-db-pool-exhaustion",
+  "causes": [
+    {
+      "cause_kind": "Deployment",
+      "confidence": 1.0,
+      "delta_seconds": 900.0,
+      "derivation": "temporal_proximity: Deployment deploy-d1a7f3c on orders occurred 15.0min before the incident \u2192 confidence 0.125 (half-life 5min); lagged_correlation: deploy is on affected service 'orders'; promoted from symptom-tier to cause-tier with +0.6 bonus (0.125 \u2192 0.725); explicit_reference: commit_sha 'd1a7f3c' found in incident summary; +0.8 bonus (0.725 \u2192 1.000)",
+      "strategy": "temporal_proximity+lagged_correlation+explicit_reference",
+      "cause_props": {
+        "commit_sha": "d1a7f3c",
+        "at": "2026-02-08T09:42:00+00:00",
+        "service_name": "orders",
+        "confidence": 1.0,
+        "description": "Orders deploy: order-line lookup query rewritten with extra JOIN for richer inventory data",
+        "source": "postmortem:2026-02-08-db-pool-exhaustion.yaml",
+        "deployment_id": "deploy-d1a7f3c",
+        "env_key": "prod"
+      }
+    },
+    {
+      "cause_kind": "LogSignature",
+      "confidence": 0.7579,
+      "delta_seconds": 120.0,
+      "derivation": "temporal_proximity: LogSignature \"connection acquire timeout after 2000ms\" on notifications first seen 2.0min before the incident \u2192 confidence 0.758 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "level": "error",
+        "signature": "connection acquire timeout after 2000ms",
+        "service_name": "notifications",
+        "confidence": 1.0,
+        "count": 967,
+        "first_seen_at": "2026-02-08T09:55:00+00:00",
+        "source": "postmortem:2026-02-08-db-pool-exhaustion.yaml",
+        "env_key": "prod",
+        "signature_hash": "e9f97ee1f0a00f1f"
+      }
+    },
+    {
+      "cause_kind": "LogSignature",
+      "confidence": 0.6598,
+      "delta_seconds": 180.0,
+      "derivation": "temporal_proximity: LogSignature \"could not acquire connection from pool within 2000ms\" on inventory first seen 3.0min before the incident \u2192 confidence 0.660 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "level": "error",
+        "signature": "could not acquire connection from pool within 2000ms",
+        "service_name": "inventory",
+        "confidence": 1.0,
+        "count": 1842,
+        "first_seen_at": "2026-02-08T09:54:00+00:00",
+        "source": "postmortem:2026-02-08-db-pool-exhaustion.yaml",
+        "env_key": "prod",
+        "signature_hash": "ef875e7b4d586fd8"
+      }
+    },
+    {
+      "cause_kind": "MetricShift",
+      "confidence": 0.4353,
+      "delta_seconds": 360.0,
+      "derivation": "temporal_proximity: MetricShift orders.postgres_pool_connections_in_use (35.0count \u2192 95.0count) started 6.0min before the incident \u2192 confidence 0.435 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "unit": "count",
+        "metric": "postgres_pool_connections_in_use",
+        "before": 35.0,
+        "service_name": "orders",
+        "confidence": 1.0,
+        "started_at": "2026-02-08T09:51:00+00:00",
+        "description": "Connections held longer; pool utilization climbs from 29% to 79%",
+        "after": 95.0,
+        "env_key": "prod",
+        "source": "postmortem:2026-02-08-db-pool-exhaustion.yaml"
+      }
+    },
+    {
+      "cause_kind": "MetricShift",
+      "confidence": 0.2872,
+      "delta_seconds": 540.0,
+      "derivation": "temporal_proximity: MetricShift orders.http_request_duration_p95_ms (80.0ms \u2192 220.0ms) started 9.0min before the incident \u2192 confidence 0.287 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "unit": "ms",
+        "metric": "http_request_duration_p95_ms",
+        "before": 80.0,
+        "service_name": "orders",
+        "confidence": 1.0,
+        "started_at": "2026-02-08T09:48:00+00:00",
+        "description": "Orders p95 latency climbs as the JOIN doubles per-request DB time",
+        "after": 220.0,
+        "env_key": "prod",
+        "source": "postmortem:2026-02-08-db-pool-exhaustion.yaml"
+      }
+    }
+  ],
+  "count": 5
+}

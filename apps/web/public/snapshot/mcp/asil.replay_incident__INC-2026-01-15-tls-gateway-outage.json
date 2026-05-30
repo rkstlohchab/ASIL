@@ -1,0 +1,398 @@
+{
+  "incident_id": "INC-2026-01-15-tls-gateway-outage",
+  "incident": {
+    "id": "INC-2026-01-15-tls-gateway-outage",
+    "env_key": "prod",
+    "detected_at": "2026-01-15T09:42:00+00:00",
+    "resolved_at": "2026-01-15T11:15:00+00:00",
+    "title": "API Gateway 503s after TLS cert rotation",
+    "severity": "P1",
+    "summary": "The scheduled TLS cert rotation deployment deploy-tls-renew-v2 on the gateway service used a staging CA root that was accidentally included in the production bundle. All downstream services (orders, inventory) rejected the untrusted cert, causing 503s. The rollback deploy deploy-tls-rollback restored the previous cert chain at 11:12.\n",
+    "affected_services": [
+      "gateway",
+      "orders",
+      "inventory"
+    ]
+  },
+  "summary_lines": [
+    "Incident: INC-2026-01-15-tls-gateway-outage",
+    "Title: API Gateway 503s after TLS cert rotation",
+    "Env: prod",
+    "Severity: P1",
+    "Detected: 2026-01-15T09:42:00+00:00",
+    "Resolved: 2026-01-15T11:15:00+00:00",
+    "Affected: gateway, orders, inventory"
+  ],
+  "timeline": [
+    {
+      "at": "2026-01-15T09:35:00+00:00",
+      "kind": "deployment",
+      "service": "gateway",
+      "description": "Deployment deploy-tls-renew-v2 (sha: f4a9c12) - Scheduled TLS cert rotation \u2014 new Let's Encrypt root",
+      "marker": "\u2197 cause"
+    },
+    {
+      "at": "2026-01-15T09:42:00+00:00",
+      "kind": "metric_shift",
+      "service": "gateway",
+      "description": "Gateway 5xx rate spiked from 0.1% to 72%",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-01-15T09:42:00+00:00",
+      "kind": "incident",
+      "service": "gateway",
+      "description": "API Gateway 503s after TLS cert rotation",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2026-01-15T09:42:00+00:00",
+      "kind": "incident",
+      "service": "orders",
+      "description": "API Gateway 503s after TLS cert rotation",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2026-01-15T09:42:00+00:00",
+      "kind": "incident",
+      "service": "inventory",
+      "description": "API Gateway 503s after TLS cert rotation",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2026-01-15T09:42:30+00:00",
+      "kind": "log_signature",
+      "service": "orders",
+      "description": "Log: \"TLS handshake failed: certificate signed by unknown authority\" (count=8200)",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-01-15T09:43:00+00:00",
+      "kind": "metric_shift",
+      "service": "orders",
+      "description": "success_rate: 0.998ratio -> 0.15ratio",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-01-15T09:43:15+00:00",
+      "kind": "log_signature",
+      "service": "inventory",
+      "description": "Log: \"upstream SSL error: unable to verify leaf certificate\" (count=3100)",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-01-15T09:44:00+00:00",
+      "kind": "metric_shift",
+      "service": "inventory",
+      "description": "upstream_errors: 2.0count/min -> 1450.0count/min",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-01-15T11:12:00+00:00",
+      "kind": "deployment",
+      "service": "gateway",
+      "description": "Deployment deploy-tls-rollback (sha: b2e7d89) - Emergency rollback to previous TLS cert bundle",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T09:42:00+00:00",
+      "kind": "deployment",
+      "service": "orders",
+      "description": "Deployment deploy-d1a7f3c (sha: d1a7f3c) - Orders deploy: order-line lookup query rewritten with extra JOIN for richer inventory data",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T09:48:00+00:00",
+      "kind": "metric_shift",
+      "service": "orders",
+      "description": "Orders p95 latency climbs as the JOIN doubles per-request DB time",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T09:51:00+00:00",
+      "kind": "metric_shift",
+      "service": "orders",
+      "description": "Connections held longer; pool utilization climbs from 29% to 79%",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T09:54:00+00:00",
+      "kind": "log_signature",
+      "service": "inventory",
+      "description": "Log: \"could not acquire connection from pool within 2000ms\" (count=1842)",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T09:57:00+00:00",
+      "kind": "metric_shift",
+      "service": "orders",
+      "description": "Checkout success rate collapses; pool fully saturated at max=120",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T09:57:00+00:00",
+      "kind": "incident",
+      "service": "orders",
+      "description": "Checkout failure cascade from orders DB pool exhaustion",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2026-02-08T09:57:00+00:00",
+      "kind": "incident",
+      "service": "inventory",
+      "description": "Checkout failure cascade from orders DB pool exhaustion",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2026-02-08T09:58:00+00:00",
+      "kind": "log_signature",
+      "service": "orders",
+      "description": "Log: \"postgres pool exhausted: max=120 in_use=120 waiters=487\" (count=612)",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T10:32:00+00:00",
+      "kind": "deployment",
+      "service": "orders",
+      "description": "Deployment deploy-mit-pool-bump-1 - Mitigation: raise shared Postgres pool max from 120 to 240 (config only, no code change)",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T10:36:00+00:00",
+      "kind": "metric_shift",
+      "service": "orders",
+      "description": "Partial recovery only \u2014 the query is still expensive, the pool just delays saturation",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T10:42:00+00:00",
+      "kind": "deployment",
+      "service": "orders",
+      "description": "Deployment deploy-rollback-3c91ab2 (sha: 3c91ab2) - Rollback to pre-d1a7f3c order-line query",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-02-08T10:44:00+00:00",
+      "kind": "metric_shift",
+      "service": "orders",
+      "description": "Checkout success rate recovers; incident resolved",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-03-19T13:42:00+00:00",
+      "kind": "metric_shift",
+      "service": "gateway",
+      "description": "Gateway propagates payments 5xx to clients; incident pages oncall",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-03-19T13:42:00+00:00",
+      "kind": "incident",
+      "service": "gateway",
+      "description": "Checkout 5xx cascade from email.internal DNS resolution failure",
+      "marker": "\u25b6 INCIDENT"
+    },
+    {
+      "at": "2026-03-19T13:44:00+00:00",
+      "kind": "log_signature",
+      "service": "gateway",
+      "description": "Log: \"downstream 5xx from payments.create_intent: upstream returned 502\" (count=2103)",
+      "marker": "\u2193 response"
+    },
+    {
+      "at": "2026-03-19T14:05:00+00:00",
+      "kind": "metric_shift",
+      "service": "gateway",
+      "description": "Gateway 5xx returns to baseline; incident resolved",
+      "marker": "\u2193 response"
+    }
+  ],
+  "top_causes": [
+    {
+      "cause_kind": "Deployment",
+      "confidence": 1.0,
+      "delta_seconds": 420.0,
+      "derivation": "temporal_proximity: Deployment deploy-tls-renew-v2 on gateway occurred 7.0min before the incident \u2192 confidence 0.379 (half-life 5min); lagged_correlation: deploy is on affected service 'gateway'; promoted from symptom-tier to cause-tier with +0.6 bonus (0.379 \u2192 0.979); explicit_reference: deployment_id 'deploy-tls-renew-v2' found in incident summary; +0.8 bonus (0.979 \u2192 1.000)",
+      "strategy": "temporal_proximity+lagged_correlation+explicit_reference",
+      "cause_props": {
+        "commit_sha": "f4a9c12",
+        "at": "2026-01-15T09:35:00+00:00",
+        "service_name": "gateway",
+        "confidence": 1.0,
+        "description": "Scheduled TLS cert rotation \u2014 new Let's Encrypt root",
+        "deployment_id": "deploy-tls-renew-v2",
+        "source": "postmortem:2026-01-15-tls-gateway-outage.yaml",
+        "env_key": "prod"
+      }
+    }
+  ],
+  "service_cascade": [
+    {
+      "service": "gateway",
+      "first_event_at": "2026-01-15T09:35:00+00:00",
+      "first_event_kind": "deployment",
+      "first_event_description": "Deployment deploy-tls-renew-v2 (sha: f4a9c12) - Scheduled TLS cert rotation \u2014 new Let's Encrypt root"
+    },
+    {
+      "service": "orders",
+      "first_event_at": "2026-01-15T09:42:00+00:00",
+      "first_event_kind": "incident",
+      "first_event_description": "API Gateway 503s after TLS cert rotation"
+    },
+    {
+      "service": "inventory",
+      "first_event_at": "2026-01-15T09:42:00+00:00",
+      "first_event_kind": "incident",
+      "first_event_description": "API Gateway 503s after TLS cert rotation"
+    }
+  ],
+  "state_diff": {
+    "services_involved": [
+      "gateway",
+      "orders",
+      "inventory"
+    ],
+    "deployments_during": [
+      {
+        "deployment_id": "deploy-tls-renew-v2",
+        "service": "gateway",
+        "description": "Scheduled TLS cert rotation \u2014 new Let's Encrypt root",
+        "commit_sha": "f4a9c12",
+        "at": "2026-01-15T09:35:00+00:00"
+      },
+      {
+        "deployment_id": "deploy-tls-rollback",
+        "service": "gateway",
+        "description": "Emergency rollback to previous TLS cert bundle",
+        "commit_sha": "b2e7d89",
+        "at": "2026-01-15T11:12:00+00:00"
+      }
+    ],
+    "metric_deltas": [
+      {
+        "service": "gateway",
+        "metric": "error_rate_5xx",
+        "before": 0.001,
+        "after": 0.72,
+        "unit": "ratio"
+      },
+      {
+        "service": "orders",
+        "metric": "success_rate",
+        "before": 0.998,
+        "after": 0.15,
+        "unit": "ratio"
+      },
+      {
+        "service": "inventory",
+        "metric": "upstream_errors",
+        "before": 2.0,
+        "after": 1450.0,
+        "unit": "count/min"
+      }
+    ]
+  },
+  "confidence": {
+    "score": 1.0,
+    "evidence_count": 1,
+    "retrieval_strength": 0.0,
+    "causal_confidence": 0.0,
+    "derivation": [
+      "a",
+      "v",
+      "e",
+      "r",
+      "a",
+      "g",
+      "e",
+      " ",
+      "o",
+      "f",
+      " ",
+      "1",
+      " ",
+      "c",
+      "a",
+      "u",
+      "s",
+      "a",
+      "l",
+      " ",
+      "e",
+      "d",
+      "g",
+      "e",
+      "s",
+      ";",
+      " ",
+      "s",
+      "t",
+      "r",
+      "a",
+      "t",
+      "e",
+      "g",
+      "i",
+      "e",
+      "s",
+      ":",
+      " ",
+      "t",
+      "e",
+      "m",
+      "p",
+      "o",
+      "r",
+      "a",
+      "l",
+      "_",
+      "p",
+      "r",
+      "o",
+      "x",
+      "i",
+      "m",
+      "i",
+      "t",
+      "y",
+      "+",
+      "l",
+      "a",
+      "g",
+      "g",
+      "e",
+      "d",
+      "_",
+      "c",
+      "o",
+      "r",
+      "r",
+      "e",
+      "l",
+      "a",
+      "t",
+      "i",
+      "o",
+      "n",
+      "+",
+      "e",
+      "x",
+      "p",
+      "l",
+      "i",
+      "c",
+      "i",
+      "t",
+      "_",
+      "r",
+      "e",
+      "f",
+      "e",
+      "r",
+      "e",
+      "n",
+      "c",
+      "e"
+    ]
+  }
+}

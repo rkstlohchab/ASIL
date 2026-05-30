@@ -1,0 +1,78 @@
+{
+  "incident_id": "INC-2026-03-19-dns-misconfig-checkout",
+  "causes": [
+    {
+      "cause_kind": "Deployment",
+      "confidence": 1.0,
+      "delta_seconds": 420.0,
+      "derivation": "temporal_proximity: Deployment cm-2026-03-19-1 on payments occurred 7.0min before the incident \u2192 confidence 0.379 (half-life 5min); lagged_correlation: deploy is on affected service 'payments'; promoted from symptom-tier to cause-tier with +0.6 bonus (0.379 \u2192 0.979); explicit_reference: deployment_id 'cm-2026-03-19-1' found in incident summary; +0.8 bonus (0.979 \u2192 1.000)",
+      "strategy": "temporal_proximity+lagged_correlation+explicit_reference",
+      "cause_props": {
+        "at": "2026-03-19T13:35:00+00:00",
+        "service_name": "payments",
+        "confidence": 1.0,
+        "description": "ConfigMap rollout: DNS search suffix change (svc.cluster.local -> prod.svc.cluster.local) applied cluster-wide",
+        "deployment_id": "cm-2026-03-19-1",
+        "source": "postmortem:2026-03-19-dns-misconfig-checkout.yaml",
+        "env_key": "prod"
+      }
+    },
+    {
+      "cause_kind": "MetricShift",
+      "confidence": 0.8706,
+      "delta_seconds": 60.0,
+      "derivation": "temporal_proximity: MetricShift payments.http_status_5xx_rate (0.002ratio \u2192 0.61ratio) started 1.0min before the incident \u2192 confidence 0.871 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "unit": "ratio",
+        "metric": "http_status_5xx_rate",
+        "before": 0.002,
+        "service_name": "payments",
+        "confidence": 1.0,
+        "started_at": "2026-03-19T13:41:00+00:00",
+        "description": "Payments returns 502 when receipt send fails inside the request",
+        "after": 0.61,
+        "env_key": "prod",
+        "source": "postmortem:2026-03-19-dns-misconfig-checkout.yaml"
+      }
+    },
+    {
+      "cause_kind": "MetricShift",
+      "confidence": 0.6598,
+      "delta_seconds": 180.0,
+      "derivation": "temporal_proximity: MetricShift payments.receipt_send_error_rate (0.001ratio \u2192 0.84ratio) started 3.0min before the incident \u2192 confidence 0.660 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "unit": "ratio",
+        "metric": "receipt_send_error_rate",
+        "before": 0.001,
+        "service_name": "payments",
+        "confidence": 1.0,
+        "started_at": "2026-03-19T13:39:00+00:00",
+        "description": "Payments' synchronous receipt step fails for almost every checkout",
+        "after": 0.84,
+        "env_key": "prod",
+        "source": "postmortem:2026-03-19-dns-misconfig-checkout.yaml"
+      }
+    },
+    {
+      "cause_kind": "LogSignature",
+      "confidence": 0.5,
+      "delta_seconds": 300.0,
+      "derivation": "temporal_proximity: LogSignature \"name resolution failed: email.internal: no such host\" on payments first seen 5.0min before the incident \u2192 confidence 0.500 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "level": "error",
+        "signature": "name resolution failed: email.internal: no such host",
+        "service_name": "payments",
+        "confidence": 1.0,
+        "count": 1240,
+        "first_seen_at": "2026-03-19T13:37:00+00:00",
+        "source": "postmortem:2026-03-19-dns-misconfig-checkout.yaml",
+        "env_key": "prod",
+        "signature_hash": "3374b9c5ce0bbe21"
+      }
+    }
+  ],
+  "count": 4
+}

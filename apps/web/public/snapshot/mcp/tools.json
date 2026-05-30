@@ -1,96 +1,431 @@
 [
   {
     "name": "asil.search_code",
-    "description": "Hybrid vector + graph search across indexed repos. Returns ranked code symbols with file paths and qualified names.",
-    "input_schema": {
+    "description": "Hybrid semantic + graph search for code. Returns top-K candidate functions/classes with citations. Use this when you have a natural-language description of what you're looking for.",
+    "inputSchema": {
       "type": "object",
       "properties": {
-        "query": { "type": "string" },
-        "repo_key": { "type": "string" },
-        "limit": { "type": "integer", "default": 10 }
+        "query": {
+          "type": "string",
+          "description": "Natural-language query."
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional repo scope (e.g. 'org/name'). Omit for cross-repo."
+        },
+        "kind": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "function",
+            "class",
+            null
+          ],
+          "description": "Filter by node kind."
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 10
+        }
       },
-      "required": ["query"]
+      "required": [
+        "query"
+      ]
     }
   },
   {
     "name": "asil.get_callers",
-    "description": "Reverse call-graph lookup: who calls this function?",
-    "input_schema": {
+    "description": "List every Function that calls the given target (1-hop). Uses :CALLS edges resolved by the parser + import-aware heuristics. Returns [{qualified_name, file_path, line, derivation}].",
+    "inputSchema": {
       "type": "object",
-      "properties": { "qualified_name": { "type": "string" } },
-      "required": ["qualified_name"]
+      "properties": {
+        "qualified_name": {
+          "type": "string",
+          "description": "Fully-qualified function name, e.g. 'pkg.mod.Class.method'."
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 50
+        }
+      },
+      "required": [
+        "qualified_name"
+      ]
     }
   },
   {
     "name": "asil.get_dependencies",
-    "description": "Forward call-graph lookup: what does this function depend on?",
-    "input_schema": {
+    "description": "Inverse of get_callers \u2014 every Function that this one calls. Useful for tracing 'what does this function actually depend on?'.",
+    "inputSchema": {
       "type": "object",
-      "properties": { "qualified_name": { "type": "string" } },
-      "required": ["qualified_name"]
+      "properties": {
+        "qualified_name": {
+          "type": "string"
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 50
+        }
+      },
+      "required": [
+        "qualified_name"
+      ]
     }
   },
   {
     "name": "asil.who_owns",
-    "description": "Code ownership from git blame + commit history.",
-    "input_schema": {
+    "description": "Phase 1 placeholder. Returns the containing file + (when available) the last commit author from git blame. Author resolution proper lands in Phase 2's commit-history ingestor.",
+    "inputSchema": {
       "type": "object",
-      "properties": { "file_path": { "type": "string" } },
-      "required": ["file_path"]
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Repo-relative file path."
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "path"
+      ]
     }
   },
   {
     "name": "asil.commit_history",
-    "description": "Time-ordered commits touching a file or symbol, with confidence-scored intent inference.",
-    "input_schema": {
+    "description": "Phase 1 placeholder. The Commit/Author nodes wire up in Phase 2; this tool currently returns an empty list and a `not_yet_implemented` flag so callers can detect the stub.",
+    "inputSchema": {
       "type": "object",
-      "properties": { "target": { "type": "string" } },
-      "required": ["target"]
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "since": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "path"
+      ]
+    }
+  },
+  {
+    "name": "asil.remember",
+    "description": "Persist a conclusion to episodic memory. Most callers don't need this directly \u2014 `asil.ask` writes to memory automatically. Use this to record an out-of-band fact you want ASIL to recall later.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_key": {
+          "type": "string"
+        },
+        "question": {
+          "type": "string"
+        },
+        "answer": {
+          "type": "string"
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Optional list of {qualified_name, file_path, start_line, kind}.",
+          "default": []
+        },
+        "client_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Origin agent identifier (e.g. 'claude-code')."
+        },
+        "session_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "repo_key",
+        "question",
+        "answer"
+      ]
     }
   },
   {
     "name": "asil.recall",
-    "description": "Vector search over episodic memory: prior conclusions reused across sessions.",
-    "input_schema": {
+    "description": "Semantic search over episodic memory. Returns past conclusions whose questions are similar to the query. Useful when an agent wants to check whether ASIL has already reasoned about a topic.",
+    "inputSchema": {
       "type": "object",
-      "properties": { "query": { "type": "string" }, "limit": { "type": "integer", "default": 10 } },
-      "required": ["query"]
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 5
+        },
+        "min_similarity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.5
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  {
+    "name": "asil.forget",
+    "description": "Hard-delete one memory by id. Idempotent. Use when ASIL persisted a wrong or stale conclusion.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "memory_id": {
+          "type": "string",
+          "description": "Full UUID."
+        }
+      },
+      "required": [
+        "memory_id"
+      ]
     }
   },
   {
     "name": "asil.find_causes",
-    "description": "THE MOAT. Composite causal scoring across temporal proximity, lagged correlation, and explicit reference. Returns ranked causes with confidence + derivation per strategy.",
-    "input_schema": {
+    "description": "Phase 4 \u2014 temporal causality. Given an Incident id, return the ranked causal candidates (Deployments / MetricShifts / LogSignatures that occurred before it) with proximity-derived confidence + a human-readable derivation string. Reads the :PRECEDED edges produced by `TemporalLinker`; the same shape you'd get from `asil temporal causes <id> --read`.",
+    "inputSchema": {
       "type": "object",
-      "properties": { "incident_id": { "type": "string" } },
-      "required": ["incident_id"]
+      "properties": {
+        "incident_id": {
+          "type": "string"
+        },
+        "min_confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.05
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 20
+        }
+      },
+      "required": [
+        "incident_id"
+      ]
     }
   },
   {
     "name": "asil.ask",
-    "description": "End-to-end question answering: retrieves context, drafts an answer, verifies each claim against the graph, returns answer + confidence + unsupported-claim count.",
-    "input_schema": {
+    "description": "Highest-level tool. Embeds the question and checks episodic memory first \u2014 if a prior memory above `cache_threshold` exists, returns the cached answer with a `provenance` preamble and skips the reasoning + verifier LLM calls. Otherwise runs the hybrid retriever, the reasoning LLM, the verifier, and writes the new conclusion to memory tagged with the caller's identity. Returns {answer, confidence, citations, verifier, provenance}.",
+    "inputSchema": {
       "type": "object",
-      "properties": { "question": { "type": "string" }, "repo_key": { "type": "string" } },
-      "required": ["question"]
+      "properties": {
+        "question": {
+          "type": "string"
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 8
+        },
+        "verify": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run the second-pass claim verifier (adds one LLM call)."
+        },
+        "client_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Identifier for the calling agent (e.g. 'claude-code', 'cursor', 'aider'). Stored on the resulting memory's `origin_agent` column so cross-agent recalls can render 'this was answered via X' provenance."
+        },
+        "session_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional opaque session ID; stored as origin_session_id."
+        },
+        "cache_threshold": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.01,
+          "default": 0.92,
+          "description": "If a recalled memory's similarity is >= this, return the cached answer and skip the reasoning + verifier LLM calls. Set to 1.01 to disable the short-circuit."
+        }
+      },
+      "required": [
+        "question"
+      ]
+    }
+  },
+  {
+    "name": "asil.full_research",
+    "description": "Explicit 'I saw the cache hit, do the work anyway' variant of asil.ask. Identical args; forces `cache_threshold=1.01` so the short-circuit never fires. Wire this to a 'Proceed with full research' button in the calling agent's UI.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "type": "string"
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 8
+        },
+        "verify": {
+          "type": "boolean",
+          "default": true
+        },
+        "client_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "session_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "question"
+      ]
     }
   },
   {
     "name": "asil.replay_incident",
-    "description": "Reconstruct an incident timeline + service cascade + state diff from runtime events.",
-    "input_schema": {
+    "description": "Phase 5 \u2014 execution replay. Given an Incident id, return the full incident story: timeline, top causes, service cascade, state diff (before/after), and aggregated confidence. The same data `asil replay <id>` renders in the terminal. Reads :PRECEDED edges + runtime events from the graph; run `asil temporal link <env>` first to populate causal edges.",
+    "inputSchema": {
       "type": "object",
-      "properties": { "incident_id": { "type": "string" } },
-      "required": ["incident_id"]
+      "properties": {
+        "incident_id": {
+          "type": "string"
+        },
+        "causes_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 5
+        }
+      },
+      "required": [
+        "incident_id"
+      ]
     }
   },
   {
     "name": "asil.drift_check",
-    "description": "Compare current dependency graph against the saved baseline. Returns new edges and boundary violations.",
-    "input_schema": {
+    "description": "Phase 6 \u2014 architecture drift. Given a repo key, compare the current dependency graph against a baseline (empty if none provided). Returns a list of DriftEvent objects describing new dependencies, removed dependencies, and boundary violations. Use this before merging changes to check for unexpected architectural shifts.",
+    "inputSchema": {
       "type": "object",
-      "properties": { "repo_key": { "type": "string" } },
-      "required": ["repo_key"]
+      "properties": {
+        "repo_key": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_key"
+      ]
+    }
+  },
+  {
+    "name": "asil.propose_fix",
+    "description": "Phase 8 \u2014 constrained fix proposer. Given an incident id and a local repo root, generate a minimal unified diff that addresses the TOP causal candidate ASIL's deterministic linker identified. Read-only by default \u2014 does NOT apply the diff or run any tests. Set `record: true` to persist the proposal to the audit log (`asil_fix_audit` table). Use the CLI's `asil fix run` for the full sandboxed pipeline.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "incident_id": {
+          "type": "string"
+        },
+        "repo_root": {
+          "type": "string",
+          "description": "Absolute path to the repo on disk."
+        },
+        "repo_key": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional graph repo key; defaults to local:<repo_root>."
+        },
+        "record": {
+          "type": "boolean",
+          "default": false,
+          "description": "Persist the proposal to the audit log even without sandbox."
+        }
+      },
+      "required": [
+        "incident_id",
+        "repo_root"
+      ]
     }
   }
 ]

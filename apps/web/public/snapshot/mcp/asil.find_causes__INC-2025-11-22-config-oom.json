@@ -1,0 +1,59 @@
+{
+  "incident_id": "INC-2025-11-22-config-oom",
+  "causes": [
+    {
+      "cause_kind": "Deployment",
+      "confidence": 0.6625,
+      "delta_seconds": 1200.0,
+      "derivation": "temporal_proximity: Deployment deploy-ff-config-2025-11-22 on feature-flags occurred 20.0min before the incident \u2192 confidence 0.062 (half-life 5min); lagged_correlation: deploy is on affected service 'feature-flags'; promoted from symptom-tier to cause-tier with +0.6 bonus (0.062 \u2192 0.662)",
+      "strategy": "temporal_proximity+lagged_correlation",
+      "cause_props": {
+        "at": "2025-11-22T16:10:00+00:00",
+        "service_name": "feature-flags",
+        "confidence": 1.0,
+        "description": "Feature flag config push \u2014 enable full-catalog reco variant for 100% traffic",
+        "source": "postmortem:2025-11-22-config-oom.yaml",
+        "deployment_id": "deploy-ff-config-2025-11-22",
+        "env_key": "prod"
+      }
+    },
+    {
+      "cause_kind": "MetricShift",
+      "confidence": 0.5,
+      "delta_seconds": 300.0,
+      "derivation": "temporal_proximity: MetricShift recommendations.p99_latency (85.0ms \u2192 12000.0ms) started 5.0min before the incident \u2192 confidence 0.500 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "unit": "ms",
+        "metric": "p99_latency",
+        "before": 85.0,
+        "service_name": "recommendations",
+        "confidence": 1.0,
+        "started_at": "2025-11-22T16:25:00+00:00",
+        "source": "postmortem:2025-11-22-config-oom.yaml",
+        "after": 12000.0,
+        "env_key": "prod"
+      }
+    },
+    {
+      "cause_kind": "MetricShift",
+      "confidence": 0.125,
+      "delta_seconds": 900.0,
+      "derivation": "temporal_proximity: MetricShift recommendations.memory_usage_bytes (2147483648.0bytes \u2192 15032385536.0bytes) started 15.0min before the incident \u2192 confidence 0.125 (half-life 5min)",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "unit": "bytes",
+        "metric": "memory_usage_bytes",
+        "before": 2147483648.0,
+        "service_name": "recommendations",
+        "confidence": 1.0,
+        "started_at": "2025-11-22T16:15:00+00:00",
+        "description": "Memory usage climbed from 2GB to 14GB",
+        "after": 15032385536.0,
+        "env_key": "prod",
+        "source": "postmortem:2025-11-22-config-oom.yaml"
+      }
+    }
+  ],
+  "count": 3
+}
