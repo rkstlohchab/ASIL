@@ -80,6 +80,10 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      # Snapshot script runs in the same CI job that started FastAPI;
+      # no team key flow makes sense here. Auth is meant for real
+      # multi-team deployments, not the self-scan render.
+      ASIL_AUTH_DISABLE: "true"
 
     steps:
       - uses: actions/checkout@v4
