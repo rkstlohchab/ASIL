@@ -243,7 +243,5 @@ def test_generic_jsonl_respects_since(tmp_path):
     p.write_text(json.dumps({"role": "user", "content": "old"}) + "\n")
     old = time.time() - 7 * 24 * 3600
     os.utime(p, (old, old))
-    plan = GenericJsonlIngester(paths=[p]).plan(
-        since=datetime.now() - timedelta(hours=1)
-    )
+    plan = GenericJsonlIngester(paths=[p]).plan(since=datetime.now() - timedelta(hours=1))
     assert plan.qa_chunks == []

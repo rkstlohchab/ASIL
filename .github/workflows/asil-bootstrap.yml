@@ -1,0 +1,107 @@
+name: ASIL bootstrap (baseline)
+
+# One-shot job: ingest this repo, snapshot its dependency graph as
+# `asil-baseline.json`, and commit it on a new branch + PR. Run this
+# manually whenever you want to refresh the baseline (e.g., after a
+# big refactor where new drift would otherwise scream forever).
+#
+# Why a separate workflow instead of folding into `asil-scan.yml`:
+#   - bootstrap needs `contents: write` to push the baseline. The
+#     scan workflow stays read-only on contents so a malicious PR
+#     can't poison the baseline via the same job.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "Branch to open the baseline-refresh PR against."
+        required: false
+        default: "main"
+
+concurrency:
+  group: asil-bootstrap
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+
+    services:
+      neo4j:
+        image: neo4j:5
+        env:
+          NEO4J_AUTH: neo4j/asil_dev_password
+          NEO4J_PLUGINS: '["apoc"]'
+        ports: ["7474:7474", "7687:7687"]
+        options: >-
+          --health-cmd "wget -q --spider http://localhost:7474 || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+
+      qdrant:
+        image: qdrant/qdrant:latest
+        ports: ["6333:6333"]
+        options: >-
+          --health-cmd "wget -q --spider http://localhost:6333/readyz || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: asil
+          POSTGRES_PASSWORD: asil_dev_password
+          POSTGRES_DB: asil
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U asil"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NEO4J_URI: bolt://localhost:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: asil_dev_password
+      QDRANT_URL: http://localhost:6333
+      POSTGRES_DSN: postgresql://asil:asil_dev_password@localhost:5432/asil
+      ASIL_LLM_PROFILE: tight
+      ASIL_DAILY_BUDGET_USD: "0"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Sync ASIL
+        run: uv sync --all-extras
+
+      - name: Ingest the repo
+        run: uv run asil ingest .
+
+      - name: Snapshot baseline
+        run: uv run asil drift baseline --output asil-baseline.json
+
+      - name: Open baseline-refresh PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(asil): refresh asil-baseline.json"
+          title: "chore(asil): refresh asil-baseline.json"
+          body: |
+            Automated baseline refresh from `asil-bootstrap` workflow.
+
+            Drop-in replacement for the current `asil-baseline.json`.
+            Review the diff and merge to make subsequent `asil-scan`
+            runs compare against this graph.
+          branch: chore/asil-baseline-refresh
+          base: ${{ github.event.inputs.target_branch }}
+          add-paths: |
+            asil-baseline.json

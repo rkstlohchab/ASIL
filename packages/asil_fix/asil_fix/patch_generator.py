@@ -110,8 +110,7 @@ class PatchGenerator:
             f"top cause: {replay.top_causes[0].get('cause_kind')} "
             f"(strategy={replay.top_causes[0].get('strategy')}, "
             f"confidence={replay.top_causes[0].get('confidence'):.3f})",
-            f"context: {len(context)} file(s), "
-            f"{sum(len(c.body) for c in context)} chars",
+            f"context: {len(context)} file(s), {sum(len(c.body) for c in context)} chars",
             f"model={resp.model} provider={resp.provider} cost=${resp.cost_usd:.6f}",
         ]
         if not diff:
@@ -174,10 +173,7 @@ class PatchGenerator:
     def _lookup_service_file(self, service_name: str, repo_key: str | None) -> str | None:
         """Best-effort: find one file owned by the service from the runtime
         graph's `Service.file_paths` property."""
-        cypher = (
-            "MATCH (s:Service {name: $name}) "
-            "RETURN s.file_paths AS files LIMIT 1"
-        )
+        cypher = "MATCH (s:Service {name: $name}) RETURN s.file_paths AS files LIMIT 1"
         try:
             rows = self._graph.query(cypher, name=service_name)
         except Exception:

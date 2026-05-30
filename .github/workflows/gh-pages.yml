@@ -1,0 +1,78 @@
+name: GitHub Pages (dashboard demo)
+
+# Builds the ASIL dashboard in static-export mode (frozen JSON
+# fixtures, no FastAPI behind it) and publishes it to GitHub Pages
+# so anyone can click the dashboard from the repo without running
+# anything locally.
+#
+# The fixtures live in apps/web/public/snapshot/. They're hand-crafted
+# demo data — designed to showcase what live ASIL output looks like,
+# not to be re-generated from the running stack.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/gh-pages.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (static export)
+        env:
+          NEXT_STATIC: "1"
+          # GitHub Pages serves project sites under /{repo}/. We use
+          # the repo name here so basePath stays in sync if the repo
+          # is forked.
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        run: pnpm exec next build
+
+      # GitHub Pages can't process Next's _next/static/* paths through
+      # Jekyll, which by default strips underscore-prefixed dirs.
+      - name: Disable Jekyll
+        run: touch out/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

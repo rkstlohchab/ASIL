@@ -34,10 +34,7 @@ def _write_session(
 
 
 def test_decode_project_dir_inverts_the_slash_dash_encoding():
-    assert (
-        _decode_project_dir("-Users-alice-code-myrepo")
-        == "/Users/alice/code/myrepo"
-    )
+    assert _decode_project_dir("-Users-alice-code-myrepo") == "/Users/alice/code/myrepo"
 
 
 def test_parse_session_filters_synthetic_tool_result_user_turns(tmp_path):
@@ -116,13 +113,19 @@ def test_chunk_into_qa_pairs_each_user_turn_with_following_assistant_text(tmp_pa
             "type": "assistant",
             "uuid": "a1a",
             "timestamp": "2026-05-26T10:00:05Z",
-            "message": {"role": "assistant", "content": [{"type": "text", "text": "answer part 1"}]},
+            "message": {
+                "role": "assistant",
+                "content": [{"type": "text", "text": "answer part 1"}],
+            },
         },
         {
             "type": "assistant",
             "uuid": "a1b",
             "timestamp": "2026-05-26T10:00:08Z",
-            "message": {"role": "assistant", "content": [{"type": "text", "text": "answer part 2"}]},
+            "message": {
+                "role": "assistant",
+                "content": [{"type": "text", "text": "answer part 2"}],
+            },
         },
         {
             "type": "user",
@@ -134,7 +137,10 @@ def test_chunk_into_qa_pairs_each_user_turn_with_following_assistant_text(tmp_pa
             "type": "assistant",
             "uuid": "a2",
             "timestamp": "2026-05-26T10:00:35Z",
-            "message": {"role": "assistant", "content": [{"type": "text", "text": "second answer"}]},
+            "message": {
+                "role": "assistant",
+                "content": [{"type": "text", "text": "second answer"}],
+            },
         },
     ]
     p = _write_session(tmp_path, project_dir_name="-p", session_uuid="s1", records=session)
@@ -154,9 +160,17 @@ def test_chunk_into_qa_drops_orphan_assistant_turns(tmp_path):
     """Assistant turns before any user turn (rare but possible for
     automated sessions) should not produce a chunk."""
     session = [
-        {"type": "assistant", "uuid": "a0", "message": {"role": "assistant", "content": [{"type": "text", "text": "preamble"}]}},
+        {
+            "type": "assistant",
+            "uuid": "a0",
+            "message": {"role": "assistant", "content": [{"type": "text", "text": "preamble"}]},
+        },
         {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "real question"}},
-        {"type": "assistant", "uuid": "a1", "message": {"role": "assistant", "content": [{"type": "text", "text": "answer"}]}},
+        {
+            "type": "assistant",
+            "uuid": "a1",
+            "message": {"role": "assistant", "content": [{"type": "text", "text": "answer"}]},
+        },
     ]
     p = _write_session(tmp_path, project_dir_name="-p", session_uuid="s1", records=session)
     chunks = chunk_into_qa(parse_session(p), session_id="s1")
@@ -204,7 +218,9 @@ def test_ingester_plan_end_to_end(tmp_path):
             },
         },
     ]
-    _write_session(tmp_path, project_dir_name="-Users-me-proj", session_uuid="sess-1", records=session)
+    _write_session(
+        tmp_path, project_dir_name="-Users-me-proj", session_uuid="sess-1", records=session
+    )
     plan = ClaudeCodeIngester(root=tmp_path).plan()
     assert plan.source == "claude-code-transcript"
     assert plan.sessions == ["sess-1"]

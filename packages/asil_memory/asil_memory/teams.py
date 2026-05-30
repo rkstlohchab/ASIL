@@ -132,7 +132,7 @@ class TeamsStore:
         if not api_key or not api_key.startswith(_KEY_PREFIX):
             return None
         # Strip prefix, split on first underscore: <team_id>_<secret>.
-        rest = api_key[len(_KEY_PREFIX):]
+        rest = api_key[len(_KEY_PREFIX) :]
         if "_" not in rest:
             return None
         team_id, _ = rest.split("_", 1)

@@ -54,9 +54,9 @@ class ScanFinding:
     `result.locations` / `result.message` / `result.ruleId` / `result.level`.
     """
 
-    rule_id: str            # "drift/boundary-violation", "incident/recent-cause", ...
+    rule_id: str  # "drift/boundary-violation", "incident/recent-cause", ...
     severity: Severity
-    message: str            # human-readable, ASCII only — PR comment safe
+    message: str  # human-readable, ASCII only — PR comment safe
     file_path: str | None = None
     line: int | None = None
     derivation: list[str] = field(default_factory=list)
@@ -72,7 +72,7 @@ class ScanReport:
     started_at: datetime
     duration_seconds: float
     findings: list[ScanFinding]
-    gate: str               # "strict" | "normal" | "lenient" | "none"
+    gate: str  # "strict" | "normal" | "lenient" | "none"
     passed_gate: bool
 
     @property
@@ -138,9 +138,7 @@ def run_scan(
 # --------------------------------------------------------- finding collectors
 
 
-def _collect_drift(
-    repo_key: str, baseline_path: str | Path | None
-) -> list[ScanFinding]:
+def _collect_drift(repo_key: str, baseline_path: str | Path | None) -> list[ScanFinding]:
     """Phase-6 drift detector run as a scan source."""
     from asil_drift import DriftDetector
     from asil_memory import GraphStore
@@ -191,9 +189,7 @@ def _collect_drift(
     return out
 
 
-def _collect_recent_incident_causes(
-    repo_key: str, *, lookback_hours: int
-) -> list[ScanFinding]:
+def _collect_recent_incident_causes(repo_key: str, *, lookback_hours: int) -> list[ScanFinding]:
     """For every incident in the last `lookback_hours`, surface a `note`
     finding listing the top causal candidates that point at code in
     this repo.

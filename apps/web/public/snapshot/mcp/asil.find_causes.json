@@ -1,0 +1,45 @@
+{
+  "incident_id": "incident-demo-001",
+  "causes": [
+    {
+      "cause_kind": "Deployment",
+      "confidence": 0.91,
+      "delta_seconds": 372,
+      "derivation": "Composite: temporal=0.94 (Δ=6m before alert, well inside the 30m proximity window) · lagged-corr=0.88 (payments error-rate spike trails deploy by 4.2m, ρ=0.83) · explicit-ref=0.72 (incident summary references commit a3f81c2 → deploy 847)",
+      "strategy": "composite",
+      "cause_props": {
+        "deployment_id": "deploy-847",
+        "service": "payments",
+        "commit_sha": "a3f81c2",
+        "at": "2026-04-12T21:58:00Z"
+      }
+    },
+    {
+      "cause_kind": "ConfigChange",
+      "confidence": 0.62,
+      "delta_seconds": 1840,
+      "derivation": "Composite: temporal=0.71 · lagged-corr=0.58 · explicit-ref=0.0 (no incident-side reference)",
+      "strategy": "composite",
+      "cause_props": {
+        "key": "payments.timeout_ms",
+        "before": "2000",
+        "after": "800",
+        "at": "2026-04-12T21:33:00Z"
+      }
+    },
+    {
+      "cause_kind": "MetricSpike",
+      "confidence": 0.41,
+      "delta_seconds": 96,
+      "derivation": "Temporal-only: db.payments.connections saturated 1.6m before incident. Lagged-corr below threshold (ρ=0.21).",
+      "strategy": "temporal_proximity",
+      "cause_props": {
+        "metric": "db.payments.connections.utilization",
+        "before": 0.71,
+        "after": 0.99,
+        "at": "2026-04-12T22:02:35Z"
+      }
+    }
+  ],
+  "count": 3
+}

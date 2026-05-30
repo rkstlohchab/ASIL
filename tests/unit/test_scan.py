@@ -36,9 +36,7 @@ def _report(findings: list[ScanFinding], *, gate: str = "normal") -> ScanReport:
 
 
 def test_gate_none_always_passes_even_with_critical():
-    findings = [
-        ScanFinding(rule_id="x", severity=Severity.critical, message="boom")
-    ]
+    findings = [ScanFinding(rule_id="x", severity=Severity.critical, message="boom")]
     report = _report(findings, gate="none")
     assert report.passed_gate is True
 
@@ -51,29 +49,44 @@ def test_gate_lenient_fires_only_on_critical():
 
 
 def test_gate_normal_fires_on_error_and_critical():
-    assert _report(
-        [ScanFinding(rule_id="x", severity=Severity.warning, message="m")],
-        gate="normal",
-    ).passed_gate is True
-    assert _report(
-        [ScanFinding(rule_id="x", severity=Severity.error, message="m")],
-        gate="normal",
-    ).passed_gate is False
-    assert _report(
-        [ScanFinding(rule_id="x", severity=Severity.critical, message="m")],
-        gate="normal",
-    ).passed_gate is False
+    assert (
+        _report(
+            [ScanFinding(rule_id="x", severity=Severity.warning, message="m")],
+            gate="normal",
+        ).passed_gate
+        is True
+    )
+    assert (
+        _report(
+            [ScanFinding(rule_id="x", severity=Severity.error, message="m")],
+            gate="normal",
+        ).passed_gate
+        is False
+    )
+    assert (
+        _report(
+            [ScanFinding(rule_id="x", severity=Severity.critical, message="m")],
+            gate="normal",
+        ).passed_gate
+        is False
+    )
 
 
 def test_gate_strict_fires_on_warning_and_above():
-    assert _report(
-        [ScanFinding(rule_id="x", severity=Severity.note, message="m")],
-        gate="strict",
-    ).passed_gate is True
-    assert _report(
-        [ScanFinding(rule_id="x", severity=Severity.warning, message="m")],
-        gate="strict",
-    ).passed_gate is False
+    assert (
+        _report(
+            [ScanFinding(rule_id="x", severity=Severity.note, message="m")],
+            gate="strict",
+        ).passed_gate
+        is True
+    )
+    assert (
+        _report(
+            [ScanFinding(rule_id="x", severity=Severity.warning, message="m")],
+            gate="strict",
+        ).passed_gate
+        is False
+    )
 
 
 def test_empty_findings_always_pass():
@@ -82,14 +95,20 @@ def test_empty_findings_always_pass():
 
 
 def test_unknown_gate_falls_back_to_normal():
-    assert _report(
-        [ScanFinding(rule_id="x", severity=Severity.warning, message="m")],
-        gate="bogus",
-    ).passed_gate is True
-    assert _report(
-        [ScanFinding(rule_id="x", severity=Severity.error, message="m")],
-        gate="bogus",
-    ).passed_gate is False
+    assert (
+        _report(
+            [ScanFinding(rule_id="x", severity=Severity.warning, message="m")],
+            gate="bogus",
+        ).passed_gate
+        is True
+    )
+    assert (
+        _report(
+            [ScanFinding(rule_id="x", severity=Severity.error, message="m")],
+            gate="bogus",
+        ).passed_gate
+        is False
+    )
 
 
 # ----------------------------------------------------------- severity mapping

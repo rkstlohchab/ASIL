@@ -120,8 +120,7 @@ class PostgresCostLedger:
         today = datetime.now(UTC).date()
         with self._connect() as conn, conn.cursor() as cur:
             cur.execute(
-                "SELECT coalesce(sum(cost_usd), 0) AS total "
-                "FROM asil_costs WHERE ts::date = %s",
+                "SELECT coalesce(sum(cost_usd), 0) AS total FROM asil_costs WHERE ts::date = %s",
                 (today,),
             )
             row = cur.fetchone()
@@ -162,9 +161,7 @@ class PostgresCostLedger:
                 "GROUP BY day ORDER BY day ASC",
                 (days,),
             )
-            by_day = [
-                (r["day"].isoformat(), float(r["cost"])) for r in cur.fetchall()
-            ]
+            by_day = [(r["day"].isoformat(), float(r["cost"])) for r in cur.fetchall()]
 
         return CostAggregates(
             total_usd=float(head["total"]),

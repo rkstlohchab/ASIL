@@ -62,12 +62,10 @@ class JiraAdapter:
         except ImportError as exc:
             raise NotConfiguredError("httpx not installed") from exc
 
-        creds = base64.b64encode(
-            f"{self._email}:{self._token}".encode()
-        ).decode("ascii")
+        creds = base64.b64encode(f"{self._email}:{self._token}".encode()).decode("ascii")
         auth_header = {"Authorization": f"Basic {creds}", "Accept": "application/json"}
 
-        since = (datetime.now(UTC) - timedelta(seconds=self._lookback))
+        since = datetime.now(UTC) - timedelta(seconds=self._lookback)
         jql = (
             f"project in ({', '.join(self._projects)}) AND "
             f"updated >= '{since.strftime('%Y-%m-%d %H:%M')}'"
@@ -98,9 +96,7 @@ class JiraAdapter:
                 },
             )
             if r.status_code != 200:
-                raise NotConfiguredError(
-                    f"Jira returned {r.status_code}: {r.text[:200]}"
-                )
+                raise NotConfiguredError(f"Jira returned {r.status_code}: {r.text[:200]}")
             body = r.json()
             for issue in body.get("issues", []):
                 f = issue.get("fields", {})
@@ -109,9 +105,7 @@ class JiraAdapter:
                 incident_ids = list(
                     {
                         m.group(1)
-                        for m in _INCIDENT_ID_RE.finditer(
-                            f"{summary_text}\n{description_text}"
-                        )
+                        for m in _INCIDENT_ID_RE.finditer(f"{summary_text}\n{description_text}")
                     }
                 )
                 out.append(
@@ -128,9 +122,7 @@ class JiraAdapter:
                         updated_at=datetime.fromisoformat(f["updated"].replace("Z", "+00:00"))
                         if f.get("updated")
                         else None,
-                        closed_at=datetime.fromisoformat(
-                            f["resolutiondate"].replace("Z", "+00:00")
-                        )
+                        closed_at=datetime.fromisoformat(f["resolutiondate"].replace("Z", "+00:00"))
                         if f.get("resolutiondate")
                         else None,
                         url=f"{self._base_url}/browse/{issue['key']}",

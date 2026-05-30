@@ -83,15 +83,11 @@ class LinearAdapter:
                 },
             )
             if r.status_code != 200:
-                raise NotConfiguredError(
-                    f"Linear returned {r.status_code}: {r.text[:200]}"
-                )
+                raise NotConfiguredError(f"Linear returned {r.status_code}: {r.text[:200]}")
             body = r.json()
 
         if "errors" in body:
-            raise NotConfiguredError(
-                f"Linear graphql error: {body['errors']}"
-            )
+            raise NotConfiguredError(f"Linear graphql error: {body['errors']}")
 
         out: list[Ticket] = []
         for node in body.get("data", {}).get("issues", {}).get("nodes", []) or []:
@@ -99,9 +95,7 @@ class LinearAdapter:
             incident_ids = list(
                 {
                     m.group(1)
-                    for m in _INCIDENT_ID_RE.finditer(
-                        f"{node.get('title', '')}\n{description}"
-                    )
+                    for m in _INCIDENT_ID_RE.finditer(f"{node.get('title', '')}\n{description}")
                 }
             )
             out.append(

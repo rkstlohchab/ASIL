@@ -111,7 +111,12 @@ _GENERIC_LANG_CONFIG: dict[SourceLanguage, dict[str, Any]] = {
     },
     SourceLanguage.java: {
         "function_kinds": {"method_declaration", "constructor_declaration"},
-        "class_kinds": {"class_declaration", "interface_declaration", "record_declaration", "enum_declaration"},
+        "class_kinds": {
+            "class_declaration",
+            "interface_declaration",
+            "record_declaration",
+            "enum_declaration",
+        },
         "import_kinds": {"import_declaration"},
         "call_kinds": {"method_invocation", "object_creation_expression"},
         "name_field": "name",
@@ -139,7 +144,13 @@ _GENERIC_LANG_CONFIG: dict[SourceLanguage, dict[str, Any]] = {
     },
     SourceLanguage.cpp: {
         "function_kinds": {"function_definition"},
-        "class_kinds": {"class_specifier", "struct_specifier", "namespace_definition", "union_specifier", "enum_specifier"},
+        "class_kinds": {
+            "class_specifier",
+            "struct_specifier",
+            "namespace_definition",
+            "union_specifier",
+            "enum_specifier",
+        },
         "import_kinds": {"preproc_include", "using_declaration"},
         "call_kinds": {"call_expression"},
         "name_field": "declarator",
@@ -150,7 +161,11 @@ _GENERIC_LANG_CONFIG: dict[SourceLanguage, dict[str, Any]] = {
         "function_kinds": {"function_definition", "method_declaration"},
         "class_kinds": {"class_declaration", "interface_declaration", "trait_declaration"},
         "import_kinds": {"namespace_use_declaration"},
-        "call_kinds": {"function_call_expression", "member_call_expression", "scoped_call_expression"},
+        "call_kinds": {
+            "function_call_expression",
+            "member_call_expression",
+            "scoped_call_expression",
+        },
         "name_field": "name",
         "function_callee_field": "function",
     },
@@ -718,7 +733,6 @@ class TreeSitterParser:
             out.append(ParsedCall(callee=_text(fn_node, src), line=_start_row(node)))
         return out
 
-
     # --------------------------------- generic structural extractor (9 langs)
 
     def _parse_generic(
@@ -769,9 +783,7 @@ class TreeSitterParser:
             kind = _kind(node)
 
             if kind in class_kinds:
-                cls_qname = self._generic_class(
-                    node, src, parsed, mod, class_name_field
-                )
+                cls_qname = self._generic_class(node, src, parsed, mod, class_name_field)
                 if cls_qname is not None:
                     emitted_classes_for.add(node.start_byte())
                 # descend into the class body with parent context updated
@@ -781,9 +793,7 @@ class TreeSitterParser:
 
             if kind in function_kinds:
                 if node.start_byte() not in emitted_functions_for:
-                    self._generic_function(
-                        node, src, parsed, mod, parent_qname, name_field
-                    )
+                    self._generic_function(node, src, parsed, mod, parent_qname, name_field)
                     emitted_functions_for.add(node.start_byte())
                 # don't recurse into function bodies for *more* functions;
                 # nested local functions are uncommon enough that we accept
@@ -920,9 +930,7 @@ class TreeSitterParser:
                 return _text(child, src)
         return None
 
-    def _generic_imports(
-        self, node: Any, src: bytes, cfg: dict[str, Any]
-    ) -> list[ParsedImport]:
+    def _generic_imports(self, node: Any, src: bytes, cfg: dict[str, Any]) -> list[ParsedImport]:
         """Extract import / use / require / include directives. Each language's
         node shape is different; we collect a best-effort module string."""
         line = _start_row(node)
@@ -986,24 +994,16 @@ class TreeSitterParser:
             ]
         if self.language is SourceLanguage.java:
             path = _text(node, src).removeprefix("import").rstrip(";").strip()
-            return [
-                ParsedImport(module=path, names=[], line=line, is_relative=False)
-            ]
+            return [ParsedImport(module=path, names=[], line=line, is_relative=False)]
         if self.language is SourceLanguage.php:
             path = _text(node, src).removeprefix("use").rstrip(";").strip()
-            return [
-                ParsedImport(module=path, names=[], line=line, is_relative=False)
-            ]
+            return [ParsedImport(module=path, names=[], line=line, is_relative=False)]
         if self.language is SourceLanguage.swift:
             path = _text(node, src).removeprefix("import").strip()
-            return [
-                ParsedImport(module=path, names=[], line=line, is_relative=False)
-            ]
+            return [ParsedImport(module=path, names=[], line=line, is_relative=False)]
         if self.language is SourceLanguage.kotlin:
             path = _text(node, src).removeprefix("import").strip()
-            return [
-                ParsedImport(module=path, names=[], line=line, is_relative=False)
-            ]
+            return [ParsedImport(module=path, names=[], line=line, is_relative=False)]
         return []
 
 

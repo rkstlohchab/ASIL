@@ -248,9 +248,7 @@ class PrometheusAdapter:
                 # health probe so callers can distinguish "no shifts" from "down"
                 r = await client.get(f"{self._endpoint}/-/ready")
                 if r.status_code >= 500:
-                    raise NotConfiguredError(
-                        f"Prometheus returned {r.status_code} from /-/ready"
-                    )
+                    raise NotConfiguredError(f"Prometheus returned {r.status_code} from /-/ready")
 
                 out: list[RuntimeEvent] = []
                 now = datetime.now(UTC)
@@ -287,13 +285,9 @@ class PrometheusAdapter:
                     )
                 return out
         except (httpx.RequestError, httpx.HTTPStatusError) as exc:
-            raise NotConfiguredError(
-                f"Prometheus at {self._endpoint} unreachable: {exc}"
-            ) from exc
+            raise NotConfiguredError(f"Prometheus at {self._endpoint} unreachable: {exc}") from exc
 
-    async def _instant_query(
-        self, client: Any, promql: str, *, at: Any
-    ) -> float | None:
+    async def _instant_query(self, client: Any, promql: str, *, at: Any) -> float | None:
         """Single-point query at a specific time. Returns the scalar / vector
         value or None if the result is empty."""
         params = {"query": promql, "time": at.timestamp()}
@@ -357,9 +351,7 @@ class LokiAdapter:
             async with httpx.AsyncClient(timeout=self._timeout) as client:
                 r = await client.get(f"{self._endpoint}/ready")
                 if r.status_code >= 500:
-                    raise NotConfiguredError(
-                        f"Loki returned {r.status_code} from /ready"
-                    )
+                    raise NotConfiguredError(f"Loki returned {r.status_code} from /ready")
 
                 end = datetime.now(UTC)
                 start = end - timedelta(seconds=self._lookback_seconds)
@@ -370,8 +362,7 @@ class LokiAdapter:
                 for service in services:
                     if service:
                         selector = (
-                            f'{{{self._service_label}="{service}"}} '
-                            f'|~ "(?i){self._level_filter}"'
+                            f'{{{self._service_label}="{service}"}} |~ "(?i){self._level_filter}"'
                         )
                     else:
                         selector = f'{{job=~".+"}} |~ "(?i){self._level_filter}"'
@@ -399,9 +390,7 @@ class LokiAdapter:
                             ts_ns_str, msg = entry[0], entry[1]
                             sig = _redact_log_signature(msg)
                             key = f"{svc}:{sig}"
-                            ts = datetime.fromtimestamp(
-                                int(ts_ns_str) / 1_000_000_000, tz=UTC
-                            )
+                            ts = datetime.fromtimestamp(int(ts_ns_str) / 1_000_000_000, tz=UTC)
                             slot = by_signature.setdefault(
                                 key,
                                 {
@@ -434,9 +423,7 @@ class LokiAdapter:
                         )
                 return out
         except (httpx.RequestError, httpx.HTTPStatusError) as exc:
-            raise NotConfiguredError(
-                f"Loki at {self._endpoint} unreachable: {exc}"
-            ) from exc
+            raise NotConfiguredError(f"Loki at {self._endpoint} unreachable: {exc}") from exc
 
 
 _LOG_TOKEN_RE = None

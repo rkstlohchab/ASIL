@@ -878,11 +878,7 @@ def ask(
 
     if cache_hit_memory_hit is not None:
         top = cache_hit_memory_hit
-        when = (
-            top.memory.created_at.strftime("%Y-%m-%d %H:%M")
-            if top.memory.created_at
-            else "?"
-        )
+        when = top.memory.created_at.strftime("%Y-%m-%d %H:%M") if top.memory.created_at else "?"
         console.print(
             Panel(
                 (
@@ -1226,7 +1222,9 @@ def memory_stats(
     ] = False,
     dedupe_rate: Annotated[
         bool,
-        typer.Option("--dedupe-rate", help="Show write-time dedupe ratios from asil_memory_writes."),
+        typer.Option(
+            "--dedupe-rate", help="Show write-time dedupe ratios from asil_memory_writes."
+        ),
     ] = False,
     top_recalled: Annotated[
         int,
@@ -2179,9 +2177,7 @@ def adapters_prometheus(
             ),
         ),
     ] = None,
-    threshold: Annotated[
-        float, typer.Option(help="Emit a MetricShift when ratio >= this.")
-    ] = 1.5,
+    threshold: Annotated[float, typer.Option(help="Emit a MetricShift when ratio >= this.")] = 1.5,
     write: Annotated[
         bool, typer.Option(help="If true, MERGE results into Neo4j; else dry-run.")
     ] = False,
@@ -2226,7 +2222,9 @@ def adapters_prometheus(
         t.add_column("ratio", justify="right")
         for e in events:
             ratio = (e.after or 0) / (e.before or 1)
-            t.add_row(e.service_name, e.metric, f"{e.before:.3f}", f"{e.after:.3f}", f"{ratio:.2f}x")
+            t.add_row(
+                e.service_name, e.metric, f"{e.before:.3f}", f"{e.after:.3f}", f"{ratio:.2f}x"
+            )
         console.print(t)
 
     if write and events:
@@ -2243,9 +2241,7 @@ def adapters_loki(
         typer.Option("--service", help="Service to filter on (repeatable)."),
     ] = None,
     lookback: Annotated[int, typer.Option(help="Lookback window in seconds.")] = 300,
-    level: Annotated[
-        str, typer.Option(help="Log level regex to filter on.")
-    ] = "error",
+    level: Annotated[str, typer.Option(help="Log level regex to filter on.")] = "error",
     write: Annotated[bool, typer.Option(help="MERGE results into Neo4j.")] = False,
 ) -> None:
     """Poll Loki for recent error logs and emit one LogSignature per pattern."""
@@ -2258,9 +2254,7 @@ def adapters_loki(
     settings = get_settings()
     url = endpoint or settings.loki_url
 
-    loki = LokiAdapter(
-        url, services=service or [], lookback_seconds=lookback, level_filter=level
-    )
+    loki = LokiAdapter(url, services=service or [], lookback_seconds=lookback, level_filter=level)
     try:
         events = _asyncio.run(loki.poll(env))
     except NotConfiguredError as exc:
@@ -2351,9 +2345,7 @@ def _write_runtime_events(events) -> None:
 
 @app.command()
 def scan(
-    repo: Annotated[
-        str, typer.Option(help="Path to the repo to scan. Defaults to cwd.")
-    ] = ".",
+    repo: Annotated[str, typer.Option(help="Path to the repo to scan. Defaults to cwd.")] = ".",
     repo_key: Annotated[
         str, typer.Option(help="Graph repo key. Defaults to `local:<abspath>`.")
     ] = "",
@@ -2530,10 +2522,10 @@ app.add_typer(fix_app, name="fix")
 
 @fix_app.command("propose")
 def fix_propose(
-    incident_id: Annotated[str, typer.Argument(help="Incident ID (e.g. INC-2026-04-12-payments-cascade).")],
-    repo: Annotated[
-        str, typer.Option(help="Path to the repo. Defaults to cwd.")
-    ] = ".",
+    incident_id: Annotated[
+        str, typer.Argument(help="Incident ID (e.g. INC-2026-04-12-payments-cascade).")
+    ],
+    repo: Annotated[str, typer.Option(help="Path to the repo. Defaults to cwd.")] = ".",
     repo_key: Annotated[
         str, typer.Option(help="Repo key for graph scoping. Inferred from path if omitted.")
     ] = "",
@@ -2657,9 +2649,7 @@ def fix_run(
 
 @fix_app.command("list")
 def fix_list(
-    incident_id: Annotated[
-        str, typer.Option(help="Restrict to one incident.")
-    ] = "",
+    incident_id: Annotated[str, typer.Option(help="Restrict to one incident.")] = "",
     limit: Annotated[int, typer.Option(help="Row cap.")] = 20,
 ) -> None:
     """Show recent fix proposals from the audit log."""
@@ -2724,8 +2714,10 @@ def _render_proposal(proposal) -> None:
 def _render_sandbox(result) -> None:
     """Pretty-print a SandboxResult."""
     color = "green" if result.passed else "red"
-    console.print(f"[bold {color}]sandbox: {result.outcome.value}[/bold {color}] "
-                  f"({result.duration_seconds:.2f}s)")
+    console.print(
+        f"[bold {color}]sandbox: {result.outcome.value}[/bold {color}] "
+        f"({result.duration_seconds:.2f}s)"
+    )
     if result.test_command:
         console.print(f"  cmd: [dim]{result.test_command}[/dim]")
     if result.stdout_tail:
@@ -2751,9 +2743,7 @@ app.add_typer(external_app, name="external")
 
 @external_app.command("github")
 def external_github(
-    repo: Annotated[
-        str, typer.Argument(help="Path to a local git repo (defaults to cwd).")
-    ] = ".",
+    repo: Annotated[str, typer.Argument(help="Path to a local git repo (defaults to cwd).")] = ".",
     limit: Annotated[int, typer.Option(help="Max PRs to fetch.")] = 50,
     since_days: Annotated[int, typer.Option(help="Look back this many days.")] = 30,
     write: Annotated[bool, typer.Option(help="MERGE PRs into Neo4j.")] = False,
@@ -2806,15 +2796,11 @@ def external_github(
 
 @external_app.command("slack")
 def external_slack(
-    channel: Annotated[
-        list[str], typer.Option("--channel", help="Slack channel ID (repeatable).")
-    ],
+    channel: Annotated[list[str], typer.Option("--channel", help="Slack channel ID (repeatable).")],
     lookback_hours: Annotated[int, typer.Option(help="Lookback window in hours.")] = 24,
     service: Annotated[
         list[str] | None,
-        typer.Option(
-            "--service", help="Known service names to extract mentions of (repeatable)."
-        ),
+        typer.Option("--service", help="Known service names to extract mentions of (repeatable)."),
     ] = None,
     write: Annotated[bool, typer.Option(help="MERGE messages into Neo4j.")] = False,
 ) -> None:
@@ -2867,9 +2853,7 @@ def external_slack(
 
 @external_app.command("jira")
 def external_jira(
-    project: Annotated[
-        list[str], typer.Option("--project", help="Jira project key (repeatable).")
-    ],
+    project: Annotated[list[str], typer.Option("--project", help="Jira project key (repeatable).")],
     lookback_hours: Annotated[int, typer.Option(help="Lookback window in hours.")] = 24,
     write: Annotated[bool, typer.Option(help="MERGE tickets into Neo4j.")] = False,
 ) -> None:
@@ -2881,9 +2865,7 @@ def external_jira(
     from asil_infra.external import JiraAdapter
 
     configure_logging()
-    adapter = JiraAdapter(
-        projects=project, lookback_seconds=lookback_hours * 3600
-    )
+    adapter = JiraAdapter(projects=project, lookback_seconds=lookback_hours * 3600)
     try:
         tickets = _asyncio.run(adapter.poll())
     except NotConfiguredError as exc:
@@ -2905,9 +2887,7 @@ def external_jira(
 
 @external_app.command("linear")
 def external_linear(
-    team: Annotated[
-        list[str], typer.Option("--team", help="Linear team key (repeatable).")
-    ],
+    team: Annotated[list[str], typer.Option("--team", help="Linear team key (repeatable).")],
     limit: Annotated[int, typer.Option(help="Max tickets to fetch.")] = 100,
     write: Annotated[bool, typer.Option(help="MERGE tickets into Neo4j.")] = False,
 ) -> None:
@@ -3141,9 +3121,7 @@ def context_export(
     ingester = ClaudeCodeIngester()
     plan = ingester.plan(since=since_dt, project=str(target_cwd))
     if not plan.qa_chunks:
-        console.print(
-            f"[yellow]No new Q/A pairs in the last {since} for {target_cwd}.[/yellow]"
-        )
+        console.print(f"[yellow]No new Q/A pairs in the last {since} for {target_cwd}.[/yellow]")
         return
 
     console.print(
@@ -3182,7 +3160,9 @@ def context_import(
             help="(prompt only) Topic to scope the recall query. Default: most-recalled memories.",
         ),
     ] = None,
-    limit: Annotated[int, typer.Option("--limit", help="(prompt) max prior conclusions to surface.")] = 10,
+    limit: Annotated[
+        int, typer.Option("--limit", help="(prompt) max prior conclusions to surface.")
+    ] = 10,
 ) -> None:
     """Emit the import wiring for the chosen target.
 
@@ -3200,7 +3180,9 @@ def context_import(
     if target_low == "prompt":
         _print_prompt_bundle(about=about, limit=limit)
         return
-    console.print(f"[red]Unknown target: {target!r}. Try one of: mcp, claude-code, cursor, aider, openhands, prompt.[/red]")
+    console.print(
+        f"[red]Unknown target: {target!r}. Try one of: mcp, claude-code, cursor, aider, openhands, prompt.[/red]"
+    )
     raise typer.Exit(code=2)
 
 
@@ -3210,28 +3192,28 @@ def _print_mcp_wiring(target: str) -> None:
         "claude-code": (
             "Add to [bold]~/.claude/settings.json[/bold]:\n\n"
             "[cyan]"
-            '{\n'
+            "{\n"
             '  "mcpServers": {\n'
             '    "asil": {\n'
             '      "type": "http",\n'
             f'      "url": "{mcp_url}"\n'
-            '    }\n'
-            '  }\n'
-            '}\n'
+            "    }\n"
+            "  }\n"
+            "}\n"
             "[/cyan]"
             "\nRestart Claude Code. Tools appear as [cyan]mcp__asil__*[/cyan]."
         ),
         "cursor": (
             "Add to [bold]~/.cursor/mcp.json[/bold] (create if missing):\n\n"
             "[cyan]"
-            '{\n'
+            "{\n"
             '  "mcpServers": {\n'
             '    "asil": {\n'
             f'      "url": "{mcp_url}",\n'
             '      "transport": "http"\n'
-            '    }\n'
-            '  }\n'
-            '}\n'
+            "    }\n"
+            "  }\n"
+            "}\n"
             "[/cyan]"
             "\nReload Cursor. Open the MCP panel to confirm 'asil' shows as connected."
         ),
@@ -3250,10 +3232,12 @@ def _print_mcp_wiring(target: str) -> None:
         "mcp": (
             f"Any MCP HTTP client: point at [cyan]{mcp_url}[/cyan]\n"
             "Tools list: [cyan]GET /mcp/tools[/cyan]\n"
-            "Call a tool: [cyan]POST /mcp/call/<tool> {\"arguments\": {...}}[/cyan]"
+            'Call a tool: [cyan]POST /mcp/call/<tool> {"arguments": {...}}[/cyan]'
         ),
     }
-    console.print(Panel(snippets[target], title=f"Import context into {target}", border_style="cyan"))
+    console.print(
+        Panel(snippets[target], title=f"Import context into {target}", border_style="cyan")
+    )
     console.print(
         "\n[dim]Authorization: if ASIL_AUTH_DISABLE is unset on the server, "
         "the client also needs:\n  Authorization: Bearer <team-api-key>\n"
@@ -3290,7 +3274,9 @@ def _print_prompt_bundle(*, about: str | None, limit: int) -> None:
         when = m.created_at.strftime("%Y-%m-%d %H:%M") if m.created_at else "?"
         out.append(f"## {i}. {m.question}")
         out.append("")
-        out.append(f"_Originally answered {when} via {m.origin_agent} (recall_hits={m.recall_hits})_")
+        out.append(
+            f"_Originally answered {when} via {m.origin_agent} (recall_hits={m.recall_hits})_"
+        )
         out.append("")
         excerpt = m.answer if len(m.answer) <= 1500 else m.answer[:1500] + "\n…[truncated]"
         out.append(excerpt)
@@ -3500,7 +3486,9 @@ def ingest_claude_code(
     if since:
         since_dt = _parse_relative_window(since)
         if since_dt is None:
-            console.print(f"[red]could not parse --since {since!r}; use e.g. '1h', '2d', '15m'.[/red]")
+            console.print(
+                f"[red]could not parse --since {since!r}; use e.g. '1h', '2d', '15m'.[/red]"
+            )
             raise typer.Exit(code=2)
 
     ingester = ClaudeCodeIngester()
@@ -3660,17 +3648,29 @@ def ingest_cursor(
 
 @ingest_transcripts_app.command("generic-jsonl")
 def ingest_generic_jsonl(
-    path: Annotated[list[Path], typer.Option("--path", help="JSONL file to ingest. Pass multiple times.")],
+    path: Annotated[
+        list[Path], typer.Option("--path", help="JSONL file to ingest. Pass multiple times.")
+    ],
     role_key: Annotated[str, typer.Option("--role-key", help="Field name for role/type.")] = "role",
-    text_key: Annotated[str, typer.Option("--text-key", help="Field name for message text.")] = "content",
-    ts_key: Annotated[str | None, typer.Option("--ts-key", help="Field name for timestamp (optional).")] = "timestamp",
-    user_label: Annotated[str, typer.Option("--user-label", help="Substring identifying user-role messages.")] = "user",
+    text_key: Annotated[
+        str, typer.Option("--text-key", help="Field name for message text.")
+    ] = "content",
+    ts_key: Annotated[
+        str | None, typer.Option("--ts-key", help="Field name for timestamp (optional).")
+    ] = "timestamp",
+    user_label: Annotated[
+        str, typer.Option("--user-label", help="Substring identifying user-role messages.")
+    ] = "user",
     assistant_label: Annotated[
         str,
         typer.Option("--assistant-label", help="Substring identifying assistant-role messages."),
     ] = "assistant",
-    source: Annotated[str, typer.Option("--source", help="metadata.source tag on the resulting memories.")] = "generic-jsonl-transcript",
-    origin_agent: Annotated[str, typer.Option("--origin-agent", help="origin_agent column value.")] = "generic-jsonl",
+    source: Annotated[
+        str, typer.Option("--source", help="metadata.source tag on the resulting memories.")
+    ] = "generic-jsonl-transcript",
+    origin_agent: Annotated[
+        str, typer.Option("--origin-agent", help="origin_agent column value.")
+    ] = "generic-jsonl",
     since: Annotated[str | None, typer.Option("--since")] = None,
     dry_run: Annotated[bool, typer.Option("--dry-run")] = False,
     repo_key: Annotated[str | None, typer.Option("--repo-key")] = None,
@@ -3703,12 +3703,16 @@ def ingest_generic_jsonl(
         f"[bold]Generic JSONL:[/bold] {len(plan.sessions)} file(s) → {len(plan.qa_chunks)} Q/A chunks"
     )
     if not plan.qa_chunks:
-        console.print("[dim]Nothing to ingest. Check --role-key / --text-key / --user-label / --assistant-label.[/dim]")
+        console.print(
+            "[dim]Nothing to ingest. Check --role-key / --text-key / --user-label / --assistant-label.[/dim]"
+        )
         return
     if dry_run:
         console.print("[yellow]--dry-run: no memories written.[/yellow]")
         return
-    _write_plan_to_memory(plan, origin_agent=origin_agent, repo_key_override=repo_key, user_id=user_id)
+    _write_plan_to_memory(
+        plan, origin_agent=origin_agent, repo_key_override=repo_key, user_id=user_id
+    )
 
 
 @app.command()
@@ -3720,7 +3724,9 @@ def watch(
     interval: Annotated[int, typer.Option("--interval", help="Seconds between polls.")] = 30,
     overlap: Annotated[
         int,
-        typer.Option("--overlap", help="Seconds of overlap between windows so stalls don't drop chunks."),
+        typer.Option(
+            "--overlap", help="Seconds of overlap between windows so stalls don't drop chunks."
+        ),
     ] = 60,
     iterations: Annotated[
         int,
@@ -3767,7 +3773,9 @@ def watch(
                 continue
             if not plan.qa_chunks:
                 continue
-            console.print(f"[dim]{tick.started_at:%H:%M:%S} {name}: {len(plan.qa_chunks)} new chunk(s)[/dim]")
+            console.print(
+                f"[dim]{tick.started_at:%H:%M:%S} {name}: {len(plan.qa_chunks)} new chunk(s)[/dim]"
+            )
             _write_plan_to_memory(plan, origin_agent=name, repo_key_override=repo_key)
 
     run_watch_loop(

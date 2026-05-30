@@ -48,13 +48,20 @@ def cursor_storage_root() -> Path:
     """Best-guess location of Cursor's workspaceStorage on this OS."""
     system = platform.system()
     if system == "Darwin":
-        return Path.home() / "Library" / "Application Support" / "Cursor" / "User" / "workspaceStorage"
+        return (
+            Path.home() / "Library" / "Application Support" / "Cursor" / "User" / "workspaceStorage"
+        )
     if system == "Linux":
         return Path.home() / ".config" / "Cursor" / "User" / "workspaceStorage"
     if system == "Windows":
         import os
 
-        return Path(os.environ.get("APPDATA", str(Path.home()))) / "Cursor" / "User" / "workspaceStorage"
+        return (
+            Path(os.environ.get("APPDATA", str(Path.home())))
+            / "Cursor"
+            / "User"
+            / "workspaceStorage"
+        )
     # Fallback — at least don't crash.
     return Path.home() / ".cursor" / "workspaceStorage"
 
@@ -131,7 +138,11 @@ def _extract_turns(blob: dict) -> list[Turn]:
             if not isinstance(tab, dict):
                 continue
             messages = tab.get("bubbles") or tab.get("messages") or []
-            turns.extend(_turns_from_messages(messages, session_id=str(tab.get("id") or tab.get("tabId") or "")))
+            turns.extend(
+                _turns_from_messages(
+                    messages, session_id=str(tab.get("id") or tab.get("tabId") or "")
+                )
+            )
 
     # Shape B: top-level `messages` directly.
     messages = blob.get("messages")
@@ -151,19 +162,19 @@ def _turns_from_messages(messages: list, *, session_id: str) -> list[Turn]:
         role_raw = m.get("type") or m.get("role") or m.get("kind")
         if not role_raw:
             continue
-        role = "user" if "user" in str(role_raw).lower() else (
-            "assistant" if any(k in str(role_raw).lower() for k in ("ai", "assistant", "bot")) else None
+        role = (
+            "user"
+            if "user" in str(role_raw).lower()
+            else (
+                "assistant"
+                if any(k in str(role_raw).lower() for k in ("ai", "assistant", "bot"))
+                else None
+            )
         )
         if role is None:
             continue
         # Text can be in `text`, `content`, `markdown`, `richText`, ...
-        text = (
-            m.get("text")
-            or m.get("content")
-            or m.get("markdown")
-            or m.get("richText")
-            or ""
-        )
+        text = m.get("text") or m.get("content") or m.get("markdown") or m.get("richText") or ""
         if isinstance(text, list):
             # Sometimes content is a list of {type:'text', text:'…'} blocks.
             joined = []
@@ -206,7 +217,10 @@ def _chunk(turns: list[Turn], *, session_id: str) -> list[QAChunk]:
 
 
 def _close(q: Turn, responses: list[Turn], session_id: str) -> QAChunk:
-    resp = "\n\n".join(r.text for r in responses if r.text).strip() or "(no assistant response captured)"
+    resp = (
+        "\n\n".join(r.text for r in responses if r.text).strip()
+        or "(no assistant response captured)"
+    )
     if len(resp) > 3000:
         resp = resp[:3000] + "\n…[truncated]"
     return QAChunk(

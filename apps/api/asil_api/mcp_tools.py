@@ -965,9 +965,7 @@ async def ask(
         "provider": resp.provider,
         "provenance": {
             "is_cached": False,
-            "preamble": (
-                f"Fresh answer (no cache hit above similarity {cache_threshold:.2f})."
-            ),
+            "preamble": (f"Fresh answer (no cache hit above similarity {cache_threshold:.2f})."),
             "cache_threshold": cache_threshold,
         },
     }
@@ -1129,9 +1127,7 @@ def _build_provenance(
             f"skipped. Proceed with full research?"
         )
     else:
-        preamble = (
-            f"Fresh answer (no cache hit above similarity {cache_threshold:.2f})."
-        )
+        preamble = f"Fresh answer (no cache hit above similarity {cache_threshold:.2f})."
     return {
         "is_cached": is_cached,
         "preamble": preamble,

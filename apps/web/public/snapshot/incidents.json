@@ -1,0 +1,29 @@
+{
+  "incidents": [
+    {
+      "incident_id": "incident-demo-001",
+      "detected_at": "2026-04-12T22:04:11Z",
+      "severity": "critical",
+      "summary": "payments service 5xx burst → cascade into orders + notifications",
+      "env_key": "prod",
+      "services": ["payments", "orders", "notifications"]
+    },
+    {
+      "incident_id": "INC-2026-03-28-search-latency",
+      "detected_at": "2026-03-28T17:32:00Z",
+      "severity": "warning",
+      "summary": "search p99 latency 4× baseline after qdrant rebalance",
+      "env_key": "prod",
+      "services": ["search"]
+    },
+    {
+      "incident_id": "INC-2026-05-09-auth-token-expiry",
+      "detected_at": "2026-05-09T09:14:22Z",
+      "severity": "error",
+      "summary": "auth token refresh failures spiked after JWKS key rotation",
+      "env_key": "prod",
+      "services": ["auth", "api-gateway"]
+    }
+  ],
+  "count": 3
+}

@@ -602,8 +602,7 @@ class EpisodicStore:
                 )
             else:
                 cur.execute(
-                    _SELECT_ALL_COLUMNS
-                    + " ORDER BY recall_hits DESC, created_at DESC LIMIT %s",
+                    _SELECT_ALL_COLUMNS + " ORDER BY recall_hits DESC, created_at DESC LIMIT %s",
                     (limit,),
                 )
             rows = cur.fetchall()

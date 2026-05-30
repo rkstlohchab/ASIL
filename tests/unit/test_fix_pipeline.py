@@ -123,9 +123,7 @@ def test_patch_generator_raises_without_replay():
         RE.return_value.replay.return_value = None
         gen = PatchGenerator(router=router, graph_store=graph)
         with pytest.raises(ValueError, match="no replay"):
-            asyncio.run(
-                gen.propose(incident_id="INC-x", repo_root=".", repo_key="local:test")
-            )
+            asyncio.run(gen.propose(incident_id="INC-x", repo_root=".", repo_key="local:test"))
 
 
 def test_patch_generator_raises_without_causes():
@@ -138,9 +136,7 @@ def test_patch_generator_raises_without_causes():
         RE.return_value.replay.return_value = fake_replay
         gen = PatchGenerator(router=router, graph_store=graph)
         with pytest.raises(ValueError, match="no causal chain"):
-            asyncio.run(
-                gen.propose(incident_id="INC-x", repo_root=".", repo_key="local:test")
-            )
+            asyncio.run(gen.propose(incident_id="INC-x", repo_root=".", repo_key="local:test"))
 
 
 def test_patch_generator_happy_path_parses_llm_output(tmp_path):
@@ -225,8 +221,12 @@ def test_patch_generator_truncates_oversized_file(tmp_path):
 
     def capture_call(**kwargs):
         captured_prompt["text"] = kwargs["messages"][-1]["content"]
-        r = MagicMock(text="```diff\n--- a/big.py\n+++ b/big.py\n@@\n-old\n+new\n```",
-                      model="m", provider="p", cost_usd=0.0)
+        r = MagicMock(
+            text="```diff\n--- a/big.py\n+++ b/big.py\n@@\n-old\n+new\n```",
+            model="m",
+            provider="p",
+            cost_usd=0.0,
+        )
         return _async_value(r)
 
     router = MagicMock()
@@ -235,12 +235,8 @@ def test_patch_generator_truncates_oversized_file(tmp_path):
 
     with patch("asil_fix.patch_generator.ReplayEngine") as RE:
         RE.return_value.replay.return_value = fake_replay
-        gen = PatchGenerator(
-            router=router, graph_store=graph, max_context_chars_per_file=500
-        )
-        asyncio.run(
-            gen.propose(incident_id="INC-1", repo_root=tmp_path, repo_key=None)
-        )
+        gen = PatchGenerator(router=router, graph_store=graph, max_context_chars_per_file=500)
+        asyncio.run(gen.propose(incident_id="INC-1", repo_root=tmp_path, repo_key=None))
 
     assert "[truncated at 500 chars]" in captured_prompt["text"]
 
@@ -273,13 +269,7 @@ def test_local_sandbox_apply_then_tests_pass(tmp_path):
     _git(["-C", str(tmp_path), "add", "."])
     _git(["-C", str(tmp_path), "commit", "-m", "initial"])
 
-    diff = (
-        "--- a/hello.txt\n"
-        "+++ b/hello.txt\n"
-        "@@ -1 +1 @@\n"
-        "-hello\n"
-        "+hello world\n"
-    )
+    diff = "--- a/hello.txt\n+++ b/hello.txt\n@@ -1 +1 @@\n-hello\n+hello world\n"
     result = LocalSandbox(test_command="true", timeout_seconds=30).run(
         _proposal(diff=diff, affected_files=["hello.txt"]),
         repo_root=tmp_path,
@@ -355,8 +345,7 @@ def test_audit_classify_outcomes():
     )
     # Sandbox never ran -> proposed
     assert (
-        AuditLog._classify(_proposal(), sandbox_not_run, confidence_gate=0.6)
-        is FixOutcome.proposed
+        AuditLog._classify(_proposal(), sandbox_not_run, confidence_gate=0.6) is FixOutcome.proposed
     )
     # Apply failed -> rejected (the diff was broken, not the codebase)
     assert (

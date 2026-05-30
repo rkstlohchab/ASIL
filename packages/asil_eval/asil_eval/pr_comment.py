@@ -39,8 +39,7 @@ def to_pr_comment(report: ScanReport) -> str:
     badge = "✅ **passed**" if report.passed_gate else "❌ **failed**"
     counts = report.counts
     counts_line = " · ".join(
-        f"{_TIER_ICON[t]} {counts[t.value]} {_TIER_HEADLINE[t].lower()}"
-        for t in _TIER_ORDER
+        f"{_TIER_ICON[t]} {counts[t.value]} {_TIER_HEADLINE[t].lower()}" for t in _TIER_ORDER
     )
 
     lines: list[str] = [
@@ -61,8 +60,9 @@ def to_pr_comment(report: ScanReport) -> str:
         bucket = by_tier.get(tier, [])
         if not bucket:
             continue
-        lines.append(f"<details><summary>{_TIER_ICON[tier]} "
-                     f"{len(bucket)} {_TIER_HEADLINE[tier]}</summary>")
+        lines.append(
+            f"<details><summary>{_TIER_ICON[tier]} {len(bucket)} {_TIER_HEADLINE[tier]}</summary>"
+        )
         lines.append("")
         for f in bucket:
             lines.extend(_render_finding(f))

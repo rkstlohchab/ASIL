@@ -1,0 +1,96 @@
+[
+  {
+    "name": "asil.search_code",
+    "description": "Hybrid vector + graph search across indexed repos. Returns ranked code symbols with file paths and qualified names.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "query": { "type": "string" },
+        "repo_key": { "type": "string" },
+        "limit": { "type": "integer", "default": 10 }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "asil.get_callers",
+    "description": "Reverse call-graph lookup: who calls this function?",
+    "input_schema": {
+      "type": "object",
+      "properties": { "qualified_name": { "type": "string" } },
+      "required": ["qualified_name"]
+    }
+  },
+  {
+    "name": "asil.get_dependencies",
+    "description": "Forward call-graph lookup: what does this function depend on?",
+    "input_schema": {
+      "type": "object",
+      "properties": { "qualified_name": { "type": "string" } },
+      "required": ["qualified_name"]
+    }
+  },
+  {
+    "name": "asil.who_owns",
+    "description": "Code ownership from git blame + commit history.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "file_path": { "type": "string" } },
+      "required": ["file_path"]
+    }
+  },
+  {
+    "name": "asil.commit_history",
+    "description": "Time-ordered commits touching a file or symbol, with confidence-scored intent inference.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "target": { "type": "string" } },
+      "required": ["target"]
+    }
+  },
+  {
+    "name": "asil.recall",
+    "description": "Vector search over episodic memory: prior conclusions reused across sessions.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "query": { "type": "string" }, "limit": { "type": "integer", "default": 10 } },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "asil.find_causes",
+    "description": "THE MOAT. Composite causal scoring across temporal proximity, lagged correlation, and explicit reference. Returns ranked causes with confidence + derivation per strategy.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "incident_id": { "type": "string" } },
+      "required": ["incident_id"]
+    }
+  },
+  {
+    "name": "asil.ask",
+    "description": "End-to-end question answering: retrieves context, drafts an answer, verifies each claim against the graph, returns answer + confidence + unsupported-claim count.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "question": { "type": "string" }, "repo_key": { "type": "string" } },
+      "required": ["question"]
+    }
+  },
+  {
+    "name": "asil.replay_incident",
+    "description": "Reconstruct an incident timeline + service cascade + state diff from runtime events.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "incident_id": { "type": "string" } },
+      "required": ["incident_id"]
+    }
+  },
+  {
+    "name": "asil.drift_check",
+    "description": "Compare current dependency graph against the saved baseline. Returns new edges and boundary violations.",
+    "input_schema": {
+      "type": "object",
+      "properties": { "repo_key": { "type": "string" } },
+      "required": ["repo_key"]
+    }
+  }
+]

@@ -20,7 +20,7 @@ from asil_ingest.treesitter_parser import parse_source
         (
             SourceLanguage.go,
             (
-                'package main\n'
+                "package main\n"
                 'import "fmt"\n'
                 'func Greet(name string) string { return fmt.Sprintf("hi %s", name) }\n'
                 "type Greeter struct { Name string }\n"
@@ -72,11 +72,7 @@ from asil_ingest.treesitter_parser import parse_source
         ),
         (
             SourceLanguage.php,
-            (
-                "<?php\n"
-                "use Foo\\Bar;\n"
-                "class Greeter { public function greet($n) { return $n; } }\n"
-            ),
+            ("<?php\nuse Foo\\Bar;\nclass Greeter { public function greet($n) { return $n; } }\n"),
             "greet",
             "Greeter",
         ),

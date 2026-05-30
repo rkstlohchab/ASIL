@@ -1,0 +1,50 @@
+{
+  "days": 30,
+  "memory_count": 184,
+  "write_log_stats": {
+    "total_writes": 312,
+    "inserted": 184,
+    "folded": 128,
+    "dedupe_rate_pct": 41,
+    "by_agent": { "claude-code": 167, "cursor": 92, "openhands": 53 },
+    "by_source": { "ask": 198, "replay": 73, "drift": 41 }
+  },
+  "top_recalled": [
+    {
+      "id": "mem-001",
+      "question": "Where is the LLM router defined and how does it pick a provider per tier?",
+      "answer_excerpt": "ModelRouter.call(tier=...) in packages/asil_core/asil_core/llm/router.py. Tier → provider map lives in get_settings().llm_tiers; default profile is `tight`.",
+      "recall_hits": 14,
+      "origin_agent": "claude-code",
+      "user_id": "rkstlohchab@gmail.com",
+      "team_id": "asil-core",
+      "repo_key": "rkstlohchab/ASIL@main",
+      "created_at": "2026-04-22T14:08:11Z",
+      "source": "ask"
+    },
+    {
+      "id": "mem-002",
+      "question": "What does the temporal-proximity scorer return when delta_seconds is zero?",
+      "answer_excerpt": "Returns confidence=1.0 with derivation \"delta_seconds=0 — co-occurrence implies maximum proximity\". See packages/asil_temporal/asil_temporal/proximity.py:48.",
+      "recall_hits": 11,
+      "origin_agent": "cursor",
+      "user_id": "rkstlohchab@gmail.com",
+      "team_id": "asil-core",
+      "repo_key": "rkstlohchab/ASIL@main",
+      "created_at": "2026-05-02T09:33:51Z",
+      "source": "ask"
+    },
+    {
+      "id": "mem-003",
+      "question": "Why did the payments-cascade incident on 2026-04-12 happen?",
+      "answer_excerpt": "Root cause: payments@v847 deployment 6m before alert. Composite causal score 0.91 (temporal=0.94, lagged-corr=0.88, explicit-ref=0.72). Cascade hit orders → notifications.",
+      "recall_hits": 9,
+      "origin_agent": "claude-code",
+      "user_id": "rkstlohchab@gmail.com",
+      "team_id": "asil-core",
+      "repo_key": "rkstlohchab/ASIL@main",
+      "created_at": "2026-04-12T22:11:03Z",
+      "source": "replay"
+    }
+  ]
+}

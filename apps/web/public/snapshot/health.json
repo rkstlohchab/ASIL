@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "services": [
+    { "name": "neo4j", "status": "ok", "detail": "5 nodes/sec write, p99 12ms" },
+    { "name": "qdrant", "status": "ok", "detail": "12k vectors, 768d, cosine" },
+    { "name": "postgres", "status": "ok", "detail": "ledger + episodic" },
+    { "name": "router", "status": "ok", "detail": "tier profile=tight" }
+  ],
+  "active_llm_profile": "tight"
+}

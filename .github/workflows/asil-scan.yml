@@ -8,6 +8,8 @@ name: ASIL scan
 
 on:
   pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 # Cancel previous runs on the same branch so a flurry of pushes doesn't
@@ -88,8 +90,14 @@ jobs:
       - name: Scan
         id: scan
         run: |
+          baseline_arg=""
+          if [ -f "${{ github.workspace }}/asil-baseline.json" ]; then
+            baseline_arg="--baseline ${{ github.workspace }}/asil-baseline.json"
+          else
+            echo "::warning::No asil-baseline.json found — drift will treat every observed dependency as new. Run the 'ASIL bootstrap' workflow to seed one."
+          fi
           uv run asil scan \
-            --baseline ${{ github.workspace }}/asil-baseline.json \
+            $baseline_arg \
             --gate normal \
             --sarif asil.sarif \
             --pr-comment asil-pr-comment.md \
@@ -153,7 +161,10 @@ jobs:
             asil-pr-comment.md
 
       - name: Enforce gate
-        if: steps.scan.outcome != 'success'
+        # Only fail the workflow on PR runs. On push-to-main we still
+        # want the SARIF / report to land in Security tab + artifacts
+        # even if the gate would have tripped.
+        if: github.event_name == 'pull_request' && steps.scan.outcome != 'success'
         run: |
           echo "ASIL scan gate failed — see the PR comment for details."
           exit 1

@@ -121,9 +121,7 @@ def test_slack_extracts_incident_ids_and_services(monkeypatch):
     client.__aexit__ = AsyncMock(return_value=False)
 
     with patch("httpx.AsyncClient", return_value=client):
-        adapter = SlackAdapter(
-            ["C123"], known_services=["payments", "auth"]
-        )
+        adapter = SlackAdapter(["C123"], known_services=["payments", "auth"])
         msgs = asyncio.run(adapter.poll())
 
     assert len(msgs) == 2
@@ -267,9 +265,7 @@ def test_linear_parses_graphql_payload(monkeypatch):
     assert t.provider == "linear"
     assert t.priority == "Urgent"
     assert "bug" in t.labels
-    assert {"INC-2026-04-12-payments-cascade", "incident-99"}.issubset(
-        set(t.incident_ids)
-    )
+    assert {"INC-2026-04-12-payments-cascade", "incident-99"}.issubset(set(t.incident_ids))
 
 
 # ---------------------------------------------------------------- helpers

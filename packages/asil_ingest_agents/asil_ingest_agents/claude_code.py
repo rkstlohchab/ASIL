@@ -227,7 +227,9 @@ def chunk_into_qa(
     for t in turns:
         if t.role == "user":
             if current_q is not None:
-                chunks.append(_close_chunk(current_q, current_responses, session_id, max_response_chars))
+                chunks.append(
+                    _close_chunk(current_q, current_responses, session_id, max_response_chars)
+                )
             current_q = t
             current_responses = []
         elif t.role == "assistant" and current_q is not None:
@@ -376,7 +378,7 @@ def _relpath(p: str) -> str:
     for marker in ("/GitHub/", "/github.com/", "/src/"):
         idx = p.find(marker)
         if idx > 0:
-            sub = p[idx + len(marker):]
+            sub = p[idx + len(marker) :]
             if "/" in sub:
                 _, rest = sub.split("/", 1)
                 return rest
@@ -414,9 +416,7 @@ class ClaudeCodeIngester:
         session: str | None = None,
         max_chunks_per_session: int = 200,
     ) -> IngestPlan:
-        sessions = find_claude_code_sessions(
-            root=self.root, project=project, since=since
-        )
+        sessions = find_claude_code_sessions(root=self.root, project=project, since=since)
         if session:
             sessions = [s for s in sessions if s.session_id == session]
         chunks: list[QAChunk] = []

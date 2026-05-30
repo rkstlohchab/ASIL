@@ -1,0 +1,30 @@
+{
+  "repo_key": "rkstlohchab/ASIL@main",
+  "drift_events": [
+    {
+      "kind": "new_dependency",
+      "caller": "asil_temporal.proximity",
+      "callee": "asil_core.metrics.histogram",
+      "severity": "note",
+      "description": "First import of metrics.histogram from temporal scorer. Likely instrumentation, but worth confirming the metric is registered with Prometheus.",
+      "boundary_name": null
+    },
+    {
+      "kind": "boundary_violation",
+      "caller": "asil_ingest.treesitter_parser",
+      "callee": "asil_memory.vector_store.VectorStore.upsert",
+      "severity": "warning",
+      "description": "Ingest is calling memory store directly, bypassing the GraphBuilder. The contract is ingest → graph_builder → store, never ingest → store.",
+      "boundary_name": "ingest→store(direct)"
+    },
+    {
+      "kind": "new_dependency",
+      "caller": "asil_api.main",
+      "callee": "asil_eval.scan.run_scan",
+      "severity": "note",
+      "description": "New route exposes scan output over HTTP. Confirm authentication semantics — scan output may contain incident details.",
+      "boundary_name": null
+    }
+  ],
+  "count": 3
+}

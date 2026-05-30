@@ -1,0 +1,181 @@
+{
+  "incident_id": "incident-demo-001",
+  "incident": {
+    "incident_id": "incident-demo-001",
+    "summary": "payments service 5xx burst → cascade into orders + notifications",
+    "severity": "critical",
+    "env_key": "prod",
+    "detected_at": "2026-04-12T22:04:11Z"
+  },
+  "summary_lines": [
+    "Root cause: payments deploy-847 (commit a3f81c2), confidence 0.91.",
+    "Cascade: payments → orders (Δ 38s) → notifications (Δ 1m12s).",
+    "Mitigation: rollback to deploy-846 at 22:11:48Z; alerts cleared by 22:18Z.",
+    "Open question: payments.timeout_ms was lowered to 800 30m before deploy — investigate whether the timeout drove the regression that deploy-847 then surfaced."
+  ],
+  "timeline": [
+    {
+      "at": "2026-04-12T21:33:00Z",
+      "kind": "ConfigChange",
+      "service": "payments",
+      "description": "payments.timeout_ms changed: 2000 → 800",
+      "marker": null
+    },
+    {
+      "at": "2026-04-12T21:58:00Z",
+      "kind": "Deployment",
+      "service": "payments",
+      "description": "deploy-847 from commit a3f81c2 — \"feat(payments): batch settlement worker\"",
+      "marker": "deploy"
+    },
+    {
+      "at": "2026-04-12T22:02:35Z",
+      "kind": "MetricSpike",
+      "service": "payments",
+      "description": "db.payments.connections.utilization 71% → 99%",
+      "marker": null
+    },
+    {
+      "at": "2026-04-12T22:04:11Z",
+      "kind": "Alert",
+      "service": "payments",
+      "description": "payments 5xx rate exceeded 5% (was 0.3%)",
+      "marker": "incident"
+    },
+    {
+      "at": "2026-04-12T22:04:49Z",
+      "kind": "Alert",
+      "service": "orders",
+      "description": "orders dependent-failure rate climbing — checkout 5xx 4.7%",
+      "marker": null
+    },
+    {
+      "at": "2026-04-12T22:06:01Z",
+      "kind": "Alert",
+      "service": "notifications",
+      "description": "notifications queue backlog 18k, growing",
+      "marker": null
+    },
+    {
+      "at": "2026-04-12T22:11:48Z",
+      "kind": "Deployment",
+      "service": "payments",
+      "description": "rollback to deploy-846",
+      "marker": "deploy"
+    },
+    {
+      "at": "2026-04-12T22:18:02Z",
+      "kind": "Resolved",
+      "service": "payments",
+      "description": "all alerts cleared",
+      "marker": null
+    }
+  ],
+  "top_causes": [
+    {
+      "cause_kind": "Deployment",
+      "confidence": 0.91,
+      "delta_seconds": 372,
+      "derivation": "Composite: temporal=0.94 · lagged-corr=0.88 · explicit-ref=0.72",
+      "strategy": "composite",
+      "cause_props": {
+        "deployment_id": "deploy-847",
+        "service": "payments",
+        "commit_sha": "a3f81c2"
+      }
+    },
+    {
+      "cause_kind": "ConfigChange",
+      "confidence": 0.62,
+      "delta_seconds": 1840,
+      "derivation": "Composite: temporal=0.71 · lagged-corr=0.58 · explicit-ref=0.0",
+      "strategy": "composite",
+      "cause_props": {
+        "key": "payments.timeout_ms",
+        "before": "2000",
+        "after": "800"
+      }
+    }
+  ],
+  "service_cascade": [
+    {
+      "service": "payments",
+      "first_event_at": "2026-04-12T22:04:11Z",
+      "first_event_kind": "Alert",
+      "first_event_description": "5xx rate exceeded 5%"
+    },
+    {
+      "service": "orders",
+      "first_event_at": "2026-04-12T22:04:49Z",
+      "first_event_kind": "Alert",
+      "first_event_description": "dependent-failure rate climbing"
+    },
+    {
+      "service": "notifications",
+      "first_event_at": "2026-04-12T22:06:01Z",
+      "first_event_kind": "Alert",
+      "first_event_description": "queue backlog 18k"
+    }
+  ],
+  "state_diff": {
+    "services_involved": ["payments", "orders", "notifications"],
+    "deployments_during": [
+      {
+        "deployment_id": "deploy-847",
+        "service": "payments",
+        "description": "feat(payments): batch settlement worker",
+        "commit_sha": "a3f81c2",
+        "at": "2026-04-12T21:58:00Z"
+      },
+      {
+        "deployment_id": "deploy-rollback-846",
+        "service": "payments",
+        "description": "rollback to deploy-846",
+        "commit_sha": "b91d770",
+        "at": "2026-04-12T22:11:48Z"
+      }
+    ],
+    "metric_deltas": [
+      {
+        "service": "payments",
+        "metric": "5xx_rate",
+        "before": 0.003,
+        "after": 0.063,
+        "unit": "ratio"
+      },
+      {
+        "service": "payments",
+        "metric": "db.connections.utilization",
+        "before": 0.71,
+        "after": 0.99,
+        "unit": "ratio"
+      },
+      {
+        "service": "orders",
+        "metric": "checkout.5xx_rate",
+        "before": 0.001,
+        "after": 0.047,
+        "unit": "ratio"
+      },
+      {
+        "service": "notifications",
+        "metric": "queue.backlog",
+        "before": 412,
+        "after": 18230,
+        "unit": "messages"
+      }
+    ]
+  },
+  "confidence": {
+    "score": 0.89,
+    "evidence_count": 8,
+    "retrieval_strength": 0.93,
+    "causal_confidence": 0.91,
+    "derivation": [
+      "8 timeline events from runtime namespace",
+      "Composite causal score 0.91 on top cause (deploy-847)",
+      "Service cascade verified — alert sequence matches dependency edges",
+      "State diff covers full incident window with no gaps"
+    ]
+  }
+}

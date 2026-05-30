@@ -20,7 +20,7 @@ from typing import Any
 class SandboxOutcome(StrEnum):
     """Top-level result of running a proposed patch in a sandbox."""
 
-    not_run = "not_run"          # propose-only — sandbox never executed
+    not_run = "not_run"  # propose-only — sandbox never executed
     apply_failed = "apply_failed"  # the diff didn't apply cleanly
     tests_passed = "tests_passed"
     tests_failed = "tests_failed"
@@ -32,8 +32,8 @@ class FixOutcome(StrEnum):
     """Aggregate outcome surfaced to the audit log."""
 
     proposed = "proposed"
-    accepted = "accepted"     # tests green, confidence above gate
-    rejected = "rejected"     # tests red, low confidence, or apply_failed
+    accepted = "accepted"  # tests green, confidence above gate
+    rejected = "rejected"  # tests red, low confidence, or apply_failed
     inconclusive = "inconclusive"
 
 
@@ -48,12 +48,12 @@ class FixProposal:
     """
 
     incident_id: str
-    summary: str            # 1-line "what this fix does"
-    diff: str               # unified diff body, ready for `git apply`
+    summary: str  # 1-line "what this fix does"
+    diff: str  # unified diff body, ready for `git apply`
     affected_files: list[str]
     causal_chain: list[dict[str, Any]]  # slice of ReplayResult.top_causes
     confidence_score: float  # 0.0-1.0; assembled from causal + retrieval + verifier
-    derivation: list[str]    # human-readable reasoning trail
+    derivation: list[str]  # human-readable reasoning trail
     model: str
     cost_usd: float
     generated_at: datetime
@@ -68,7 +68,7 @@ class SandboxResult:
     proposal_incident_id: str
     outcome: SandboxOutcome
     test_command: str | None
-    stdout_tail: str        # last ~4KB of test stdout (truncated for the ledger)
+    stdout_tail: str  # last ~4KB of test stdout (truncated for the ledger)
     stderr_tail: str
     duration_seconds: float
     started_at: datetime

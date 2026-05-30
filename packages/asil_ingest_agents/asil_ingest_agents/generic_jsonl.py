@@ -78,8 +78,7 @@ class GenericJsonlIngester:
                 text = rec.get(self.text_key)
                 if isinstance(text, list):
                     text = "\n".join(
-                        b.get("text", "") if isinstance(b, dict) else str(b)
-                        for b in text
+                        b.get("text", "") if isinstance(b, dict) else str(b) for b in text
                     )
                 if not isinstance(text, str) or not text.strip():
                     continue
@@ -114,7 +113,10 @@ def _pair(turns: list[Turn], *, session_id: str, source: str) -> list[QAChunk]:
 
 
 def _close(q: Turn, responses: list[Turn], session_id: str, source: str) -> QAChunk:
-    resp = "\n\n".join(r.text for r in responses if r.text).strip() or "(no assistant response captured)"
+    resp = (
+        "\n\n".join(r.text for r in responses if r.text).strip()
+        or "(no assistant response captured)"
+    )
     if len(resp) > 3000:
         resp = resp[:3000] + "\n…[truncated]"
     return QAChunk(

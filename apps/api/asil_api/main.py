@@ -348,7 +348,9 @@ async def dashboard_memory(days: int = 30, top_n: int = 10) -> dict[str, Any]:
                         "team_id": m.team_id,
                         "repo_key": m.repo_key,
                         "created_at": m.created_at.isoformat() if m.created_at else None,
-                        "source": m.metadata.get("source") if isinstance(m.metadata, dict) else None,
+                        "source": m.metadata.get("source")
+                        if isinstance(m.metadata, dict)
+                        else None,
                     }
                     for m in tops
                 ]

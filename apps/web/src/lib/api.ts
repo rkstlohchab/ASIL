@@ -7,11 +7,18 @@
  *   - `api.callTool(name, args)`: invokes any MCP tool over the universal
  *     `/mcp/call/{tool}` dispatcher. Returns whatever the tool's `result` is.
  *
- * Both run against `NEXT_PUBLIC_ASIL_API_URL` (default http://localhost:8000).
+ * Two modes:
+ *   - Live (default): runs against `NEXT_PUBLIC_ASIL_API_URL`
+ *     (default http://localhost:8000).
+ *   - Static: when `NEXT_PUBLIC_STATIC_MODE === "1"` (set by the GitHub
+ *     Pages build), requests are redirected to bundled JSON fixtures
+ *     under `${basePath}/snapshot/...`. This lets us host the dashboard
+ *     on GitHub Pages with a frozen demo dataset and no FastAPI behind it.
  */
 
-const BASE =
-  process.env.NEXT_PUBLIC_ASIL_API_URL ?? "http://localhost:8000";
+const BASE = process.env.NEXT_PUBLIC_ASIL_API_URL ?? "http://localhost:8000";
+const STATIC_MODE = process.env.NEXT_PUBLIC_STATIC_MODE === "1";
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 class ApiError extends Error {
   status: number;
@@ -23,7 +30,23 @@ class ApiError extends Error {
   }
 }
 
+/** Strip query string + collapse leading slash for fixture filename mapping. */
+function fixturePathFor(path: string): string {
+  const noQuery = path.split("?")[0];
+  return noQuery.replace(/^\/+/, "");
+}
+
+async function loadFixture<T>(relPath: string): Promise<T> {
+  const url = `${BASE_PATH}/snapshot/${relPath}.json`;
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new ApiError(r.status, await r.text());
+  return (await r.json()) as T;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  if (STATIC_MODE) {
+    return loadFixture<T>(fixturePathFor(path));
+  }
   const r = await fetch(`${BASE}${path}`, {
     ...init,
     cache: "no-store",
@@ -43,6 +66,13 @@ export const api = {
   post: <T>(path: string, body: unknown) =>
     request<T>(path, { method: "POST", body: JSON.stringify(body) }),
   async callTool<T = unknown>(name: string, args: Record<string, unknown>) {
+    if (STATIC_MODE) {
+      // Args ignored in static mode — there's exactly one canned answer
+      // per tool. The fixture path is `mcp/<tool-name>` so the file
+      // layout matches the live endpoint shape.
+      void args;
+      return loadFixture<T>(`mcp/${name}`);
+    }
     const r = await request<{ tool: string; result?: T; error?: string }>(
       `/mcp/call/${name}`,
       { method: "POST", body: JSON.stringify({ arguments: args }) },

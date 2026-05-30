@@ -1,5 +1,15 @@
 # ASIL — Engineering Intelligence Infrastructure
 
+[![ci](https://github.com/rkstlohchab/ASIL/actions/workflows/ci.yml/badge.svg)](https://github.com/rkstlohchab/ASIL/actions/workflows/ci.yml)
+[![ASIL self-scan](https://github.com/rkstlohchab/ASIL/actions/workflows/asil-report.yml/badge.svg)](https://github.com/rkstlohchab/ASIL/blob/main/docs/asil-report.md)
+[![GitHub Pages](https://github.com/rkstlohchab/ASIL/actions/workflows/gh-pages.yml/badge.svg)](https://rkstlohchab.github.io/ASIL/)
+
+**Try it without installing:**
+
+- 🟢 **[Live dashboard demo →](https://rkstlohchab.github.io/ASIL/)** — frozen JSON snapshot, all 8 pages, no install required
+- 📋 **[Latest self-scan report →](docs/asil-report.md)** — what ASIL says about *its own* codebase, refreshed on every push to main + daily at 04:17 UTC
+- 🔒 **[Security tab](https://github.com/rkstlohchab/ASIL/security/code-scanning)** — ASIL findings flow into GitHub code scanning as SARIF
+
 > A persistent, temporal, causal understanding of how a software system evolves, behaves, and fails — exposed to coding agents via MCP.
 
 ASIL is **not** a coding assistant, an autonomous coder, or an "AI OS." Those spaces are crowded. ASIL is the layer underneath them: the engineering knowledge graph that knows *what* changed, *what* broke, *when*, *why*, and *how confident* the answer is.

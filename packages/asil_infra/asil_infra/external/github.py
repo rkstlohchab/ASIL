@@ -53,9 +53,7 @@ class GitHubAdapter:
         """Fetch PRs. `env_key` is accepted for protocol compatibility but
         unused — PRs are code-namespace events."""
         if not (self._repo_path / ".git").exists():
-            raise NotConfiguredError(
-                f"{self._repo_path} is not a git repo"
-            )
+            raise NotConfiguredError(f"{self._repo_path} is not a git repo")
         if self._prefer_gh_cli and _gh_available():
             try:
                 return await self._poll_via_gh()
@@ -152,9 +150,7 @@ class GitHubAdapter:
                 timeout=10,
             )
         except subprocess.CalledProcessError as exc:
-            raise NotConfiguredError(
-                f"git log failed in {self._repo_path}: {exc.stderr}"
-            ) from exc
+            raise NotConfiguredError(f"git log failed in {self._repo_path}: {exc.stderr}") from exc
 
         prs: list[PullRequest] = []
         for line in r.stdout.splitlines():

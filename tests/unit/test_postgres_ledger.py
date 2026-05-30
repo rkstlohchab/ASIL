@@ -16,14 +16,8 @@ from asil_core.llm.postgres_ledger import PostgresCostLedger, _normalize_dsn
 
 
 def test_normalize_dsn_strips_sqlalchemy_driver():
-    assert (
-        _normalize_dsn("postgresql+asyncpg://a:b@h/db")
-        == "postgresql://a:b@h/db"
-    )
-    assert (
-        _normalize_dsn("postgresql+psycopg://u:p@h/db")
-        == "postgresql://u:p@h/db"
-    )
+    assert _normalize_dsn("postgresql+asyncpg://a:b@h/db") == "postgresql://a:b@h/db"
+    assert _normalize_dsn("postgresql+psycopg://u:p@h/db") == "postgresql://u:p@h/db"
 
 
 def test_normalize_dsn_passes_through_plain():
@@ -40,9 +34,7 @@ def test_record_inserts_one_row():
     conn.__exit__ = MagicMock(return_value=False)
     conn.cursor.return_value = cur
 
-    with patch(
-        "asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn
-    ):
+    with patch("asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn):
         asyncio.run(
             ledger.record(
                 CostRecord(
@@ -109,9 +101,7 @@ def test_savings_math_measured_from_real_ledger():
         avg_cached=0.00005,
     )
     conn = _mock_connection(cur)
-    with patch(
-        "asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn
-    ):
+    with patch("asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn):
         out = ledger.savings_vs_no_memory(100, days=30)
 
     assert out["memory_conclusions"] == 100
@@ -119,9 +109,7 @@ def test_savings_math_measured_from_real_ledger():
     assert out["avg_fresh_usd"] == pytest.approx(0.005, rel=1e-3)
     assert out["avg_cached_usd"] == pytest.approx(0.00005, rel=1e-3)
     assert out["saved_usd"] == pytest.approx(10 * (0.005 - 0.00005), rel=1e-3)
-    assert out["savings_pct"] == pytest.approx(
-        (0.005 - 0.00005) / 0.005 * 100.0, rel=1e-2
-    )
+    assert out["savings_pct"] == pytest.approx((0.005 - 0.00005) / 0.005 * 100.0, rel=1e-2)
     assert out["measured"] is True
 
 
@@ -136,9 +124,7 @@ def test_savings_math_no_cache_hits_returns_null_pct():
         avg_cached=0.0,
     )
     conn = _mock_connection(cur)
-    with patch(
-        "asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn
-    ):
+    with patch("asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn):
         out = ledger.savings_vs_no_memory(0)
 
     assert out["cache_hits"] == 0
@@ -159,9 +145,7 @@ def test_savings_math_old_schema_without_recall_hits_column():
         avg_cached=0.0,
     )
     conn = _mock_connection(cur)
-    with patch(
-        "asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn
-    ):
+    with patch("asil_core.llm.postgres_ledger.psycopg.connect", return_value=conn):
         out = ledger.savings_vs_no_memory(5)
 
     assert out["cache_hits"] == 0

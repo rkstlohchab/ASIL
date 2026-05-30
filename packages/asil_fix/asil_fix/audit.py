@@ -183,10 +183,7 @@ class AuditLog:
     # --------------------------------------------------------------------- read
 
     def list_for_incident(self, incident_id: str, *, limit: int = 50) -> list[FixAuditEntry]:
-        cypher = (
-            "SELECT * FROM asil_fix_audit "
-            "WHERE incident_id = %s ORDER BY ts DESC LIMIT %s"
-        )
+        cypher = "SELECT * FROM asil_fix_audit WHERE incident_id = %s ORDER BY ts DESC LIMIT %s"
         with self._connect() as conn, conn.cursor() as cur:
             cur.execute(cypher, (incident_id, limit))
             rows = cur.fetchall()

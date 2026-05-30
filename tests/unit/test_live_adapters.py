@@ -68,7 +68,7 @@ def test_prom_emits_metric_shift_when_threshold_crossed():
     with patch("httpx.AsyncClient", return_value=client):
         prom = PrometheusAdapter(
             "http://prom",
-            probes=[("payments", "p99_latency", 'histogram_quantile(...)')],
+            probes=[("payments", "p99_latency", "histogram_quantile(...)")],
             shift_threshold=1.5,
         )
         events = asyncio.run(prom.poll("prod"))

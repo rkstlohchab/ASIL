@@ -113,9 +113,15 @@ class LocalSandbox:
                 work / "repo",
                 dirs_exist_ok=True,
                 ignore=shutil.ignore_patterns(
-                    ".venv", "node_modules", ".next", "__pycache__",
-                    ".pytest_cache", ".mypy_cache", ".ruff_cache",
-                    ".asil_cache", ".git",
+                    ".venv",
+                    "node_modules",
+                    ".next",
+                    "__pycache__",
+                    ".pytest_cache",
+                    ".mypy_cache",
+                    ".ruff_cache",
+                    ".asil_cache",
+                    ".git",
                 ),
             )
             sandbox_repo = work / "repo"
