@@ -67,10 +67,20 @@ export const api = {
     request<T>(path, { method: "POST", body: JSON.stringify(body) }),
   async callTool<T = unknown>(name: string, args: Record<string, unknown>) {
     if (STATIC_MODE) {
-      // Args ignored in static mode — there's exactly one canned answer
-      // per tool. The fixture path is `mcp/<tool-name>` so the file
-      // layout matches the live endpoint shape.
-      void args;
+      // For per-entity tools (replay_incident, find_causes), the
+      // snapshot pipeline emits one fixture per id as
+      // `mcp/<tool>__<id>.json`. Try the entity-specific fixture
+      // first, fall back to the default no-args fixture.
+      const entityKey =
+        (args.incident_id as string | undefined) ??
+        (args.repo_key as string | undefined);
+      if (entityKey) {
+        try {
+          return await loadFixture<T>(`mcp/${name}__${entityKey}`);
+        } catch {
+          // Fall through to default fixture.
+        }
+      }
       return loadFixture<T>(`mcp/${name}`);
     }
     const r = await request<{ tool: string; result?: T; error?: string }>(
