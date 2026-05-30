@@ -46,11 +46,10 @@ jobs:
       qdrant:
         image: qdrant/qdrant:latest
         ports: ["6333:6333"]
-        options: >-
-          --health-cmd "wget -q --spider http://localhost:6333/readyz || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
+        # No healthcheck — the qdrant image is a distroless variant
+        # without wget/curl, so Docker's HEALTHCHECK can't run inside.
+        # We poll from the runner side in a dedicated "Wait for qdrant"
+        # step below.
 
       postgres:
         image: postgres:16
@@ -73,6 +72,18 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v3
+
+      - name: Wait for qdrant
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:6333/readyz > /dev/null; then
+              echo "qdrant ready after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "qdrant never became ready"
+          exit 1
 
       - name: Sync ASIL
         run: uv sync

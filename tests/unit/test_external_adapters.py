@@ -50,7 +50,9 @@ def test_github_git_log_extracts_merge_commits(tmp_path):
     `git log` fallback path."""
     if not _git_available():
         pytest.skip("git not installed")
-    _git(["init", str(tmp_path)])
+    # Pin the initial branch — on runners with older git, default is
+    # `master`, on newer it's `main`. This test checks out `main` below.
+    _git(["init", "-b", "main", str(tmp_path)])
     _git(["-C", str(tmp_path), "config", "user.email", "test@asil.dev"])
     _git(["-C", str(tmp_path), "config", "user.name", "asil test"])
     _git(["-C", str(tmp_path), "config", "commit.gpgsign", "false"])
