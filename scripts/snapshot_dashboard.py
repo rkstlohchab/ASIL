@@ -194,6 +194,7 @@ def snapshot_mcp_tools(base: str, repo_keys: list[str], incident_ids: list[str])
 
 
 def main() -> int:
+    global SNAPSHOT_DIR
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", default=DEFAULT_BASE, help="asil-api base URL")
     parser.add_argument(
@@ -201,7 +202,6 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    global SNAPSHOT_DIR
     SNAPSHOT_DIR = Path(args.out)
     SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
