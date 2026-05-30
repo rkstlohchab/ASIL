@@ -6,8 +6,8 @@
 
 # ASIL self-scan report
 
-ASIL ran against this repo at `2026-05-30T17:16:18Z`
-on commit [`a6f76ba`](https://github.com/rkstlohchab/ASIL/commit/a6f76ba5ac9f4e9fb597813acd2a70758e379897).
+ASIL ran against this repo at `2026-05-30T17:19:41Z`
+on commit [`e757abd`](https://github.com/rkstlohchab/ASIL/commit/e757abdd949676678758b366d65d5ff2ac8adef0).
 
 - Raw JSON: [`docs/asil.json`](./asil.json)
 - SARIF (Security tab): [`docs/asil.sarif`](./asil.sarif)
@@ -21,2090 +21,2090 @@ Gate `normal` — ✅ **passed**
 
 🚨 0 critical · ❌ 0 errors · ⚠️ 694 warnings · ℹ️ 5 notes
 
-Repo: `local:/home/runner/work/ASIL/ASIL` · duration 0.50s · 699 finding(s)
+Repo: `local:/home/runner/work/ASIL/ASIL` · duration 0.53s · 699 finding(s)
 
 <details><summary>⚠️ 694 Warnings</summary>
 
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.main._check_neo4j → apps.api.asil_api.main._check_http. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.main._check_neo4j → apps.api.asil_api.main._check_http. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.main._check_neo4j`
   - **callee**: `apps.api.asil_api.main._check_http`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.main.health → apps.api.asil_api.main._check_http. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.main.health → apps.api.asil_api.main._check_http. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.main.health`
   - **callee**: `apps.api.asil_api.main._check_http`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.main.health → apps.api.asil_api.main._check_neo4j. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.main.health → apps.api.asil_api.main._check_neo4j. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.main.health`
   - **callee**: `apps.api.asil_api.main._check_neo4j`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_server.server_info → apps.api.asil_api.mcp_server.list_tools. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_server.server_info → apps.api.asil_api.mcp_server.list_tools. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_server.server_info`
   - **callee**: `apps.api.asil_api.mcp_server.list_tools`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.ask → apps.api.asil_api.mcp_tools._build_ask_prompt. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.ask → apps.api.asil_api.mcp_tools._build_ask_prompt. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.ask`
   - **callee**: `apps.api.asil_api.mcp_tools._build_ask_prompt`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.ask → apps.api.asil_api.mcp_tools._build_provenance. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.ask → apps.api.asil_api.mcp_tools._build_provenance. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.ask`
   - **callee**: `apps.api.asil_api.mcp_tools._build_provenance`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.ask → apps.api.asil_api.mcp_tools._confidence_dict. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.ask → apps.api.asil_api.mcp_tools._confidence_dict. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.ask`
   - **callee**: `apps.api.asil_api.mcp_tools._confidence_dict`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.ask → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.ask → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.ask`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools._need. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools._need. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools._need`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.ask. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.ask. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.ask`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.commit_history. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.commit_history. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.commit_history`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.drift_check. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.drift_check. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.drift_check`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.find_causes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.find_causes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.find_causes`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.forget. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.forget. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.forget`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.get_callers. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.get_callers. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.get_callers`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.get_dependencies. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.get_dependencies. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.get_dependencies`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.propose_fix. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.propose_fix. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.propose_fix`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.recall. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.recall. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.recall`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.remember. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.remember. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.remember`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.replay_incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.replay_incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.replay_incident`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.search_code. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.search_code. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.search_code`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.who_owns. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.call_tool → apps.api.asil_api.mcp_tools.who_owns. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.call_tool`
   - **callee**: `apps.api.asil_api.mcp_tools.who_owns`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.commit_history → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.commit_history → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.commit_history`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.drift_check → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.drift_check → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.drift_check`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.find_causes → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.find_causes → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.find_causes`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.find_causes → apps.api.asil_api.mcp_tools._scrub_neo4j_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.find_causes → apps.api.asil_api.mcp_tools._scrub_neo4j_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.find_causes`
   - **callee**: `apps.api.asil_api.mcp_tools._scrub_neo4j_props`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.forget → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.forget → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.forget`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.get_callers → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.get_callers → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.get_callers`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.get_dependencies → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.get_dependencies → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.get_dependencies`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.propose_fix → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.propose_fix → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.propose_fix`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.propose_fix → apps.api.asil_api.mcp_tools._scrub_neo4j_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.propose_fix → apps.api.asil_api.mcp_tools._scrub_neo4j_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.propose_fix`
   - **callee**: `apps.api.asil_api.mcp_tools._scrub_neo4j_props`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.recall → apps.api.asil_api.mcp_tools._build_provenance. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.recall → apps.api.asil_api.mcp_tools._build_provenance. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.recall`
   - **callee**: `apps.api.asil_api.mcp_tools._build_provenance`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.recall → apps.api.asil_api.mcp_tools._memory_hit_dict. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.recall → apps.api.asil_api.mcp_tools._memory_hit_dict. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.recall`
   - **callee**: `apps.api.asil_api.mcp_tools._memory_hit_dict`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.recall → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.recall → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.recall`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.remember → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.remember → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.remember`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.replay_incident → apps.api.asil_api.mcp_tools._confidence_dict. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.replay_incident → apps.api.asil_api.mcp_tools._confidence_dict. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.replay_incident`
   - **callee**: `apps.api.asil_api.mcp_tools._confidence_dict`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.replay_incident → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.replay_incident → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.replay_incident`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.replay_incident → apps.api.asil_api.mcp_tools._scrub_neo4j_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.replay_incident → apps.api.asil_api.mcp_tools._scrub_neo4j_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.replay_incident`
   - **callee**: `apps.api.asil_api.mcp_tools._scrub_neo4j_props`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.search_code → apps.api.asil_api.mcp_tools._candidate_dict. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.search_code → apps.api.asil_api.mcp_tools._candidate_dict. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.search_code`
   - **callee**: `apps.api.asil_api.mcp_tools._candidate_dict`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.search_code → apps.api.asil_api.mcp_tools._confidence_dict. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.search_code → apps.api.asil_api.mcp_tools._confidence_dict. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.search_code`
   - **callee**: `apps.api.asil_api.mcp_tools._confidence_dict`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.search_code → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.search_code → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.search_code`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.who_owns → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.api.asil_api.mcp_tools.who_owns → apps.api.asil_api.mcp_tools._required_str. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.api.asil_api.mcp_tools.who_owns`
   - **callee**: `apps.api.asil_api.mcp_tools._required_str`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main._print_prompt_bundle → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main._print_prompt_bundle → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main._print_prompt_bundle`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main._write_plan_to_memory → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main._write_plan_to_memory → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main._write_plan_to_memory`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.adapters_k8s → apps.cli.asil_cli.main._write_runtime_events. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.adapters_k8s → apps.cli.asil_cli.main._write_runtime_events. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.adapters_k8s`
   - **callee**: `apps.cli.asil_cli.main._write_runtime_events`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.adapters_loki → apps.cli.asil_cli.main._write_runtime_events. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.adapters_loki → apps.cli.asil_cli.main._write_runtime_events. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.adapters_loki`
   - **callee**: `apps.cli.asil_cli.main._write_runtime_events`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.adapters_prometheus → apps.cli.asil_cli.main._write_runtime_events. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.adapters_prometheus → apps.cli.asil_cli.main._write_runtime_events. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.adapters_prometheus`
   - **callee**: `apps.cli.asil_cli.main._write_runtime_events`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ask → apps.cli.asil_cli.main._build_ask_prompt. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ask → apps.cli.asil_cli.main._build_ask_prompt. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ask`
   - **callee**: `apps.cli.asil_cli.main._build_ask_prompt`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ask → apps.cli.asil_cli.main._print_confidence. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ask → apps.cli.asil_cli.main._print_confidence. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ask`
   - **callee**: `apps.cli.asil_cli.main._print_confidence`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ask → apps.cli.asil_cli.main._print_verifier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ask → apps.cli.asil_cli.main._print_verifier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ask`
   - **callee**: `apps.cli.asil_cli.main._print_verifier`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_export → apps.cli.asil_cli.main._encoded_cwd_dirname. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_export → apps.cli.asil_cli.main._encoded_cwd_dirname. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.context_export`
   - **callee**: `apps.cli.asil_cli.main._encoded_cwd_dirname`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_export → apps.cli.asil_cli.main._parse_relative_window. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_export → apps.cli.asil_cli.main._parse_relative_window. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.context_export`
   - **callee**: `apps.cli.asil_cli.main._parse_relative_window`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_export → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_export → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.context_export`
   - **callee**: `apps.cli.asil_cli.main._write_plan_to_memory`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_export → apps.cli.asil_cli.main._write_portable_bundle. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_export → apps.cli.asil_cli.main._write_portable_bundle. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.context_export`
   - **callee**: `apps.cli.asil_cli.main._write_portable_bundle`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_import → apps.cli.asil_cli.main._print_mcp_wiring. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_import → apps.cli.asil_cli.main._print_mcp_wiring. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.context_import`
   - **callee**: `apps.cli.asil_cli.main._print_mcp_wiring`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_import → apps.cli.asil_cli.main._print_prompt_bundle. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.context_import → apps.cli.asil_cli.main._print_prompt_bundle. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.context_import`
   - **callee**: `apps.cli.asil_cli.main._print_prompt_bundle`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.cost_summary → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.cost_summary → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.cost_summary`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.eval_recall → apps.cli.asil_cli.main._color_recall. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.eval_recall → apps.cli.asil_cli.main._color_recall. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.eval_recall`
   - **callee**: `apps.cli.asil_cli.main._color_recall`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.events_list → apps.cli.asil_cli.main._format_event_detail. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.events_list → apps.cli.asil_cli.main._format_event_detail. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.events_list`
   - **callee**: `apps.cli.asil_cli.main._format_event_detail`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.events_list → apps.cli.asil_cli.main._format_event_time. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.events_list → apps.cli.asil_cli.main._format_event_time. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.events_list`
   - **callee**: `apps.cli.asil_cli.main._format_event_time`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.external_jira → apps.cli.asil_cli.main._render_tickets. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.external_jira → apps.cli.asil_cli.main._render_tickets. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.external_jira`
   - **callee**: `apps.cli.asil_cli.main._render_tickets`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.external_linear → apps.cli.asil_cli.main._render_tickets. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.external_linear → apps.cli.asil_cli.main._render_tickets. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.external_linear`
   - **callee**: `apps.cli.asil_cli.main._render_tickets`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.fix_propose → apps.cli.asil_cli.main._render_proposal. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.fix_propose → apps.cli.asil_cli.main._render_proposal. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.fix_propose`
   - **callee**: `apps.cli.asil_cli.main._render_proposal`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.fix_run → apps.cli.asil_cli.main._render_proposal. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.fix_run → apps.cli.asil_cli.main._render_proposal. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.fix_run`
   - **callee**: `apps.cli.asil_cli.main._render_proposal`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.fix_run → apps.cli.asil_cli.main._render_sandbox. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.fix_run → apps.cli.asil_cli.main._render_sandbox. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.fix_run`
   - **callee**: `apps.cli.asil_cli.main._render_sandbox`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.graph_query → apps.cli.asil_cli.main._short. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.graph_query → apps.cli.asil_cli.main._short. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.graph_query`
   - **callee**: `apps.cli.asil_cli.main._short`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_claude_code → apps.cli.asil_cli.main._parse_relative_window. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_claude_code → apps.cli.asil_cli.main._parse_relative_window. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ingest_claude_code`
   - **callee**: `apps.cli.asil_cli.main._parse_relative_window`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_claude_code → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_claude_code → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ingest_claude_code`
   - **callee**: `apps.cli.asil_cli.main._write_plan_to_memory`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_cursor → apps.cli.asil_cli.main._parse_relative_window. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_cursor → apps.cli.asil_cli.main._parse_relative_window. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ingest_cursor`
   - **callee**: `apps.cli.asil_cli.main._parse_relative_window`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_cursor → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_cursor → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ingest_cursor`
   - **callee**: `apps.cli.asil_cli.main._write_plan_to_memory`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_generic_jsonl → apps.cli.asil_cli.main._parse_relative_window. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_generic_jsonl → apps.cli.asil_cli.main._parse_relative_window. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ingest_generic_jsonl`
   - **callee**: `apps.cli.asil_cli.main._parse_relative_window`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_generic_jsonl → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.ingest_generic_jsonl → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.ingest_generic_jsonl`
   - **callee**: `apps.cli.asil_cli.main._write_plan_to_memory`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_clear → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_clear → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_clear`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_clear_all → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_clear_all → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_clear_all`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_forget → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_forget → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_forget`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_forget → apps.cli.asil_cli.main._resolve_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_forget → apps.cli.asil_cli.main._resolve_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_forget`
   - **callee**: `apps.cli.asil_cli.main._resolve_memory`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_forget_session → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_forget_session → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_forget_session`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_list → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_list → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_list`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_recall → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_recall → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_recall`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_show → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_show → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_show`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_show → apps.cli.asil_cli.main._resolve_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_show → apps.cli.asil_cli.main._resolve_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_show`
   - **callee**: `apps.cli.asil_cli.main._resolve_memory`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_stats → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.memory_stats → apps.cli.asil_cli.main._open_episodic_or_exit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.memory_stats`
   - **callee**: `apps.cli.asil_cli.main._open_episodic_or_exit`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.replay → apps.cli.asil_cli.main._color_conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.replay → apps.cli.asil_cli.main._color_conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.replay`
   - **callee**: `apps.cli.asil_cli.main._color_conf`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.replay → apps.cli.asil_cli.main._fmt_delta. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.replay → apps.cli.asil_cli.main._fmt_delta. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.replay`
   - **callee**: `apps.cli.asil_cli.main._fmt_delta`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.replay → apps.cli.asil_cli.main._identity_label. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.replay → apps.cli.asil_cli.main._identity_label. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.replay`
   - **callee**: `apps.cli.asil_cli.main._identity_label`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.scan → apps.cli.asil_cli.main._render_scan_report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.scan → apps.cli.asil_cli.main._render_scan_report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.scan`
   - **callee**: `apps.cli.asil_cli.main._render_scan_report`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.scan → apps.cli.asil_cli.main._scan_to_jsonable. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.scan → apps.cli.asil_cli.main._scan_to_jsonable. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.scan`
   - **callee**: `apps.cli.asil_cli.main._scan_to_jsonable`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.team_create → apps.cli.asil_cli.main._open_teams_store. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.team_create → apps.cli.asil_cli.main._open_teams_store. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.team_create`
   - **callee**: `apps.cli.asil_cli.main._open_teams_store`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.team_list → apps.cli.asil_cli.main._open_teams_store. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.team_list → apps.cli.asil_cli.main._open_teams_store. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.team_list`
   - **callee**: `apps.cli.asil_cli.main._open_teams_store`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.team_revoke → apps.cli.asil_cli.main._open_teams_store. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.team_revoke → apps.cli.asil_cli.main._open_teams_store. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.team_revoke`
   - **callee**: `apps.cli.asil_cli.main._open_teams_store`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.team_rotate_key → apps.cli.asil_cli.main._open_teams_store. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.team_rotate_key → apps.cli.asil_cli.main._open_teams_store. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.team_rotate_key`
   - **callee**: `apps.cli.asil_cli.main._open_teams_store`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.temporal_causes → apps.cli.asil_cli.main._color_conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.temporal_causes → apps.cli.asil_cli.main._color_conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.temporal_causes`
   - **callee**: `apps.cli.asil_cli.main._color_conf`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.temporal_causes → apps.cli.asil_cli.main._fmt_delta. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.temporal_causes → apps.cli.asil_cli.main._fmt_delta. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.temporal_causes`
   - **callee**: `apps.cli.asil_cli.main._fmt_delta`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.temporal_causes → apps.cli.asil_cli.main._identity_label. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.temporal_causes → apps.cli.asil_cli.main._identity_label. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.temporal_causes`
   - **callee**: `apps.cli.asil_cli.main._identity_label`
-- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.watch → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: apps.cli.asil_cli.main.watch → apps.cli.asil_cli.main._write_plan_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `apps.cli.asil_cli.main.watch`
   - **callee**: `apps.cli.asil_cli.main._write_plan_to_memory`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.__init__ → packages.asil_core.asil_core.llm.postgres_ledger._normalize_dsn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.__init__ → packages.asil_core.asil_core.llm.postgres_ledger._normalize_dsn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.__init__`
   - **callee**: `packages.asil_core.asil_core.llm.postgres_ledger._normalize_dsn`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.aggregates → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.aggregates → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.aggregates`
   - **callee**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.apply_schema → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.apply_schema → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.apply_schema`
   - **callee**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.record → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.record → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.record`
   - **callee**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.savings_vs_no_memory → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.savings_vs_no_memory → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.savings_vs_no_memory`
   - **callee**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.spend_today_usd → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.spend_today_usd → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.spend_today_usd`
   - **callee**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.verify_connectivity → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.verify_connectivity → packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger.verify_connectivity`
   - **callee**: `packages.asil_core.asil_core.llm.postgres_ledger.PostgresCostLedger._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles._load_balanced → packages.asil_core.asil_core.llm.profiles._require. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles._load_balanced → packages.asil_core.asil_core.llm.profiles._require. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.profiles._load_balanced`
   - **callee**: `packages.asil_core.asil_core.llm.profiles._require`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles._load_generous → packages.asil_core.asil_core.llm.profiles._require. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles._load_generous → packages.asil_core.asil_core.llm.profiles._require. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.profiles._load_generous`
   - **callee**: `packages.asil_core.asil_core.llm.profiles._require`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles.load_profile → packages.asil_core.asil_core.llm.profiles._load_balanced. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles.load_profile → packages.asil_core.asil_core.llm.profiles._load_balanced. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.profiles.load_profile`
   - **callee**: `packages.asil_core.asil_core.llm.profiles._load_balanced`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles.load_profile → packages.asil_core.asil_core.llm.profiles._load_generous. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles.load_profile → packages.asil_core.asil_core.llm.profiles._load_generous. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.profiles.load_profile`
   - **callee**: `packages.asil_core.asil_core.llm.profiles._load_generous`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles.load_profile → packages.asil_core.asil_core.llm.profiles._load_tight. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles.load_profile → packages.asil_core.asil_core.llm.profiles._load_tight. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.profiles.load_profile`
   - **callee**: `packages.asil_core.asil_core.llm.profiles._load_tight`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles.load_profile → packages.asil_core.asil_core.llm.profiles.profile_names. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.profiles.load_profile → packages.asil_core.asil_core.llm.profiles.profile_names. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.profiles.load_profile`
   - **callee**: `packages.asil_core.asil_core.llm.profiles.profile_names`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.providers.AnthropicProvider.complete → packages.asil_core.asil_core.llm.providers._compute_cost. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.providers.AnthropicProvider.complete → packages.asil_core.asil_core.llm.providers._compute_cost. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.providers.AnthropicProvider.complete`
   - **callee**: `packages.asil_core.asil_core.llm.providers._compute_cost`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.providers._OpenAICompatibleProvider.complete → packages.asil_core.asil_core.llm.providers._compute_cost. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.providers._OpenAICompatibleProvider.complete → packages.asil_core.asil_core.llm.providers._compute_cost. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.providers._OpenAICompatibleProvider.complete`
   - **callee**: `packages.asil_core.asil_core.llm.providers._compute_cost`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.router.ModelRouter.call → packages.asil_core.asil_core.llm.router.ModelRouter._check_budget. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.router.ModelRouter.call → packages.asil_core.asil_core.llm.router.ModelRouter._check_budget. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.router.ModelRouter.call`
   - **callee**: `packages.asil_core.asil_core.llm.router.ModelRouter._check_budget`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.router.ModelRouter.call → packages.asil_core.asil_core.llm.router.ModelRouter._provider. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.router.ModelRouter.call → packages.asil_core.asil_core.llm.router.ModelRouter._provider. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.router.ModelRouter.call`
   - **callee**: `packages.asil_core.asil_core.llm.router.ModelRouter._provider`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.router.ModelRouter.embed → packages.asil_core.asil_core.llm.router.ModelRouter._check_budget. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.router.ModelRouter.embed → packages.asil_core.asil_core.llm.router.ModelRouter._check_budget. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.router.ModelRouter.embed`
   - **callee**: `packages.asil_core.asil_core.llm.router.ModelRouter._check_budget`
-- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.router.ModelRouter.embed → packages.asil_core.asil_core.llm.router.ModelRouter._embedder. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_core.asil_core.llm.router.ModelRouter.embed → packages.asil_core.asil_core.llm.router.ModelRouter._embedder. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_core.asil_core.llm.router.ModelRouter.embed`
   - **callee**: `packages.asil_core.asil_core.llm.router.ModelRouter._embedder`
-- **`drift/new_dependency`** — New dependency: packages.asil_drift.asil_drift.baseline.BaselineLearner.capture → packages.asil_drift.asil_drift.baseline.BaselineLearner._fetch_call_edges. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_drift.asil_drift.baseline.BaselineLearner.capture → packages.asil_drift.asil_drift.baseline.BaselineLearner._fetch_call_edges. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_drift.asil_drift.baseline.BaselineLearner.capture`
   - **callee**: `packages.asil_drift.asil_drift.baseline.BaselineLearner._fetch_call_edges`
-- **`drift/new_dependency`** — New dependency: packages.asil_drift.asil_drift.baseline.BaselineLearner.capture → packages.asil_drift.asil_drift.baseline.BaselineLearner._fetch_counts. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_drift.asil_drift.baseline.BaselineLearner.capture → packages.asil_drift.asil_drift.baseline.BaselineLearner._fetch_counts. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_drift.asil_drift.baseline.BaselineLearner.capture`
   - **callee**: `packages.asil_drift.asil_drift.baseline.BaselineLearner._fetch_counts`
-- **`drift/new_dependency`** — New dependency: packages.asil_drift.asil_drift.detector.DriftDetector.detect → packages.asil_drift.asil_drift.detector.DriftDetector._check_boundaries. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_drift.asil_drift.detector.DriftDetector.detect → packages.asil_drift.asil_drift.detector.DriftDetector._check_boundaries. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_drift.asil_drift.detector.DriftDetector.detect`
   - **callee**: `packages.asil_drift.asil_drift.detector.DriftDetector._check_boundaries`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.pr_comment.to_pr_comment → packages.asil_eval.asil_eval.pr_comment._group_by_tier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.pr_comment.to_pr_comment → packages.asil_eval.asil_eval.pr_comment._group_by_tier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.pr_comment.to_pr_comment`
   - **callee**: `packages.asil_eval.asil_eval.pr_comment._group_by_tier`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.pr_comment.to_pr_comment → packages.asil_eval.asil_eval.pr_comment._render_finding. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.pr_comment.to_pr_comment → packages.asil_eval.asil_eval.pr_comment._render_finding. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.pr_comment.to_pr_comment`
   - **callee**: `packages.asil_eval.asil_eval.pr_comment._render_finding`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.recall.RecallResult.summary → packages.asil_eval.asil_eval.recall.RecallResult.recall_at. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.recall.RecallResult.summary → packages.asil_eval.asil_eval.recall.RecallResult.recall_at. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.recall.RecallResult.summary`
   - **callee**: `packages.asil_eval.asil_eval.recall.RecallResult.recall_at`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.sarif.to_sarif → packages.asil_eval.asil_eval.sarif._finding_to_result. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.sarif.to_sarif → packages.asil_eval.asil_eval.sarif._finding_to_result. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.sarif.to_sarif`
   - **callee**: `packages.asil_eval.asil_eval.sarif._finding_to_result`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.sarif.to_sarif → packages.asil_eval.asil_eval.sarif._rule_descriptor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.sarif.to_sarif → packages.asil_eval.asil_eval.sarif._rule_descriptor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.sarif.to_sarif`
   - **callee**: `packages.asil_eval.asil_eval.sarif._rule_descriptor`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan._collect_drift → packages.asil_eval.asil_eval.scan._drift_severity. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan._collect_drift → packages.asil_eval.asil_eval.scan._drift_severity. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.scan._collect_drift`
   - **callee**: `packages.asil_eval.asil_eval.scan._drift_severity`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan._collect_drift → packages.asil_eval.asil_eval.scan._load_baseline. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan._collect_drift → packages.asil_eval.asil_eval.scan._load_baseline. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.scan._collect_drift`
   - **callee**: `packages.asil_eval.asil_eval.scan._load_baseline`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan.run_scan → packages.asil_eval.asil_eval.scan._check_gate. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan.run_scan → packages.asil_eval.asil_eval.scan._check_gate. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.scan.run_scan`
   - **callee**: `packages.asil_eval.asil_eval.scan._check_gate`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan.run_scan → packages.asil_eval.asil_eval.scan._collect_drift. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan.run_scan → packages.asil_eval.asil_eval.scan._collect_drift. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.scan.run_scan`
   - **callee**: `packages.asil_eval.asil_eval.scan._collect_drift`
-- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan.run_scan → packages.asil_eval.asil_eval.scan._collect_recent_incident_causes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_eval.asil_eval.scan.run_scan → packages.asil_eval.asil_eval.scan._collect_recent_incident_causes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_eval.asil_eval.scan.run_scan`
   - **callee**: `packages.asil_eval.asil_eval.scan._collect_recent_incident_causes`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.aggregates → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.aggregates → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.aggregates`
   - **callee**: `packages.asil_fix.asil_fix.audit.AuditLog._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.apply_schema → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.apply_schema → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.apply_schema`
   - **callee**: `packages.asil_fix.asil_fix.audit.AuditLog._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.list_for_incident → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.list_for_incident → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.list_for_incident`
   - **callee**: `packages.asil_fix.asil_fix.audit.AuditLog._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.list_for_incident → packages.asil_fix.asil_fix.audit._row_to_entry. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.list_for_incident → packages.asil_fix.asil_fix.audit._row_to_entry. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.list_for_incident`
   - **callee**: `packages.asil_fix.asil_fix.audit._row_to_entry`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.recent → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.recent → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.recent`
   - **callee**: `packages.asil_fix.asil_fix.audit.AuditLog._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.recent → packages.asil_fix.asil_fix.audit._row_to_entry. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.recent → packages.asil_fix.asil_fix.audit._row_to_entry. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.recent`
   - **callee**: `packages.asil_fix.asil_fix.audit._row_to_entry`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.record → packages.asil_fix.asil_fix.audit.AuditLog._classify. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.record → packages.asil_fix.asil_fix.audit.AuditLog._classify. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.record`
   - **callee**: `packages.asil_fix.asil_fix.audit.AuditLog._classify`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.record → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.record → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.record`
   - **callee**: `packages.asil_fix.asil_fix.audit.AuditLog._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.record → packages.asil_fix.asil_fix.audit._scrub. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.record → packages.asil_fix.asil_fix.audit._scrub. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.record`
   - **callee**: `packages.asil_fix.asil_fix.audit._scrub`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.verify_connectivity → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit.AuditLog.verify_connectivity → packages.asil_fix.asil_fix.audit.AuditLog._connect. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit.AuditLog.verify_connectivity`
   - **callee**: `packages.asil_fix.asil_fix.audit.AuditLog._connect`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit._scrub → packages.asil_fix.asil_fix.audit._scrub. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.audit._scrub → packages.asil_fix.asil_fix.audit._scrub. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.audit._scrub`
   - **callee**: `packages.asil_fix.asil_fix.audit._scrub`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context → packages.asil_fix.asil_fix.patch_generator.PatchGenerator._lookup_service_file. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context → packages.asil_fix.asil_fix.patch_generator.PatchGenerator._lookup_service_file. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context`
   - **callee**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator._lookup_service_file`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context → packages.asil_fix.asil_fix.patch_generator._safe_read_truncated. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context → packages.asil_fix.asil_fix.patch_generator._safe_read_truncated. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context`
   - **callee**: `packages.asil_fix.asil_fix.patch_generator._safe_read_truncated`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator.PatchGenerator._build_prompt. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator.PatchGenerator._build_prompt. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose`
   - **callee**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator._build_prompt`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose`
   - **callee**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator._gather_context`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator._aggregate_confidence. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator._aggregate_confidence. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose`
   - **callee**: `packages.asil_fix.asil_fix.patch_generator._aggregate_confidence`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator._extract_diff. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator._extract_diff. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose`
   - **callee**: `packages.asil_fix.asil_fix.patch_generator._extract_diff`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator._files_touched_by_diff. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator._files_touched_by_diff. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose`
   - **callee**: `packages.asil_fix.asil_fix.patch_generator._files_touched_by_diff`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator._first_diff_line_summary. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose → packages.asil_fix.asil_fix.patch_generator._first_diff_line_summary. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.patch_generator.PatchGenerator.propose`
   - **callee**: `packages.asil_fix.asil_fix.patch_generator._first_diff_line_summary`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.sandbox.LocalSandbox.run → packages.asil_fix.asil_fix.sandbox.LocalSandbox._git. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.sandbox.LocalSandbox.run → packages.asil_fix.asil_fix.sandbox.LocalSandbox._git. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.sandbox.LocalSandbox.run`
   - **callee**: `packages.asil_fix.asil_fix.sandbox.LocalSandbox._git`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.sandbox.LocalSandbox.run → packages.asil_fix.asil_fix.sandbox.LocalSandbox._workdir. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.sandbox.LocalSandbox.run → packages.asil_fix.asil_fix.sandbox.LocalSandbox._workdir. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.sandbox.LocalSandbox.run`
   - **callee**: `packages.asil_fix.asil_fix.sandbox.LocalSandbox._workdir`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.sandbox.LocalSandbox.run → packages.asil_fix.asil_fix.sandbox._result. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.sandbox.LocalSandbox.run → packages.asil_fix.asil_fix.sandbox._result. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.sandbox.LocalSandbox.run`
   - **callee**: `packages.asil_fix.asil_fix.sandbox._result`
-- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.sandbox.LocalSandbox.run → packages.asil_fix.asil_fix.sandbox._tail. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_fix.asil_fix.sandbox.LocalSandbox.run → packages.asil_fix.asil_fix.sandbox._tail. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_fix.asil_fix.sandbox.LocalSandbox.run`
   - **callee**: `packages.asil_fix.asil_fix.sandbox._tail`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.FileAdapter.poll → packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.FileAdapter.poll → packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.adapters.FileAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync → packages.asil_infra.asil_infra.adapters.FileAdapter._load_file. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync → packages.asil_infra.asil_infra.adapters.FileAdapter._load_file. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync`
   - **callee**: `packages.asil_infra.asil_infra.adapters.FileAdapter._load_file`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync → packages.asil_infra.asil_infra.adapters.FileAdapter._parse_entry. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync → packages.asil_infra.asil_infra.adapters.FileAdapter._parse_entry. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.adapters.FileAdapter.poll_sync`
   - **callee**: `packages.asil_infra.asil_infra.adapters.FileAdapter._parse_entry`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.LokiAdapter.poll → packages.asil_infra.asil_infra.adapters._redact_log_signature. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.LokiAdapter.poll → packages.asil_infra.asil_infra.adapters._redact_log_signature. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.adapters.LokiAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.adapters._redact_log_signature`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.PrometheusAdapter.poll → packages.asil_infra.asil_infra.adapters.PrometheusAdapter._instant_query. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.adapters.PrometheusAdapter.poll → packages.asil_infra.asil_infra.adapters.PrometheusAdapter._instant_query. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.adapters.PrometheusAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.adapters.PrometheusAdapter._instant_query`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter.__init__ → packages.asil_infra.asil_infra.external.github.GitHubAdapter._infer_repo_key. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter.__init__ → packages.asil_infra.asil_infra.external.github.GitHubAdapter._infer_repo_key. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter.__init__`
   - **callee**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter._infer_repo_key`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_gh → packages.asil_infra.asil_infra.external.github._parse_iso. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_gh → packages.asil_infra.asil_infra.external.github._parse_iso. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_gh`
   - **callee**: `packages.asil_infra.asil_infra.external.github._parse_iso`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_git_log → packages.asil_infra.asil_infra.external.github._parse_iso. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_git_log → packages.asil_infra.asil_infra.external.github._parse_iso. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_git_log`
   - **callee**: `packages.asil_infra.asil_infra.external.github._parse_iso`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll → packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_gh. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll → packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_gh. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_gh`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll → packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_git_log. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll → packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_git_log. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter._poll_via_git_log`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll → packages.asil_infra.asil_infra.external.github._gh_available. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll → packages.asil_infra.asil_infra.external.github._gh_available. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.github.GitHubAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.external.github._gh_available`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.jira.JiraAdapter.poll → packages.asil_infra.asil_infra.external.jira._flatten_atlassian_doc. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.jira.JiraAdapter.poll → packages.asil_infra.asil_infra.external.jira._flatten_atlassian_doc. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.jira.JiraAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.external.jira._flatten_atlassian_doc`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.linear.LinearAdapter.poll → packages.asil_infra.asil_infra.external.linear._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.linear.LinearAdapter.poll → packages.asil_infra.asil_infra.external.linear._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.linear.LinearAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.external.linear._parse`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message → packages.asil_infra.asil_infra.external.slack.SlackAdapter._extract_incident_ids. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message → packages.asil_infra.asil_infra.external.slack.SlackAdapter._extract_incident_ids. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message`
   - **callee**: `packages.asil_infra.asil_infra.external.slack.SlackAdapter._extract_incident_ids`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message → packages.asil_infra.asil_infra.external.slack.SlackAdapter._extract_services. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message → packages.asil_infra.asil_infra.external.slack.SlackAdapter._extract_services. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message`
   - **callee**: `packages.asil_infra.asil_infra.external.slack.SlackAdapter._extract_services`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.slack.SlackAdapter.poll → packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.external.slack.SlackAdapter.poll → packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.external.slack.SlackAdapter.poll`
   - **callee**: `packages.asil_infra.asil_infra.external.slack.SlackAdapter._parse_message`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._deployment_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._deployment_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem._deployment_props`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._common_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._incident_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._incident_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem._incident_props`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._common_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._log_signature_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._log_signature_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem._log_signature_props`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._common_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._metric_shift_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._metric_shift_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem._metric_shift_props`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._common_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._row_to_event → packages.asil_infra.asil_infra.postmortem._to_float. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._row_to_event → packages.asil_infra.asil_infra.postmortem._to_float. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem._row_to_event`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._to_float`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._service_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem._service_props → packages.asil_infra.asil_infra.postmortem._common_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem._service_props`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._common_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._deployment_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._deployment_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem.ingest_postmortem`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._deployment_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._incident_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._incident_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem.ingest_postmortem`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._incident_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._log_signature_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._log_signature_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem.ingest_postmortem`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._log_signature_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._metric_shift_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._metric_shift_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem.ingest_postmortem`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._metric_shift_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._service_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.ingest_postmortem → packages.asil_infra.asil_infra.postmortem._service_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem.ingest_postmortem`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._service_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.load_postmortem → packages.asil_infra.asil_infra.postmortem._row_to_event. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_infra.asil_infra.postmortem.load_postmortem → packages.asil_infra.asil_infra.postmortem._row_to_event. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_infra.asil_infra.postmortem.load_postmortem`
   - **callee**: `packages.asil_infra.asil_infra.postmortem._row_to_event`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_file_imports → packages.asil_ingest.asil_ingest.call_resolver._index_imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_file_imports → packages.asil_ingest.asil_ingest.call_resolver._index_imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_file_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.call_resolver._index_imports`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver.CallResolver._iter_callers. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver.CallResolver._iter_callers. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo`
   - **callee**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver._iter_callers`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_file_imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_file_imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo`
   - **callee**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_file_imports`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_function_index. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_function_index. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo`
   - **callee**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver._load_function_index`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver.CallResolver._write_edges. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver.CallResolver._write_edges. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo`
   - **callee**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver._write_edges`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver._resolve_one. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo → packages.asil_ingest.asil_ingest.call_resolver._resolve_one. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.call_resolver.CallResolver.resolve_repo`
   - **callee**: `packages.asil_ingest.asil_ingest.call_resolver._resolve_one`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file → packages.asil_ingest.asil_ingest.embedder.Embedder._class_chunk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file → packages.asil_ingest.asil_ingest.embedder.Embedder._class_chunk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file`
   - **callee**: `packages.asil_ingest.asil_ingest.embedder.Embedder._class_chunk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file → packages.asil_ingest.asil_ingest.embedder.Embedder._function_chunk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file → packages.asil_ingest.asil_ingest.embedder.Embedder._function_chunk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file`
   - **callee**: `packages.asil_ingest.asil_ingest.embedder.Embedder._function_chunk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file → packages.asil_ingest.asil_ingest.embedder.Embedder._read_source. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file → packages.asil_ingest.asil_ingest.embedder.Embedder._read_source. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file`
   - **callee**: `packages.asil_ingest.asil_ingest.embedder.Embedder._read_source`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._class_chunk → packages.asil_ingest.asil_ingest.embedder._slice_lines. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._class_chunk → packages.asil_ingest.asil_ingest.embedder._slice_lines. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.embedder.Embedder._class_chunk`
   - **callee**: `packages.asil_ingest.asil_ingest.embedder._slice_lines`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._function_chunk → packages.asil_ingest.asil_ingest.embedder._slice_lines. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder._function_chunk → packages.asil_ingest.asil_ingest.embedder._slice_lines. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.embedder.Embedder._function_chunk`
   - **callee**: `packages.asil_ingest.asil_ingest.embedder._slice_lines`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder.embed_file → packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.embedder.Embedder.embed_file → packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.embedder.Embedder.embed_file`
   - **callee**: `packages.asil_ingest.asil_ingest.embedder.Embedder._chunks_for_file`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.upsert_repo → packages.asil_ingest.asil_ingest.graph_builder.repo_key_for. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.upsert_repo → packages.asil_ingest.asil_ingest.graph_builder.repo_key_for. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.upsert_repo`
   - **callee**: `packages.asil_ingest.asil_ingest.graph_builder.repo_key_for`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file → packages.asil_ingest.asil_ingest.graph_builder._class_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file → packages.asil_ingest.asil_ingest.graph_builder._class_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file`
   - **callee**: `packages.asil_ingest.asil_ingest.graph_builder._class_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file → packages.asil_ingest.asil_ingest.graph_builder._file_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file → packages.asil_ingest.asil_ingest.graph_builder._file_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file`
   - **callee**: `packages.asil_ingest.asil_ingest.graph_builder._file_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file → packages.asil_ingest.asil_ingest.graph_builder._function_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file → packages.asil_ingest.asil_ingest.graph_builder._function_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file`
   - **callee**: `packages.asil_ingest.asil_ingest.graph_builder._function_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file → packages.asil_ingest.asil_ingest.graph_builder._symbol_props. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file → packages.asil_ingest.asil_ingest.graph_builder._symbol_props. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.graph_builder.GraphBuilder.write_file`
   - **callee**: `packages.asil_ingest.asil_ingest.graph_builder._symbol_props`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner._walk → packages.asil_ingest.asil_ingest.repo_cloner._matches_ignored_glob. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner._walk → packages.asil_ingest.asil_ingest.repo_cloner._matches_ignored_glob. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.repo_cloner._walk`
   - **callee**: `packages.asil_ingest.asil_ingest.repo_cloner._matches_ignored_glob`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner._walk → packages.asil_ingest.asil_ingest.repo_cloner._walk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner._walk → packages.asil_ingest.asil_ingest.repo_cloner._walk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.repo_cloner._walk`
   - **callee**: `packages.asil_ingest.asil_ingest.repo_cloner._walk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner.iter_source_files → packages.asil_ingest.asil_ingest.repo_cloner._walk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner.iter_source_files → packages.asil_ingest.asil_ingest.repo_cloner._walk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.repo_cloner.iter_source_files`
   - **callee**: `packages.asil_ingest.asil_ingest.repo_cloner._walk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner.resolve_repo → packages.asil_ingest.asil_ingest.repo_cloner._git_head_sha. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner.resolve_repo → packages.asil_ingest.asil_ingest.repo_cloner._git_head_sha. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.repo_cloner.resolve_repo`
   - **callee**: `packages.asil_ingest.asil_ingest.repo_cloner._git_head_sha`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner.resolve_repo → packages.asil_ingest.asil_ingest.repo_cloner._parse_remote_spec. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.repo_cloner.resolve_repo → packages.asil_ingest.asil_ingest.repo_cloner._parse_remote_spec. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.repo_cloner.resolve_repo`
   - **callee**: `packages.asil_ingest.asil_ingest.repo_cloner._parse_remote_spec`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.__init__ → packages.asil_ingest.asil_ingest.treesitter_parser._get_parser. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.__init__ → packages.asil_ingest.asil_ingest.treesitter_parser._get_parser. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.__init__`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._get_parser`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._symbol`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._symbol`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name → packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name → packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._end_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._symbol`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._extract_declarator_name`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._end_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._symbol`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._strip_angle_or_quote. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._strip_angle_or_quote. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._strip_angle_or_quote`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._strip_js_string_quotes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._strip_js_string_quotes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._strip_js_string_quotes`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._strip_ruby_string. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._strip_ruby_string. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._strip_ruby_string`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._walk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_anonymous_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_anonymous_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_anonymous_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._end_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_calls`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._walk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._end_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_function_declaration`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_anonymous_function. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_anonymous_function. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_anonymous_function`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser._symbol. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._symbol`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_handle_declarator`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._strip_js_string_quotes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._strip_js_string_quotes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._strip_js_string_quotes`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_build_function`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._js_method`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_class`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_function`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._generic_imports`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_javascript → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_javascript → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_javascript`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_js_top_level`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._dispatch_python_top_level`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_tsx → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_tsx → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_tsx`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_typescript → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_typescript → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_typescript`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_js_family`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._walk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._end_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_class`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators → packages.asil_ingest.asil_ingest.treesitter_parser._children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators → packages.asil_ingest.asil_ingest.treesitter_parser._children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_decorators`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring → packages.asil_ingest.asil_ingest.treesitter_parser._strip_python_string_quotes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring → packages.asil_ingest.asil_ingest.treesitter_parser._strip_python_string_quotes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._strip_python_string_quotes`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_calls`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_docstring`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._end_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._end_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_function`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from → packages.asil_ingest.asil_ingest.treesitter_parser._start_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._start_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from → packages.asil_ingest.asil_ingest.treesitter_parser._text. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._py_import_from`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._text`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_generic`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_javascript. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_javascript. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_javascript`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_python`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_tsx. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_tsx. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_tsx`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_typescript. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_typescript. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser._parse_typescript`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser._has_error. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser._has_error. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._has_error`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser._stem. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse → packages.asil_ingest.asil_ingest.treesitter_parser._stem. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser.TreeSitterParser.parse`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._stem`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier → packages.asil_ingest.asil_ingest.treesitter_parser._kind. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._kind`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser._find_first_identifier`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._walk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser._walk → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser._walk → packages.asil_ingest.asil_ingest.treesitter_parser._named_children. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser._walk`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._named_children`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser._walk → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest.asil_ingest.treesitter_parser._walk → packages.asil_ingest.asil_ingest.treesitter_parser._walk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest.asil_ingest.treesitter_parser._walk`
   - **callee**: `packages.asil_ingest.asil_ingest.treesitter_parser._walk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.claude_code.chunk_into_qa. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.claude_code.chunk_into_qa. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.chunk_into_qa`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.claude_code.find_claude_code_sessions. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.claude_code.find_claude_code_sessions. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.find_claude_code_sessions`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.ClaudeCodeIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk → packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk → packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk → packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_final_todos. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk → packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_final_todos. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_final_todos`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions → packages.asil_ingest_agents.asil_ingest_agents.claude_code._dedupe_preserve. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions → packages.asil_ingest_agents.asil_ingest_agents.claude_code._dedupe_preserve. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._dedupe_preserve`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions → packages.asil_ingest_agents.asil_ingest_agents.claude_code._relpath. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions → packages.asil_ingest_agents.asil_ingest_agents.claude_code._relpath. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._summarise_actions`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._relpath`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.chunk_into_qa → packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.chunk_into_qa → packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.chunk_into_qa`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._close_chunk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.find_claude_code_sessions → packages.asil_ingest_agents.asil_ingest_agents.claude_code._decode_project_dir. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.find_claude_code_sessions → packages.asil_ingest_agents.asil_ingest_agents.claude_code._decode_project_dir. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.find_claude_code_sessions`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._decode_project_dir`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session → packages.asil_ingest_agents.asil_ingest_agents.claude_code._extract_text_blocks. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session → packages.asil_ingest_agents.asil_ingest_agents.claude_code._extract_text_blocks. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._extract_text_blocks`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session → packages.asil_ingest_agents.asil_ingest_agents.claude_code._extract_tool_uses. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session → packages.asil_ingest_agents.asil_ingest_agents.claude_code._extract_tool_uses. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._extract_tool_uses`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session → packages.asil_ingest_agents.asil_ingest_agents.claude_code._is_real_user_turn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session → packages.asil_ingest_agents.asil_ingest_agents.claude_code._is_real_user_turn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._is_real_user_turn`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session → packages.asil_ingest_agents.asil_ingest_agents.claude_code._parse_ts. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session → packages.asil_ingest_agents.asil_ingest_agents.claude_code._parse_ts. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code.parse_session`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.claude_code._parse_ts`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.cursor._chunk. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.cursor._chunk. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.cursor._chunk`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.cursor._extract_turns. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.cursor._extract_turns. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.cursor._extract_turns`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.cursor._read_chat_blobs. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.cursor._read_chat_blobs. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.cursor._read_chat_blobs`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.cursor.find_cursor_workspaces. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.cursor.find_cursor_workspaces. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.cursor.CursorIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.cursor.find_cursor_workspaces`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor._chunk → packages.asil_ingest_agents.asil_ingest_agents.cursor._close. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor._chunk → packages.asil_ingest_agents.asil_ingest_agents.cursor._close. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.cursor._chunk`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.cursor._close`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor._extract_turns → packages.asil_ingest_agents.asil_ingest_agents.cursor._turns_from_messages. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor._extract_turns → packages.asil_ingest_agents.asil_ingest_agents.cursor._turns_from_messages. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.cursor._extract_turns`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.cursor._turns_from_messages`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.find_cursor_workspaces → packages.asil_ingest_agents.asil_ingest_agents.cursor.cursor_storage_root. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.cursor.find_cursor_workspaces → packages.asil_ingest_agents.asil_ingest_agents.cursor.cursor_storage_root. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.cursor.find_cursor_workspaces`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.cursor.cursor_storage_root`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester._parse`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._pair. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester.plan → packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._pair. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl.GenericJsonlIngester.plan`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._pair`
-- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._pair → packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._close. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._pair → packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._close. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._pair`
   - **callee**: `packages.asil_ingest_agents.asil_ingest_agents.generic_jsonl._close`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.__exit__ → packages.asil_memory.asil_memory.episodic.EpisodicStore.close. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.__exit__ → packages.asil_memory.asil_memory.episodic.EpisodicStore.close. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.__exit__`
   - **callee**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.close`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.__init__ → packages.asil_memory.asil_memory.episodic._normalize_dsn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.__init__ → packages.asil_memory.asil_memory.episodic._normalize_dsn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.__init__`
   - **callee**: `packages.asil_memory.asil_memory.episodic._normalize_dsn`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore._fold_into_existing → packages.asil_memory.asil_memory.episodic.EpisodicStore.get. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore._fold_into_existing → packages.asil_memory.asil_memory.episodic.EpisodicStore.get. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore._fold_into_existing`
   - **callee**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.get`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.get → packages.asil_memory.asil_memory.episodic._row_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.get → packages.asil_memory.asil_memory.episodic._row_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.get`
   - **callee**: `packages.asil_memory.asil_memory.episodic._row_to_memory`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_recent → packages.asil_memory.asil_memory.episodic._row_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_recent → packages.asil_memory.asil_memory.episodic._row_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_recent`
   - **callee**: `packages.asil_memory.asil_memory.episodic._row_to_memory`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_similar → packages.asil_memory.asil_memory.episodic.EpisodicStore.get. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_similar → packages.asil_memory.asil_memory.episodic.EpisodicStore.get. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_similar`
   - **callee**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.get`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.remember → packages.asil_memory.asil_memory.episodic.EpisodicStore._fold_into_existing. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.remember → packages.asil_memory.asil_memory.episodic.EpisodicStore._fold_into_existing. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.remember`
   - **callee**: `packages.asil_memory.asil_memory.episodic.EpisodicStore._fold_into_existing`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.remember → packages.asil_memory.asil_memory.episodic.EpisodicStore._log_memory_write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.remember → packages.asil_memory.asil_memory.episodic.EpisodicStore._log_memory_write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.remember`
   - **callee**: `packages.asil_memory.asil_memory.episodic.EpisodicStore._log_memory_write`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.remember → packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_similar. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.remember → packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_similar. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.remember`
   - **callee**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.recall_similar`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.top_recalled → packages.asil_memory.asil_memory.episodic._row_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic.EpisodicStore.top_recalled → packages.asil_memory.asil_memory.episodic._row_to_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic.EpisodicStore.top_recalled`
   - **callee**: `packages.asil_memory.asil_memory.episodic._row_to_memory`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic._row_to_memory → packages.asil_memory.asil_memory.episodic._loads_dict. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic._row_to_memory → packages.asil_memory.asil_memory.episodic._loads_dict. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic._row_to_memory`
   - **callee**: `packages.asil_memory.asil_memory.episodic._loads_dict`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic._row_to_memory → packages.asil_memory.asil_memory.episodic._loads_list. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.episodic._row_to_memory → packages.asil_memory.asil_memory.episodic._loads_list. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.episodic._row_to_memory`
   - **callee**: `packages.asil_memory.asil_memory.episodic._loads_list`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.__exit__ → packages.asil_memory.asil_memory.graph_store.GraphStore.close. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.__exit__ → packages.asil_memory.asil_memory.graph_store.GraphStore.close. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.__exit__`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore.close`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.apply_schema → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.apply_schema → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.apply_schema`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.causes_for_incident → packages.asil_memory.asil_memory.graph_store.GraphStore.query. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.causes_for_incident → packages.asil_memory.asil_memory.graph_store.GraphStore.query. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.causes_for_incident`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore.query`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.clear_env → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.clear_env → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.clear_env`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.clear_repo → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.clear_repo → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.clear_repo`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.events_for_service → packages.asil_memory.asil_memory.graph_store.GraphStore.query. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.events_for_service → packages.asil_memory.asil_memory.graph_store.GraphStore.query. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.events_for_service`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore.query`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.list_repos → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.list_repos → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.list_repos`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_chat_message → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_chat_message → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_chat_message`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_deployment → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_deployment → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_deployment`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_file_with_children → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_file_with_children → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_file_with_children`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_incident → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_incident → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_incident`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_log_signature → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_log_signature → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_log_signature`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_metric_shift → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_metric_shift → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_metric_shift`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_pull_request → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_pull_request → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_pull_request`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_repo → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_repo → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_repo`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_service → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_service → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_service`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_ticket → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.merge_ticket → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.merge_ticket`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.query → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.query → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.query`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.runtime_stats → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.runtime_stats → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.runtime_stats`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.stats → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.graph_store.GraphStore.stats → packages.asil_memory.asil_memory.graph_store.GraphStore._session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.graph_store.GraphStore.stats`
   - **callee**: `packages.asil_memory.asil_memory.graph_store.GraphStore._session`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve → packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever._graph_neighbors. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve → packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever._graph_neighbors. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve`
   - **callee**: `packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever._graph_neighbors`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve → packages.asil_memory.asil_memory.hybrid_retriever._candidate_from_graph_row. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve → packages.asil_memory.asil_memory.hybrid_retriever._candidate_from_graph_row. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve`
   - **callee**: `packages.asil_memory.asil_memory.hybrid_retriever._candidate_from_graph_row`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve → packages.asil_memory.asil_memory.hybrid_retriever._candidate_from_vector_hit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve → packages.asil_memory.asil_memory.hybrid_retriever._candidate_from_vector_hit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve`
   - **callee**: `packages.asil_memory.asil_memory.hybrid_retriever._candidate_from_vector_hit`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve → packages.asil_memory.asil_memory.hybrid_retriever._retrieval_confidence. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve → packages.asil_memory.asil_memory.hybrid_retriever._retrieval_confidence. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.hybrid_retriever.HybridRetriever.retrieve`
   - **callee**: `packages.asil_memory.asil_memory.hybrid_retriever._retrieval_confidence`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.__init__ → packages.asil_memory.asil_memory.teams._normalize_dsn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.__init__ → packages.asil_memory.asil_memory.teams._normalize_dsn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.__init__`
   - **callee**: `packages.asil_memory.asil_memory.teams._normalize_dsn`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.apply_schema → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.apply_schema → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.apply_schema`
   - **callee**: `packages.asil_memory.asil_memory.teams.TeamsStore._conn`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.create_team → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.create_team → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.create_team`
   - **callee**: `packages.asil_memory.asil_memory.teams.TeamsStore._conn`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.create_team → packages.asil_memory.asil_memory.teams._row_to_team. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.create_team → packages.asil_memory.asil_memory.teams._row_to_team. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.create_team`
   - **callee**: `packages.asil_memory.asil_memory.teams._row_to_team`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.list_teams → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.list_teams → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.list_teams`
   - **callee**: `packages.asil_memory.asil_memory.teams.TeamsStore._conn`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.list_teams → packages.asil_memory.asil_memory.teams._row_to_team. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.list_teams → packages.asil_memory.asil_memory.teams._row_to_team. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.list_teams`
   - **callee**: `packages.asil_memory.asil_memory.teams._row_to_team`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.revoke → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.revoke → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.revoke`
   - **callee**: `packages.asil_memory.asil_memory.teams.TeamsStore._conn`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.rotate_key → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.rotate_key → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.rotate_key`
   - **callee**: `packages.asil_memory.asil_memory.teams.TeamsStore._conn`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.rotate_key → packages.asil_memory.asil_memory.teams._row_to_team. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.rotate_key → packages.asil_memory.asil_memory.teams._row_to_team. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.rotate_key`
   - **callee**: `packages.asil_memory.asil_memory.teams._row_to_team`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.verify_key → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.teams.TeamsStore.verify_key → packages.asil_memory.asil_memory.teams.TeamsStore._conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.teams.TeamsStore.verify_key`
   - **callee**: `packages.asil_memory.asil_memory.teams.TeamsStore._conn`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.vector_store.VectorStore.__exit__ → packages.asil_memory.asil_memory.vector_store.VectorStore.close. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.vector_store.VectorStore.__exit__ → packages.asil_memory.asil_memory.vector_store.VectorStore.close. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.vector_store.VectorStore.__exit__`
   - **callee**: `packages.asil_memory.asil_memory.vector_store.VectorStore.close`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.vector_store.VectorStore.clear_repo → packages.asil_memory.asil_memory.vector_store.VectorStore.count. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.vector_store.VectorStore.clear_repo → packages.asil_memory.asil_memory.vector_store.VectorStore.count. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.vector_store.VectorStore.clear_repo`
   - **callee**: `packages.asil_memory.asil_memory.vector_store.VectorStore.count`
-- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.vector_store.VectorStore.stats → packages.asil_memory.asil_memory.vector_store.VectorStore.count. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_memory.asil_memory.vector_store.VectorStore.stats → packages.asil_memory.asil_memory.vector_store.VectorStore.count. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_memory.asil_memory.vector_store.VectorStore.stats`
   - **callee**: `packages.asil_memory.asil_memory.vector_store.VectorStore.count`
-- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.scorer.score_retrieval → packages.asil_reasoning.asil_reasoning.scorer._safe_score. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.scorer.score_retrieval → packages.asil_reasoning.asil_reasoning.scorer._safe_score. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_reasoning.asil_reasoning.scorer.score_retrieval`
   - **callee**: `packages.asil_reasoning.asil_reasoning.scorer._safe_score`
-- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.scorer.score_verified_answer → packages.asil_reasoning.asil_reasoning.scorer._clip. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.scorer.score_verified_answer → packages.asil_reasoning.asil_reasoning.scorer._clip. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_reasoning.asil_reasoning.scorer.score_verified_answer`
   - **callee**: `packages.asil_reasoning.asil_reasoning.scorer._clip`
-- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.scorer.score_verified_answer → packages.asil_reasoning.asil_reasoning.scorer._unsupported_multiplier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.scorer.score_verified_answer → packages.asil_reasoning.asil_reasoning.scorer._unsupported_multiplier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_reasoning.asil_reasoning.scorer.score_verified_answer`
   - **callee**: `packages.asil_reasoning.asil_reasoning.scorer._unsupported_multiplier`
-- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier.Verifier.verify → packages.asil_reasoning.asil_reasoning.verifier._build_verify_prompt. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier.Verifier.verify → packages.asil_reasoning.asil_reasoning.verifier._build_verify_prompt. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_reasoning.asil_reasoning.verifier.Verifier.verify`
   - **callee**: `packages.asil_reasoning.asil_reasoning.verifier._build_verify_prompt`
-- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier.Verifier.verify → packages.asil_reasoning.asil_reasoning.verifier._parse_claims. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier.Verifier.verify → packages.asil_reasoning.asil_reasoning.verifier._parse_claims. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_reasoning.asil_reasoning.verifier.Verifier.verify`
   - **callee**: `packages.asil_reasoning.asil_reasoning.verifier._parse_claims`
-- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier._parse_claims → packages.asil_reasoning.asil_reasoning.verifier._try_parse_json. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier._parse_claims → packages.asil_reasoning.asil_reasoning.verifier._try_parse_json. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_reasoning.asil_reasoning.verifier._parse_claims`
   - **callee**: `packages.asil_reasoning.asil_reasoning.verifier._try_parse_json`
-- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier._parse_claims → packages.asil_reasoning.asil_reasoning.verifier._try_parse_json_in_fence. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier._parse_claims → packages.asil_reasoning.asil_reasoning.verifier._try_parse_json_in_fence. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_reasoning.asil_reasoning.verifier._parse_claims`
   - **callee**: `packages.asil_reasoning.asil_reasoning.verifier._try_parse_json_in_fence`
-- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier._try_parse_json_in_fence → packages.asil_reasoning.asil_reasoning.verifier._try_parse_json. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_reasoning.asil_reasoning.verifier._try_parse_json_in_fence → packages.asil_reasoning.asil_reasoning.verifier._try_parse_json. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_reasoning.asil_reasoning.verifier._try_parse_json_in_fence`
   - **callee**: `packages.asil_reasoning.asil_reasoning.verifier._try_parse_json`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine._build_timeline → packages.asil_replay.asil_replay.replay.ReplayEngine._event_description. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine._build_timeline → packages.asil_replay.asil_replay.replay.ReplayEngine._event_description. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine._build_timeline`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._event_description`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._aggregate_confidence. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._aggregate_confidence. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine.replay`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._aggregate_confidence`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._build_cascade. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._build_cascade. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine.replay`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._build_cascade`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._build_summary. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._build_summary. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine.replay`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._build_summary`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._build_timeline. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._build_timeline. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine.replay`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._build_timeline`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._cause_node_keys. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._cause_node_keys. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine.replay`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._cause_node_keys`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._fetch_incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._fetch_incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine.replay`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._fetch_incident`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._mark_timeline. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._mark_timeline. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine.replay`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._mark_timeline`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._parse_affected. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.replay.ReplayEngine.replay → packages.asil_replay.asil_replay.replay.ReplayEngine._parse_affected. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.replay.ReplayEngine.replay`
   - **callee**: `packages.asil_replay.asil_replay.replay.ReplayEngine._parse_affected`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.state_diff.StateDiffer.diff → packages.asil_replay.asil_replay.state_diff.StateDiffer._deployments_during. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.state_diff.StateDiffer.diff → packages.asil_replay.asil_replay.state_diff.StateDiffer._deployments_during. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.state_diff.StateDiffer.diff`
   - **callee**: `packages.asil_replay.asil_replay.state_diff.StateDiffer._deployments_during`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.state_diff.StateDiffer.diff → packages.asil_replay.asil_replay.state_diff.StateDiffer._fetch_incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.state_diff.StateDiffer.diff → packages.asil_replay.asil_replay.state_diff.StateDiffer._fetch_incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.state_diff.StateDiffer.diff`
   - **callee**: `packages.asil_replay.asil_replay.state_diff.StateDiffer._fetch_incident`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.state_diff.StateDiffer.diff → packages.asil_replay.asil_replay.state_diff.StateDiffer._metric_deltas. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.state_diff.StateDiffer.diff → packages.asil_replay.asil_replay.state_diff.StateDiffer._metric_deltas. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.state_diff.StateDiffer.diff`
   - **callee**: `packages.asil_replay.asil_replay.state_diff.StateDiffer._metric_deltas`
-- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.state_diff.StateDiffer.diff → packages.asil_replay.asil_replay.state_diff.StateDiffer._parse_affected. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_replay.asil_replay.state_diff.StateDiffer.diff → packages.asil_replay.asil_replay.state_diff.StateDiffer._parse_affected. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_replay.asil_replay.state_diff.StateDiffer.diff`
   - **callee**: `packages.asil_replay.asil_replay.state_diff.StateDiffer._parse_affected`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates → packages.asil_temporal.asil_temporal.linker._to_datetime. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates → packages.asil_temporal.asil_temporal.linker._to_datetime. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates`
   - **callee**: `packages.asil_temporal.asil_temporal.linker._to_datetime`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker._score → packages.asil_temporal.asil_temporal.linker._exp_decay. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker._score → packages.asil_temporal.asil_temporal.linker._exp_decay. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._score`
   - **callee**: `packages.asil_temporal.asil_temporal.linker._exp_decay`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker._score → packages.asil_temporal.asil_temporal.linker._summarize. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker._score → packages.asil_temporal.asil_temporal.linker._summarize. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._score`
   - **callee**: `packages.asil_temporal.asil_temporal.linker._summarize`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_env → packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_env → packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_env`
   - **callee**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_incident`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._score. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._score. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._score`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._write_edge. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._write_edge. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._write_edge`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker._apply_explicit_reference. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker._apply_explicit_reference. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker._apply_explicit_reference`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker._apply_lagged_correlation. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident → packages.asil_temporal.asil_temporal.linker._apply_lagged_correlation. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.link_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker._apply_lagged_correlation`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_candidates`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._fetch_incident`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._score. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker.TemporalLinker._score. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker._score`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker._apply_explicit_reference. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker._apply_explicit_reference. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker._apply_explicit_reference`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker._apply_lagged_correlation. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident → packages.asil_temporal.asil_temporal.linker._apply_lagged_correlation. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker.TemporalLinker.score_incident`
   - **callee**: `packages.asil_temporal.asil_temporal.linker._apply_lagged_correlation`
-- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker._summarize → packages.asil_temporal.asil_temporal.linker._env_from_id_or_default. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: packages.asil_temporal.asil_temporal.linker._summarize → packages.asil_temporal.asil_temporal.linker._env_from_id_or_default. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `packages.asil_temporal.asil_temporal.linker._summarize`
   - **callee**: `packages.asil_temporal.asil_temporal.linker._env_from_id_or_default`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard._call_tool → scripts.snapshot_dashboard._http_post. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard._call_tool → scripts.snapshot_dashboard._http_post. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard._call_tool`
   - **callee**: `scripts.snapshot_dashboard._http_post`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.main → scripts.snapshot_dashboard.snapshot_mcp_tools. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.main → scripts.snapshot_dashboard.snapshot_mcp_tools. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.main`
   - **callee**: `scripts.snapshot_dashboard.snapshot_mcp_tools`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.main → scripts.snapshot_dashboard.snapshot_rest. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.main → scripts.snapshot_dashboard.snapshot_rest. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.main`
   - **callee**: `scripts.snapshot_dashboard.snapshot_rest`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.main → scripts.snapshot_dashboard.wait_for_api. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.main → scripts.snapshot_dashboard.wait_for_api. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.main`
   - **callee**: `scripts.snapshot_dashboard.wait_for_api`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_mcp_tools → scripts.snapshot_dashboard._call_tool. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_mcp_tools → scripts.snapshot_dashboard._call_tool. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.snapshot_mcp_tools`
   - **callee**: `scripts.snapshot_dashboard._call_tool`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_mcp_tools → scripts.snapshot_dashboard._safe_id_for_path. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_mcp_tools → scripts.snapshot_dashboard._safe_id_for_path. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.snapshot_mcp_tools`
   - **callee**: `scripts.snapshot_dashboard._safe_id_for_path`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_mcp_tools → scripts.snapshot_dashboard._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_mcp_tools → scripts.snapshot_dashboard._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.snapshot_mcp_tools`
   - **callee**: `scripts.snapshot_dashboard._write`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_rest → scripts.snapshot_dashboard._http_get. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_rest → scripts.snapshot_dashboard._http_get. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.snapshot_rest`
   - **callee**: `scripts.snapshot_dashboard._http_get`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_rest → scripts.snapshot_dashboard._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.snapshot_rest → scripts.snapshot_dashboard._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.snapshot_rest`
   - **callee**: `scripts.snapshot_dashboard._write`
-- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.wait_for_api → scripts.snapshot_dashboard._http_get. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: scripts.snapshot_dashboard.wait_for_api → scripts.snapshot_dashboard._http_get. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `scripts.snapshot_dashboard.wait_for_api`
   - **callee**: `scripts.snapshot_dashboard._http_get`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_clear_repo_wipes_all_memories → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_clear_repo_wipes_all_memories → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_episodic_store.test_clear_repo_wipes_all_memories`
   - **callee**: `tests.integration.test_episodic_store._conf`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_forget_removes_row → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_forget_removes_row → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_episodic_store.test_forget_removes_row`
   - **callee**: `tests.integration.test_episodic_store._conf`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_recall_recent_returns_newest_first → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_recall_recent_returns_newest_first → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_episodic_store.test_recall_recent_returns_newest_first`
   - **callee**: `tests.integration.test_episodic_store._conf`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_recall_recent_scopes_to_repo_key → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_recall_recent_scopes_to_repo_key → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_episodic_store.test_recall_recent_scopes_to_repo_key`
   - **callee**: `tests.integration.test_episodic_store._conf`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_recall_similar_uses_vector_store → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_recall_similar_uses_vector_store → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_episodic_store.test_recall_similar_uses_vector_store`
   - **callee**: `tests.integration.test_episodic_store._conf`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_remember_then_get_round_trips_every_field → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_remember_then_get_round_trips_every_field → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_episodic_store.test_remember_then_get_round_trips_every_field`
   - **callee**: `tests.integration.test_episodic_store._conf`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_remember_works_without_vector_store → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_remember_works_without_vector_store → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_episodic_store.test_remember_works_without_vector_store`
   - **callee**: `tests.integration.test_episodic_store._conf`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_stats_returns_overall_and_per_repo → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_episodic_store.test_stats_returns_overall_and_per_repo → tests.integration.test_episodic_store._conf. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_episodic_store.test_stats_returns_overall_and_per_repo`
   - **callee**: `tests.integration.test_episodic_store._conf`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_clear_env_removes_all_runtime_nodes_for_env → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_clear_env_removes_all_runtime_nodes_for_env → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_postmortem_ingest.test_clear_env_removes_all_runtime_nodes_for_env`
   - **callee**: `tests.integration.test_postmortem_ingest._write`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_events_for_service_respects_since_filter → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_events_for_service_respects_since_filter → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_postmortem_ingest.test_events_for_service_respects_since_filter`
   - **callee**: `tests.integration.test_postmortem_ingest._write`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_events_for_service_returns_chronological_view → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_events_for_service_returns_chronological_view → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_postmortem_ingest.test_events_for_service_returns_chronological_view`
   - **callee**: `tests.integration.test_postmortem_ingest._write`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_incident_affected_edges_land_on_real_service_nodes → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_incident_affected_edges_land_on_real_service_nodes → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_postmortem_ingest.test_incident_affected_edges_land_on_real_service_nodes`
   - **callee**: `tests.integration.test_postmortem_ingest._write`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_ingest_writes_one_node_per_event_kind → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_ingest_writes_one_node_per_event_kind → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_postmortem_ingest.test_ingest_writes_one_node_per_event_kind`
   - **callee**: `tests.integration.test_postmortem_ingest._write`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_reingest_is_idempotent → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_postmortem_ingest.test_reingest_is_idempotent → tests.integration.test_postmortem_ingest._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_postmortem_ingest.test_reingest_is_idempotent`
   - **callee**: `tests.integration.test_postmortem_ingest._write`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_after_incident_events_are_skipped → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_after_incident_events_are_skipped → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_temporal_linker.test_after_incident_events_are_skipped`
   - **callee**: `tests.integration.test_temporal_linker._ingest_bundled`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_bundled_postmortem_links_auth_deployment_as_top_cause → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_bundled_postmortem_links_auth_deployment_as_top_cause → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_temporal_linker.test_bundled_postmortem_links_auth_deployment_as_top_cause`
   - **callee**: `tests.integration.test_temporal_linker._ingest_bundled`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_find_causes_module_function_matches_persisted_edges → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_find_causes_module_function_matches_persisted_edges → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_temporal_linker.test_find_causes_module_function_matches_persisted_edges`
   - **callee**: `tests.integration.test_temporal_linker._ingest_bundled`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_lagged_correlation_promotes_deploy_above_symptom_metric_shift → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_lagged_correlation_promotes_deploy_above_symptom_metric_shift → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_temporal_linker.test_lagged_correlation_promotes_deploy_above_symptom_metric_shift`
   - **callee**: `tests.integration.test_temporal_linker._ingest_bundled`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_link_env_walks_every_incident → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_link_env_walks_every_incident → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_temporal_linker.test_link_env_walks_every_incident`
   - **callee**: `tests.integration.test_temporal_linker._ingest_bundled`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_link_is_idempotent_on_rerun → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_link_is_idempotent_on_rerun → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_temporal_linker.test_link_is_idempotent_on_rerun`
   - **callee**: `tests.integration.test_temporal_linker._ingest_bundled`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_lookback_window_excludes_distant_events → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_lookback_window_excludes_distant_events → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_temporal_linker.test_lookback_window_excludes_distant_events`
   - **callee**: `tests.integration.test_temporal_linker._ingest_bundled`
-- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_rerun_with_different_half_life_updates_confidence → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.integration.test_temporal_linker.test_rerun_with_different_half_life_updates_confidence → tests.integration.test_temporal_linker._ingest_bundled. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.integration.test_temporal_linker.test_rerun_with_different_half_life_updates_confidence`
   - **callee**: `tests.integration.test_temporal_linker._ingest_bundled`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_cls_method_uses_same_strategy → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_cls_method_uses_same_strategy → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_cls_method_uses_same_strategy`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_exact_qname_matches_directly → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_exact_qname_matches_directly → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_exact_qname_matches_directly`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_exact_qname_wins_over_other_strategies → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_exact_qname_wins_over_other_strategies → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_exact_qname_wins_over_other_strategies`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_import_alias_resolves_module_alias_then_attribute → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_import_alias_resolves_module_alias_then_attribute → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_import_alias_resolves_module_alias_then_attribute`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_import_member_resolves_from_import_as → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_import_member_resolves_from_import_as → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_import_member_resolves_from_import_as`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_index_imports_handles_aliased_import → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_index_imports_handles_aliased_import → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_index_imports_handles_aliased_import`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_index_imports_handles_from_import_with_alias → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_index_imports_handles_from_import_with_alias → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_index_imports_handles_from_import_with_alias`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_index_imports_handles_plain_import → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_index_imports_handles_plain_import → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_index_imports_handles_plain_import`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_index_imports_skips_wildcard → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_index_imports_skips_wildcard → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_index_imports_skips_wildcard`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_same_module_bare_name_resolves_against_module_prefix → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_same_module_bare_name_resolves_against_module_prefix → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_same_module_bare_name_resolves_against_module_prefix`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_self_method_falls_through_when_method_isnt_in_index → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_self_method_falls_through_when_method_isnt_in_index → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_self_method_falls_through_when_method_isnt_in_index`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_self_method_resolves_to_parent_class_method → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_self_method_resolves_to_parent_class_method → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_self_method_resolves_to_parent_class_method`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_unresolved_callee_returns_none → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_call_resolver.test_unresolved_callee_returns_none → tests.unit.test_call_resolver._imports. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_call_resolver.test_unresolved_callee_returns_none`
   - **callee**: `tests.unit.test_call_resolver._imports`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_chunk_into_qa_drops_orphan_assistant_turns → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_chunk_into_qa_drops_orphan_assistant_turns → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_claude_code_ingester.test_chunk_into_qa_drops_orphan_assistant_turns`
   - **callee**: `tests.unit.test_claude_code_ingester._write_session`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_chunk_into_qa_pairs_each_user_turn_with_following_assistant_text → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_chunk_into_qa_pairs_each_user_turn_with_following_assistant_text → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_claude_code_ingester.test_chunk_into_qa_pairs_each_user_turn_with_following_assistant_text`
   - **callee**: `tests.unit.test_claude_code_ingester._write_session`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_find_claude_code_sessions_respects_project_filter → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_find_claude_code_sessions_respects_project_filter → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_claude_code_ingester.test_find_claude_code_sessions_respects_project_filter`
   - **callee**: `tests.unit.test_claude_code_ingester._write_session`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_ingester_plan_end_to_end → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_ingester_plan_end_to_end → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_claude_code_ingester.test_ingester_plan_end_to_end`
   - **callee**: `tests.unit.test_claude_code_ingester._write_session`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_ingester_skips_sessions_modified_before_since → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_ingester_skips_sessions_modified_before_since → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_claude_code_ingester.test_ingester_skips_sessions_modified_before_since`
   - **callee**: `tests.unit.test_claude_code_ingester._write_session`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_parse_session_filters_synthetic_tool_result_user_turns → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_claude_code_ingester.test_parse_session_filters_synthetic_tool_result_user_turns → tests.unit.test_claude_code_ingester._write_session. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_claude_code_ingester.test_parse_session_filters_synthetic_tool_result_user_turns`
   - **callee**: `tests.unit.test_claude_code_ingester._write_session`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_cursor_and_generic_ingesters.test_cursor_ingester_end_to_end → tests.unit.test_cursor_and_generic_ingesters._write_cursor_db. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_cursor_and_generic_ingesters.test_cursor_ingester_end_to_end → tests.unit.test_cursor_and_generic_ingesters._write_cursor_db. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_cursor_and_generic_ingesters.test_cursor_ingester_end_to_end`
   - **callee**: `tests.unit.test_cursor_and_generic_ingesters._write_cursor_db`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_fold_into_existing_runs_jsonb_update → tests.unit.test_episodic_dedupe._make_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_fold_into_existing_runs_jsonb_update → tests.unit.test_episodic_dedupe._make_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_fold_into_existing_runs_jsonb_update`
   - **callee**: `tests.unit.test_episodic_dedupe._make_memory`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_fold_into_existing_runs_jsonb_update → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_fold_into_existing_runs_jsonb_update → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_fold_into_existing_runs_jsonb_update`
   - **callee**: `tests.unit.test_episodic_dedupe._make_store_with_mocks`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_log_memory_write_inserts_event_row → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_log_memory_write_inserts_event_row → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_log_memory_write_inserts_event_row`
   - **callee**: `tests.unit.test_episodic_dedupe._make_store_with_mocks`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_log_memory_write_swallows_errors → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_log_memory_write_swallows_errors → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_log_memory_write_swallows_errors`
   - **callee**: `tests.unit.test_episodic_dedupe._make_store_with_mocks`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_folds_on_high_similarity → tests.unit.test_episodic_dedupe._make_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_folds_on_high_similarity → tests.unit.test_episodic_dedupe._make_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_remember_folds_on_high_similarity`
   - **callee**: `tests.unit.test_episodic_dedupe._make_memory`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_folds_on_high_similarity → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_folds_on_high_similarity → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_remember_folds_on_high_similarity`
   - **callee**: `tests.unit.test_episodic_dedupe._make_store_with_mocks`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_inserts_when_below_dedupe_threshold → tests.unit.test_episodic_dedupe._make_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_inserts_when_below_dedupe_threshold → tests.unit.test_episodic_dedupe._make_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_remember_inserts_when_below_dedupe_threshold`
   - **callee**: `tests.unit.test_episodic_dedupe._make_memory`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_inserts_when_below_dedupe_threshold → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_inserts_when_below_dedupe_threshold → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_remember_inserts_when_below_dedupe_threshold`
   - **callee**: `tests.unit.test_episodic_dedupe._make_store_with_mocks`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_skips_dedupe_when_threshold_none → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_remember_skips_dedupe_when_threshold_none → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_remember_skips_dedupe_when_threshold_none`
   - **callee**: `tests.unit.test_episodic_dedupe._make_store_with_mocks`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_write_log_stats_computes_dedupe_rate → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_episodic_dedupe.test_write_log_stats_computes_dedupe_rate → tests.unit.test_episodic_dedupe._make_store_with_mocks. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_episodic_dedupe.test_write_log_stats_computes_dedupe_rate`
   - **callee**: `tests.unit.test_episodic_dedupe._make_store_with_mocks`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_external_adapters.test_github_git_log_extracts_merge_commits → tests.unit.test_external_adapters._git. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_external_adapters.test_github_git_log_extracts_merge_commits → tests.unit.test_external_adapters._git. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_external_adapters.test_github_git_log_extracts_merge_commits`
   - **callee**: `tests.unit.test_external_adapters._git`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_external_adapters.test_github_git_log_extracts_merge_commits → tests.unit.test_external_adapters._git_available. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_external_adapters.test_github_git_log_extracts_merge_commits → tests.unit.test_external_adapters._git_available. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_external_adapters.test_github_git_log_extracts_merge_commits`
   - **callee**: `tests.unit.test_external_adapters._git_available`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_audit_classify_outcomes → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_audit_classify_outcomes → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_audit_classify_outcomes`
   - **callee**: `tests.unit.test_fix_pipeline._proposal`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus → tests.unit.test_fix_pipeline._git. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus → tests.unit.test_fix_pipeline._git. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus`
   - **callee**: `tests.unit.test_fix_pipeline._git`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus → tests.unit.test_fix_pipeline._git_available. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus → tests.unit.test_fix_pipeline._git_available. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus`
   - **callee**: `tests.unit.test_fix_pipeline._git_available`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_apply_failed_when_diff_is_bogus`
   - **callee**: `tests.unit.test_fix_pipeline._proposal`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass → tests.unit.test_fix_pipeline._git. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass → tests.unit.test_fix_pipeline._git. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass`
   - **callee**: `tests.unit.test_fix_pipeline._git`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass → tests.unit.test_fix_pipeline._git_available. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass → tests.unit.test_fix_pipeline._git_available. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass`
   - **callee**: `tests.unit.test_fix_pipeline._git_available`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_apply_then_tests_pass`
   - **callee**: `tests.unit.test_fix_pipeline._proposal`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_rejects_empty_diff → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_rejects_empty_diff → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_rejects_empty_diff`
   - **callee**: `tests.unit.test_fix_pipeline._proposal`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure → tests.unit.test_fix_pipeline._git. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure → tests.unit.test_fix_pipeline._git. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure`
   - **callee**: `tests.unit.test_fix_pipeline._git`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure → tests.unit.test_fix_pipeline._git_available. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure → tests.unit.test_fix_pipeline._git_available. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure`
   - **callee**: `tests.unit.test_fix_pipeline._git_available`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_local_sandbox_reports_test_failure`
   - **callee**: `tests.unit.test_fix_pipeline._proposal`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_noop_sandbox_returns_not_run → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_noop_sandbox_returns_not_run → tests.unit.test_fix_pipeline._proposal. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_noop_sandbox_returns_not_run`
   - **callee**: `tests.unit.test_fix_pipeline._proposal`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_patch_generator_happy_path_parses_llm_output → tests.unit.test_fix_pipeline._async_value. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_patch_generator_happy_path_parses_llm_output → tests.unit.test_fix_pipeline._async_value. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_patch_generator_happy_path_parses_llm_output`
   - **callee**: `tests.unit.test_fix_pipeline._async_value`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_patch_generator_truncates_oversized_file → tests.unit.test_fix_pipeline._async_value. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_fix_pipeline.test_patch_generator_truncates_oversized_file → tests.unit.test_fix_pipeline._async_value. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_fix_pipeline.test_patch_generator_truncates_oversized_file`
   - **callee**: `tests.unit.test_fix_pipeline._async_value`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_confidence_reflects_top_score_and_evidence_count → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_confidence_reflects_top_score_and_evidence_count → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_hybrid_retriever.test_confidence_reflects_top_score_and_evidence_count`
   - **callee**: `tests.unit.test_hybrid_retriever._hit`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_dedup_when_graph_expand_returns_a_vector_hit_qname → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_dedup_when_graph_expand_returns_a_vector_hit_qname → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_hybrid_retriever.test_dedup_when_graph_expand_returns_a_vector_hit_qname`
   - **callee**: `tests.unit.test_hybrid_retriever._hit`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_expand_hops_zero_skips_graph_entirely → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_expand_hops_zero_skips_graph_entirely → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_hybrid_retriever.test_expand_hops_zero_skips_graph_entirely`
   - **callee**: `tests.unit.test_hybrid_retriever._hit`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_graph_expand_adds_neighbors_without_displacing_vector_hits → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_graph_expand_adds_neighbors_without_displacing_vector_hits → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_hybrid_retriever.test_graph_expand_adds_neighbors_without_displacing_vector_hits`
   - **callee**: `tests.unit.test_hybrid_retriever._hit`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_respects_repo_and_kind_filters_passed_through_to_vector → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_respects_repo_and_kind_filters_passed_through_to_vector → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_hybrid_retriever.test_respects_repo_and_kind_filters_passed_through_to_vector`
   - **callee**: `tests.unit.test_hybrid_retriever._hit`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_returns_vector_hits_in_descending_score_order → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_hybrid_retriever.test_returns_vector_hits_in_descending_score_order → tests.unit.test_hybrid_retriever._hit. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_hybrid_retriever.test_returns_vector_hits_in_descending_score_order`
   - **callee**: `tests.unit.test_hybrid_retriever._hit`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_machine_id_persists_to_file → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_machine_id_persists_to_file → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_identity.test_get_machine_id_persists_to_file`
   - **callee**: `tests.unit.test_identity._reset`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_machine_id_prefers_env → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_machine_id_prefers_env → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_identity.test_get_machine_id_prefers_env`
   - **callee**: `tests.unit.test_identity._reset`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_user_id_falls_back_to_unknown → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_user_id_falls_back_to_unknown → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_identity.test_get_user_id_falls_back_to_unknown`
   - **callee**: `tests.unit.test_identity._reset`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_user_id_prefers_env → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_user_id_prefers_env → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_identity.test_get_user_id_prefers_env`
   - **callee**: `tests.unit.test_identity._reset`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_user_id_uses_git_when_env_absent → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_identity.test_get_user_id_uses_git_when_env_absent → tests.unit.test_identity._reset. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_identity.test_get_user_id_uses_git_when_env_absent`
   - **callee**: `tests.unit.test_identity._reset`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_live_adapters.test_loki_distinct_signatures_emit_separately → tests.unit.test_live_adapters._async_client_mock. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_live_adapters.test_loki_distinct_signatures_emit_separately → tests.unit.test_live_adapters._async_client_mock. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_live_adapters.test_loki_distinct_signatures_emit_separately`
   - **callee**: `tests.unit.test_live_adapters._async_client_mock`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_live_adapters.test_loki_groups_lines_into_signatures → tests.unit.test_live_adapters._async_client_mock. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_live_adapters.test_loki_groups_lines_into_signatures → tests.unit.test_live_adapters._async_client_mock. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_live_adapters.test_loki_groups_lines_into_signatures`
   - **callee**: `tests.unit.test_live_adapters._async_client_mock`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_live_adapters.test_prom_emits_metric_shift_when_threshold_crossed → tests.unit.test_live_adapters._async_client_mock. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_live_adapters.test_prom_emits_metric_shift_when_threshold_crossed → tests.unit.test_live_adapters._async_client_mock. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_live_adapters.test_prom_emits_metric_shift_when_threshold_crossed`
   - **callee**: `tests.unit.test_live_adapters._async_client_mock`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_live_adapters.test_prom_no_probes_no_events → tests.unit.test_live_adapters._async_client_mock. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_live_adapters.test_prom_no_probes_no_events → tests.unit.test_live_adapters._async_client_mock. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_live_adapters.test_prom_no_probes_no_events`
   - **callee**: `tests.unit.test_live_adapters._async_client_mock`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_dispatches_to_provider_for_tier → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_dispatches_to_provider_for_tier → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_llm_router.test_router_dispatches_to_provider_for_tier`
   - **callee**: `tests.unit.test_llm_router._profile`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_downgrades_to_fallback_when_budget_exceeded → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_downgrades_to_fallback_when_budget_exceeded → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_llm_router.test_router_downgrades_to_fallback_when_budget_exceeded`
   - **callee**: `tests.unit.test_llm_router._profile`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_embed_uses_embedding_provider → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_embed_uses_embedding_provider → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_llm_router.test_router_embed_uses_embedding_provider`
   - **callee**: `tests.unit.test_llm_router._profile`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_records_cost_in_ledger → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_records_cost_in_ledger → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_llm_router.test_router_records_cost_in_ledger`
   - **callee**: `tests.unit.test_llm_router._profile`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_rejects_embed_via_call → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_llm_router.test_router_rejects_embed_via_call → tests.unit.test_llm_router._profile. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_llm_router.test_router_rejects_embed_via_call`
   - **callee**: `tests.unit.test_llm_router._profile`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_mcp_tools._FakeEpisodicCacheHit.__init__ → tests.unit.test_mcp_tools._fake_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_mcp_tools._FakeEpisodicCacheHit.__init__ → tests.unit.test_mcp_tools._fake_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_mcp_tools._FakeEpisodicCacheHit.__init__`
   - **callee**: `tests.unit.test_mcp_tools._fake_memory`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_mcp_tools._FakeEpisodicCacheHit.remember → tests.unit.test_mcp_tools._fake_memory. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_mcp_tools._FakeEpisodicCacheHit.remember → tests.unit.test_mcp_tools._fake_memory. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_mcp_tools._FakeEpisodicCacheHit.remember`
   - **callee**: `tests.unit.test_mcp_tools._fake_memory`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_measured_from_real_ledger → tests.unit.test_postgres_ledger._mock_connection. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_measured_from_real_ledger → tests.unit.test_postgres_ledger._mock_connection. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postgres_ledger.test_savings_math_measured_from_real_ledger`
   - **callee**: `tests.unit.test_postgres_ledger._mock_connection`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_measured_from_real_ledger → tests.unit.test_postgres_ledger._mock_savings_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_measured_from_real_ledger → tests.unit.test_postgres_ledger._mock_savings_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postgres_ledger.test_savings_math_measured_from_real_ledger`
   - **callee**: `tests.unit.test_postgres_ledger._mock_savings_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_no_cache_hits_returns_null_pct → tests.unit.test_postgres_ledger._mock_connection. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_no_cache_hits_returns_null_pct → tests.unit.test_postgres_ledger._mock_connection. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postgres_ledger.test_savings_math_no_cache_hits_returns_null_pct`
   - **callee**: `tests.unit.test_postgres_ledger._mock_connection`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_no_cache_hits_returns_null_pct → tests.unit.test_postgres_ledger._mock_savings_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_no_cache_hits_returns_null_pct → tests.unit.test_postgres_ledger._mock_savings_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postgres_ledger.test_savings_math_no_cache_hits_returns_null_pct`
   - **callee**: `tests.unit.test_postgres_ledger._mock_savings_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_old_schema_without_recall_hits_column → tests.unit.test_postgres_ledger._mock_connection. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_old_schema_without_recall_hits_column → tests.unit.test_postgres_ledger._mock_connection. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postgres_ledger.test_savings_math_old_schema_without_recall_hits_column`
   - **callee**: `tests.unit.test_postgres_ledger._mock_connection`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_old_schema_without_recall_hits_column → tests.unit.test_postgres_ledger._mock_savings_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postgres_ledger.test_savings_math_old_schema_without_recall_hits_column → tests.unit.test_postgres_ledger._mock_savings_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postgres_ledger.test_savings_math_old_schema_without_recall_hits_column`
   - **callee**: `tests.unit.test_postgres_ledger._mock_savings_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_inline_incident_event_allowed_for_cascading_postmortems → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_inline_incident_event_allowed_for_cascading_postmortems → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_inline_incident_event_allowed_for_cascading_postmortems`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_inline_service_event_carries_repo_key_and_file_paths → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_inline_service_event_carries_repo_key_and_file_paths → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_inline_service_event_carries_repo_key_and_file_paths`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_loads_top_level_incident_and_each_timeline_kind → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_loads_top_level_incident_and_each_timeline_kind → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_loads_top_level_incident_and_each_timeline_kind`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_log_signature_hash_is_stable_across_loads → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_log_signature_hash_is_stable_across_loads → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_log_signature_hash_is_stable_across_loads`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_metric_shift_coerces_numeric_strings_to_float → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_metric_shift_coerces_numeric_strings_to_float → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_metric_shift_coerces_numeric_strings_to_float`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_non_mapping_top_level_raises_value_error → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_non_mapping_top_level_raises_value_error → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_non_mapping_top_level_raises_value_error`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_source_field_records_provenance → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_source_field_records_provenance → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_source_field_records_provenance`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_timeline_row_missing_required_field_raises_with_context → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_timeline_row_missing_required_field_raises_with_context → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_timeline_row_missing_required_field_raises_with_context`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_timeline_row_with_unknown_kind_raises_with_index → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_postmortem.test_timeline_row_with_unknown_kind_raises_with_index → tests.unit.test_postmortem._write. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_postmortem.test_timeline_row_with_unknown_kind_raises_with_index`
   - **callee**: `tests.unit.test_postmortem._write`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_confidence_derivation_includes_strategy → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_confidence_derivation_includes_strategy → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_confidence_derivation_includes_strategy`
   - **callee**: `tests.unit.test_replay._causes`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_confidence_derivation_includes_strategy → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_confidence_derivation_includes_strategy → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_confidence_derivation_includes_strategy`
   - **callee**: `tests.unit.test_replay._events`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_confidence_derivation_includes_strategy → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_confidence_derivation_includes_strategy → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_confidence_derivation_includes_strategy`
   - **callee**: `tests.unit.test_replay._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_assembles_full_replay → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_assembles_full_replay → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_assembles_full_replay`
   - **callee**: `tests.unit.test_replay._causes`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_assembles_full_replay → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_assembles_full_replay → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_assembles_full_replay`
   - **callee**: `tests.unit.test_replay._events`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_assembles_full_replay → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_assembles_full_replay → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_assembles_full_replay`
   - **callee**: `tests.unit.test_replay._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_causes_limit → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_causes_limit → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_causes_limit`
   - **callee**: `tests.unit.test_replay._causes`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_causes_limit → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_causes_limit → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_causes_limit`
   - **callee**: `tests.unit.test_replay._events`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_causes_limit → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_causes_limit → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_causes_limit`
   - **callee**: `tests.unit.test_replay._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_marks_timeline_entries → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_marks_timeline_entries → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_marks_timeline_entries`
   - **callee**: `tests.unit.test_replay._causes`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_marks_timeline_entries → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_marks_timeline_entries → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_marks_timeline_entries`
   - **callee**: `tests.unit.test_replay._events`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_marks_timeline_entries → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_marks_timeline_entries → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_marks_timeline_entries`
   - **callee**: `tests.unit.test_replay._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_with_no_causes → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_with_no_causes → tests.unit.test_replay._events. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_with_no_causes`
   - **callee**: `tests.unit.test_replay._events`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_with_no_causes → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_with_no_causes → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_with_no_causes`
   - **callee**: `tests.unit.test_replay._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_with_no_events → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_with_no_events → tests.unit.test_replay._causes. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_with_no_events`
   - **callee**: `tests.unit.test_replay._causes`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_with_no_events → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_replay.test_replay_with_no_events → tests.unit.test_replay._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_replay.test_replay_with_no_events`
   - **callee**: `tests.unit.test_replay._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_multi_language → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_multi_language → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_repo_cloner.test_iter_source_files_multi_language`
   - **callee**: `tests.unit.test_repo_cloner._seed`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_python_only → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_python_only → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_repo_cloner.test_iter_source_files_python_only`
   - **callee**: `tests.unit.test_repo_cloner._seed`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_skips_ignored_dirs → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_skips_ignored_dirs → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_repo_cloner.test_iter_source_files_skips_ignored_dirs`
   - **callee**: `tests.unit.test_repo_cloner._seed`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_skips_min_js → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_skips_min_js → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_repo_cloner.test_iter_source_files_skips_min_js`
   - **callee**: `tests.unit.test_repo_cloner._seed`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_skips_symlinks → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_repo_cloner.test_iter_source_files_skips_symlinks → tests.unit.test_repo_cloner._seed. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_repo_cloner.test_iter_source_files_skips_symlinks`
   - **callee**: `tests.unit.test_repo_cloner._seed`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_empty_findings_always_pass → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_empty_findings_always_pass → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_empty_findings_always_pass`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_gate_lenient_fires_only_on_critical → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_gate_lenient_fires_only_on_critical → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_gate_lenient_fires_only_on_critical`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_gate_none_always_passes_even_with_critical → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_gate_none_always_passes_even_with_critical → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_gate_none_always_passes_even_with_critical`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_gate_normal_fires_on_error_and_critical → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_gate_normal_fires_on_error_and_critical → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_gate_normal_fires_on_error_and_critical`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_gate_strict_fires_on_warning_and_above → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_gate_strict_fires_on_warning_and_above → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_gate_strict_fires_on_warning_and_above`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_max_severity_is_none_when_empty → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_max_severity_is_none_when_empty → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_max_severity_is_none_when_empty`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_max_severity_picks_the_top → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_max_severity_picks_the_top → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_max_severity_picks_the_top`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_ends_with_attribution_link → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_ends_with_attribution_link → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_pr_comment_ends_with_attribution_link`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_groups_by_severity_with_details → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_groups_by_severity_with_details → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_pr_comment_groups_by_severity_with_details`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_has_badge_and_counts_line → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_has_badge_and_counts_line → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_pr_comment_has_badge_and_counts_line`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_includes_finding_rule_id_and_message → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_includes_finding_rule_id_and_message → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_pr_comment_includes_finding_rule_id_and_message`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_says_passed_when_empty → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_pr_comment_says_passed_when_empty → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_pr_comment_says_passed_when_empty`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_report_counts_buckets_correctly → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_report_counts_buckets_correctly → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_report_counts_buckets_correctly`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_falls_back_to_repo_root_when_no_file_path → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_falls_back_to_repo_root_when_no_file_path → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_sarif_falls_back_to_repo_root_when_no_file_path`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_includes_location_when_file_path_set → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_includes_location_when_file_path_set → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_sarif_includes_location_when_file_path_set`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_includes_rule_descriptors_for_known_rules → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_includes_rule_descriptors_for_known_rules → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_sarif_includes_rule_descriptors_for_known_rules`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_passing_gate_marks_execution_successful → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_passing_gate_marks_execution_successful → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_sarif_passing_gate_marks_execution_successful`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_result_level_maps_severity_correctly → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_result_level_maps_severity_correctly → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_sarif_result_level_maps_severity_correctly`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_top_level_keys_are_v2_1_0_compliant → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_sarif_top_level_keys_are_v2_1_0_compliant → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_sarif_top_level_keys_are_v2_1_0_compliant`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_unknown_gate_falls_back_to_normal → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scan.test_unknown_gate_falls_back_to_normal → tests.unit.test_scan._report. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scan.test_unknown_gate_falls_back_to_normal`
   - **callee**: `tests.unit.test_scan._report`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_retrieval_avg_top3_excludes_zero_scores → tests.unit.test_scorer._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_retrieval_avg_top3_excludes_zero_scores → tests.unit.test_scorer._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_retrieval_avg_top3_excludes_zero_scores`
   - **callee**: `tests.unit.test_scorer._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_retrieval_clamps_top_score_to_unit_range → tests.unit.test_scorer._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_retrieval_clamps_top_score_to_unit_range → tests.unit.test_scorer._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_retrieval_clamps_top_score_to_unit_range`
   - **callee**: `tests.unit.test_scorer._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_retrieval_counts_graph_expanded_in_derivation → tests.unit.test_scorer._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_retrieval_counts_graph_expanded_in_derivation → tests.unit.test_scorer._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_retrieval_counts_graph_expanded_in_derivation`
   - **callee**: `tests.unit.test_scorer._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_retrieval_uses_top_candidate_score_as_overall_score → tests.unit.test_scorer._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_retrieval_uses_top_candidate_score_as_overall_score → tests.unit.test_scorer._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_retrieval_uses_top_candidate_score_as_overall_score`
   - **callee**: `tests.unit.test_scorer._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_appends_derivation_lines → tests.unit.test_scorer._retrieval. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_appends_derivation_lines → tests.unit.test_scorer._retrieval. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_appends_derivation_lines`
   - **callee**: `tests.unit.test_scorer._retrieval`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_appends_derivation_lines → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_appends_derivation_lines → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_appends_derivation_lines`
   - **callee**: `tests.unit.test_scorer._verifier`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_discounts_per_unsupported_claim → tests.unit.test_scorer._retrieval. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_discounts_per_unsupported_claim → tests.unit.test_scorer._retrieval. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_discounts_per_unsupported_claim`
   - **callee**: `tests.unit.test_scorer._retrieval`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_discounts_per_unsupported_claim → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_discounts_per_unsupported_claim → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_discounts_per_unsupported_claim`
   - **callee**: `tests.unit.test_scorer._verifier`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_floors_score_at_zero_not_negative → tests.unit.test_scorer._retrieval. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_floors_score_at_zero_not_negative → tests.unit.test_scorer._retrieval. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_floors_score_at_zero_not_negative`
   - **callee**: `tests.unit.test_scorer._retrieval`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_floors_score_at_zero_not_negative → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_floors_score_at_zero_not_negative → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_floors_score_at_zero_not_negative`
   - **callee**: `tests.unit.test_scorer._verifier`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_keeps_score_when_all_claims_supported → tests.unit.test_scorer._retrieval. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_keeps_score_when_all_claims_supported → tests.unit.test_scorer._retrieval. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_keeps_score_when_all_claims_supported`
   - **callee**: `tests.unit.test_scorer._retrieval`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_keeps_score_when_all_claims_supported → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_keeps_score_when_all_claims_supported → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_keeps_score_when_all_claims_supported`
   - **callee**: `tests.unit.test_scorer._verifier`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_propagates_evidence_count_and_strength → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_scorer.test_score_verified_answer_propagates_evidence_count_and_strength → tests.unit.test_scorer._verifier. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_scorer.test_score_verified_answer_propagates_evidence_count_and_strength`
   - **callee**: `tests.unit.test_scorer._verifier`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_state_diff.test_diff_finds_deployments_during_window → tests.unit.test_state_diff._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_state_diff.test_diff_finds_deployments_during_window → tests.unit.test_state_diff._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_state_diff.test_diff_finds_deployments_during_window`
   - **callee**: `tests.unit.test_state_diff._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_state_diff.test_diff_finds_metric_deltas → tests.unit.test_state_diff._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_state_diff.test_diff_finds_metric_deltas → tests.unit.test_state_diff._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_state_diff.test_diff_finds_metric_deltas`
   - **callee**: `tests.unit.test_state_diff._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_state_diff.test_diff_includes_services_from_incident → tests.unit.test_state_diff._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_state_diff.test_diff_includes_services_from_incident → tests.unit.test_state_diff._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_state_diff.test_diff_includes_services_from_incident`
   - **callee**: `tests.unit.test_state_diff._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_state_diff.test_diff_returns_empty_when_no_events → tests.unit.test_state_diff._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_state_diff.test_diff_returns_empty_when_no_events → tests.unit.test_state_diff._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_state_diff.test_diff_returns_empty_when_no_events`
   - **callee**: `tests.unit.test_state_diff._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_create_team_returns_api_key_with_team_id_prefix → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_create_team_returns_api_key_with_team_id_prefix → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_create_team_returns_api_key_with_team_id_prefix`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_create_team_returns_api_key_with_team_id_prefix → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_create_team_returns_api_key_with_team_id_prefix → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_create_team_returns_api_key_with_team_id_prefix`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_revoke_returns_false_when_already_revoked_or_missing → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_revoke_returns_false_when_already_revoked_or_missing → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_revoke_returns_false_when_already_revoked_or_missing`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_revoke_returns_false_when_already_revoked_or_missing → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_revoke_returns_false_when_already_revoked_or_missing → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_revoke_returns_false_when_already_revoked_or_missing`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_revoke_returns_true_when_row_affected → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_revoke_returns_true_when_row_affected → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_revoke_returns_true_when_row_affected`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_revoke_returns_true_when_row_affected → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_revoke_returns_true_when_row_affected → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_revoke_returns_true_when_row_affected`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_rotate_key_mints_new_secret_for_existing_team → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_rotate_key_mints_new_secret_for_existing_team → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_rotate_key_mints_new_secret_for_existing_team`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_rotate_key_mints_new_secret_for_existing_team → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_rotate_key_mints_new_secret_for_existing_team → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_rotate_key_mints_new_secret_for_existing_team`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_rotate_key_raises_on_unknown_team → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_rotate_key_raises_on_unknown_team → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_rotate_key_raises_on_unknown_team`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_rotate_key_raises_on_unknown_team → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_rotate_key_raises_on_unknown_team → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_rotate_key_raises_on_unknown_team`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_rejects_wrong_secret_with_matching_team_id → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_rejects_wrong_secret_with_matching_team_id → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_verify_key_rejects_wrong_secret_with_matching_team_id`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_rejects_wrong_secret_with_matching_team_id → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_rejects_wrong_secret_with_matching_team_id → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_verify_key_rejects_wrong_secret_with_matching_team_id`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_none_on_revoked_team → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_none_on_revoked_team → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_verify_key_returns_none_on_revoked_team`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_none_on_revoked_team → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_none_on_revoked_team → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_verify_key_returns_none_on_revoked_team`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_none_on_unknown_team → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_none_on_unknown_team → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_verify_key_returns_none_on_unknown_team`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_none_on_unknown_team → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_none_on_unknown_team → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_verify_key_returns_none_on_unknown_team`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_team_id_on_valid_active_key → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_team_id_on_valid_active_key → tests.unit.test_teams._mock_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_verify_key_returns_team_id_on_valid_active_key`
   - **callee**: `tests.unit.test_teams._mock_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_team_id_on_valid_active_key → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_teams.test_verify_key_returns_team_id_on_valid_active_key → tests.unit.test_teams._mock_cursor. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_teams.test_verify_key_returns_team_id_on_valid_active_key`
   - **callee**: `tests.unit.test_teams._mock_cursor`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_explicit_reference_boosts_when_commit_sha_in_summary → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_explicit_reference_boosts_when_commit_sha_in_summary → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_explicit_reference_boosts_when_commit_sha_in_summary`
   - **callee**: `tests.unit.test_temporal_linker._candidate`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_explicit_reference_boosts_when_deploy_id_in_summary → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_explicit_reference_boosts_when_deploy_id_in_summary → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_explicit_reference_boosts_when_deploy_id_in_summary`
   - **callee**: `tests.unit.test_temporal_linker._candidate`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_explicit_reference_caps_at_one → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_explicit_reference_caps_at_one → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_explicit_reference_caps_at_one`
   - **callee**: `tests.unit.test_temporal_linker._candidate`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_explicit_reference_no_match_leaves_unchanged → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_explicit_reference_no_match_leaves_unchanged → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_explicit_reference_no_match_leaves_unchanged`
   - **callee**: `tests.unit.test_temporal_linker._candidate`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_find_causes_passes_through_filters → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_find_causes_passes_through_filters → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_find_causes_passes_through_filters`
   - **callee**: `tests.unit.test_temporal_linker._deploy`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_find_causes_passes_through_filters → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_find_causes_passes_through_filters → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_find_causes_passes_through_filters`
   - **callee**: `tests.unit.test_temporal_linker._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_lagged_correlation_boosts_deploy_on_affected_service → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_lagged_correlation_boosts_deploy_on_affected_service → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_lagged_correlation_boosts_deploy_on_affected_service`
   - **callee**: `tests.unit.test_temporal_linker._candidate`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_lagged_correlation_caps_at_one → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_lagged_correlation_caps_at_one → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_lagged_correlation_caps_at_one`
   - **callee**: `tests.unit.test_temporal_linker._candidate`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_lagged_correlation_does_not_boost_deploy_not_on_affected → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_lagged_correlation_does_not_boost_deploy_not_on_affected → tests.unit.test_temporal_linker._candidate. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_lagged_correlation_does_not_boost_deploy_not_on_affected`
   - **callee**: `tests.unit.test_temporal_linker._candidate`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_applies_all_three_strategies → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_applies_all_three_strategies → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_applies_all_three_strategies`
   - **callee**: `tests.unit.test_temporal_linker._deploy`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_applies_all_three_strategies → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_applies_all_three_strategies → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_applies_all_three_strategies`
   - **callee**: `tests.unit.test_temporal_linker._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_applies_lagged_correlation → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_applies_lagged_correlation → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_applies_lagged_correlation`
   - **callee**: `tests.unit.test_temporal_linker._deploy`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_applies_lagged_correlation → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_applies_lagged_correlation → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_applies_lagged_correlation`
   - **callee**: `tests.unit.test_temporal_linker._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_drops_below_confidence_floor → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_drops_below_confidence_floor → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_drops_below_confidence_floor`
   - **callee**: `tests.unit.test_temporal_linker._deploy`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_drops_below_confidence_floor → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_drops_below_confidence_floor → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_drops_below_confidence_floor`
   - **callee**: `tests.unit.test_temporal_linker._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_drops_events_after_incident → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_drops_events_after_incident → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_drops_events_after_incident`
   - **callee**: `tests.unit.test_temporal_linker._deploy`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_drops_events_after_incident → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_drops_events_after_incident → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_drops_events_after_incident`
   - **callee**: `tests.unit.test_temporal_linker._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_orders_candidates_by_confidence_desc → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_orders_candidates_by_confidence_desc → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_orders_candidates_by_confidence_desc`
   - **callee**: `tests.unit.test_temporal_linker._deploy`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_orders_candidates_by_confidence_desc → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_orders_candidates_by_confidence_desc → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_orders_candidates_by_confidence_desc`
   - **callee**: `tests.unit.test_temporal_linker._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_respects_limit → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_respects_limit → tests.unit.test_temporal_linker._deploy. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_respects_limit`
   - **callee**: `tests.unit.test_temporal_linker._deploy`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_respects_limit → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_temporal_linker.test_score_incident_respects_limit → tests.unit.test_temporal_linker._incident. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_temporal_linker.test_score_incident_respects_limit`
   - **callee**: `tests.unit.test_temporal_linker._incident`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_tool_capture_and_deletion.test_clear_all_deletes_everything → tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_tool_capture_and_deletion.test_clear_all_deletes_everything → tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_tool_capture_and_deletion.test_clear_all_deletes_everything`
   - **callee**: `tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_tool_capture_and_deletion.test_forget_session_deletes_matching_rows → tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_tool_capture_and_deletion.test_forget_session_deletes_matching_rows → tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_tool_capture_and_deletion.test_forget_session_deletes_matching_rows`
   - **callee**: `tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_tool_capture_and_deletion.test_forget_session_returns_zero_when_nothing_matches → tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_tool_capture_and_deletion.test_forget_session_returns_zero_when_nothing_matches → tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_tool_capture_and_deletion.test_forget_session_returns_zero_when_nothing_matches`
   - **callee**: `tests.unit.test_tool_capture_and_deletion._store_with_mocked_conn`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_collects_symbols_for_top_level_const_and_var → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_collects_symbols_for_top_level_const_and_var → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_collects_symbols_for_top_level_const_and_var`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_async_arrow_function → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_async_arrow_function → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_extracts_async_arrow_function`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_call_sites_inside_function → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_call_sites_inside_function → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_extracts_call_sites_inside_function`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_class_with_methods → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_class_with_methods → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_extracts_class_with_methods`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_imports_named_default_and_namespace → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_imports_named_default_and_namespace → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_extracts_imports_named_default_and_namespace`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_named_arrow_function → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_named_arrow_function → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_extracts_named_arrow_function`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_top_level_function_declaration → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_extracts_top_level_function_declaration → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_extracts_top_level_function_declaration`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_handles_export_statements → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_handles_export_statements → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_handles_export_statements`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_loc_count → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_loc_count → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_loc_count`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_records_parse_errors_without_crashing → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_javascript.test_records_parse_errors_without_crashing → tests.unit.test_treesitter_parser_javascript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_javascript.test_records_parse_errors_without_crashing`
   - **callee**: `tests.unit.test_treesitter_parser_javascript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_collects_symbols_with_qualified_names → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_collects_symbols_with_qualified_names → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_collects_symbols_with_qualified_names`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_async_function → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_async_function → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_extracts_async_function`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_calls_inside_function → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_calls_inside_function → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_extracts_calls_inside_function`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_class_with_methods → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_class_with_methods → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_extracts_class_with_methods`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_decorators → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_decorators → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_extracts_decorators`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_imports → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_imports → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_extracts_imports`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_top_level_function → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_extracts_top_level_function → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_extracts_top_level_function`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_loc_count → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_loc_count → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_loc_count`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_parses_empty_file → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_parses_empty_file → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_parses_empty_file`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_records_parse_errors_without_crashing → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_python.test_records_parse_errors_without_crashing → tests.unit.test_treesitter_parser_python._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_python.test_records_parse_errors_without_crashing`
   - **callee**: `tests.unit.test_treesitter_parser_python._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_tsx.test_extracts_arrow_function_component → tests.unit.test_treesitter_parser_tsx._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_tsx.test_extracts_arrow_function_component → tests.unit.test_treesitter_parser_tsx._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_tsx.test_extracts_arrow_function_component`
   - **callee**: `tests.unit.test_treesitter_parser_tsx._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_tsx.test_extracts_function_component_with_jsx → tests.unit.test_treesitter_parser_tsx._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_tsx.test_extracts_function_component_with_jsx → tests.unit.test_treesitter_parser_tsx._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_tsx.test_extracts_function_component_with_jsx`
   - **callee**: `tests.unit.test_treesitter_parser_tsx._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_tsx.test_handles_react_class_component → tests.unit.test_treesitter_parser_tsx._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_tsx.test_handles_react_class_component → tests.unit.test_treesitter_parser_tsx._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_tsx.test_handles_react_class_component`
   - **callee**: `tests.unit.test_treesitter_parser_tsx._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_tsx.test_records_parse_errors_without_crashing → tests.unit.test_treesitter_parser_tsx._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_tsx.test_records_parse_errors_without_crashing → tests.unit.test_treesitter_parser_tsx._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_tsx.test_records_parse_errors_without_crashing`
   - **callee**: `tests.unit.test_treesitter_parser_tsx._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_extracts_class_with_typed_methods → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_extracts_class_with_typed_methods → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_typescript.test_extracts_class_with_typed_methods`
   - **callee**: `tests.unit.test_treesitter_parser_typescript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_extracts_imports_and_marks_relative → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_extracts_imports_and_marks_relative → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_typescript.test_extracts_imports_and_marks_relative`
   - **callee**: `tests.unit.test_treesitter_parser_typescript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_extracts_typed_arrow_function → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_extracts_typed_arrow_function → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_typescript.test_extracts_typed_arrow_function`
   - **callee**: `tests.unit.test_treesitter_parser_typescript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_extracts_typed_function_declaration → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_extracts_typed_function_declaration → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_typescript.test_extracts_typed_function_declaration`
   - **callee**: `tests.unit.test_treesitter_parser_typescript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_records_parse_errors_without_crashing → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_records_parse_errors_without_crashing → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_typescript.test_records_parse_errors_without_crashing`
   - **callee**: `tests.unit.test_treesitter_parser_typescript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_skips_interface_and_type_alias_declarations → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_treesitter_parser_typescript.test_skips_interface_and_type_alias_declarations → tests.unit.test_treesitter_parser_typescript._parse. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_treesitter_parser_typescript.test_skips_interface_and_type_alias_declarations`
   - **callee**: `tests.unit.test_treesitter_parser_typescript._parse`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_caps_claims_count → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_caps_claims_count → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_verifier.test_verifier_caps_claims_count`
   - **callee**: `tests.unit.test_verifier._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_parses_response_via_regex_fallback → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_parses_response_via_regex_fallback → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_verifier.test_verifier_parses_response_via_regex_fallback`
   - **callee**: `tests.unit.test_verifier._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_parses_response_wrapped_in_fenced_block → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_parses_response_wrapped_in_fenced_block → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_verifier.test_verifier_parses_response_wrapped_in_fenced_block`
   - **callee**: `tests.unit.test_verifier._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_parses_strict_json_response → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_parses_strict_json_response → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_verifier.test_verifier_parses_strict_json_response`
   - **callee**: `tests.unit.test_verifier._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_returns_empty_claims_when_parse_fails → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_returns_empty_claims_when_parse_fails → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_verifier.test_verifier_returns_empty_claims_when_parse_fails`
   - **callee**: `tests.unit.test_verifier._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_sends_system_prompt_and_includes_snippets_in_user_message → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_sends_system_prompt_and_includes_snippets_in_user_message → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_verifier.test_verifier_sends_system_prompt_and_includes_snippets_in_user_message`
   - **callee**: `tests.unit.test_verifier._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_skips_gracefully_on_router_error → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_skips_gracefully_on_router_error → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_verifier.test_verifier_skips_gracefully_on_router_error`
   - **callee**: `tests.unit.test_verifier._cand`
-- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_skips_when_answer_is_empty → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:16:17.511986
+- **`drift/new_dependency`** — New dependency: tests.unit.test_verifier.test_verifier_skips_when_answer_is_empty → tests.unit.test_verifier._cand. This edge was absent in the baseline captured at 2026-05-30T17:19:40.551068
   - **caller**: `tests.unit.test_verifier.test_verifier_skips_when_answer_is_empty`
   - **callee**: `tests.unit.test_verifier._cand`
 </details>
