@@ -140,15 +140,18 @@ def _finding_to_result(f: ScanFinding) -> dict[str, Any]:
         "level": _SEVERITY_TO_SARIF_LEVEL[f.severity],
         "message": {"text": f.message},
     }
-    if f.file_path:
-        loc: dict[str, Any] = {
-            "physicalLocation": {
-                "artifactLocation": {"uri": f.file_path},
-            }
+    # GitHub Code Scanning rejects results with zero locations. Drift
+    # findings often have no file (they're about edges in the call
+    # graph, not lines in a file), so fall back to a repo-root
+    # placeholder so the result still validates.
+    loc: dict[str, Any] = {
+        "physicalLocation": {
+            "artifactLocation": {"uri": f.file_path or "."},
         }
-        if f.line:
-            loc["physicalLocation"]["region"] = {"startLine": f.line}
-        out["locations"] = [loc]
+    }
+    if f.line:
+        loc["physicalLocation"]["region"] = {"startLine": f.line}
+    out["locations"] = [loc]
     if f.derivation:
         # SARIF supports `relatedLocations` for context; we encode the
         # derivation trail as a single related-location message bundle.

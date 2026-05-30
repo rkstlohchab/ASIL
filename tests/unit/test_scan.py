@@ -217,10 +217,14 @@ def test_sarif_includes_location_when_file_path_set():
     assert loc["physicalLocation"]["region"]["startLine"] == 10
 
 
-def test_sarif_omits_locations_when_no_file_path():
+def test_sarif_falls_back_to_repo_root_when_no_file_path():
+    # GitHub Code Scanning rejects results with zero locations, so
+    # findings without a file_path (drift edges, scan-level errors)
+    # must still emit a synthetic location pointing at repo root.
     findings = [ScanFinding(rule_id="x", severity=Severity.note, message="")]
     out = to_sarif(_report(findings))
-    assert "locations" not in out["runs"][0]["results"][0]
+    loc = out["runs"][0]["results"][0]["locations"][0]
+    assert loc["physicalLocation"]["artifactLocation"]["uri"] == "."
 
 
 def test_sarif_includes_rule_descriptors_for_known_rules():
